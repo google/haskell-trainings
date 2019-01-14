@@ -1,0 +1,1699 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Header
+
+\documentclass[17pt]{beamer}
+
+\usepackage[english]{babel}
+\usepackage{amssymb}
+\usepackage{beamerthemesplit}
+\usepackage{calc}
+\usepackage{colortbl}
+\usepackage{floatflt}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{soul}
+\usepackage{xunicode}
+
+\usepackage[no-math]{fontspec}
+\usepackage{fdsymbol}
+
+\title{Haskell 102}
+\author{nicuveo@}
+%\institute{Google}
+\date{\small\today}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Customization
+
+\input{theme}
+
+\renewcommand{\(}[1]{\begin{columns}[#1]}
+\renewcommand{\)}{\end{columns}}
+\newcommand{\<}[1]{\begin{column}{#1}}
+\renewcommand{\>}{\end{column}}
+
+\newcommand{\Split}[3][.5]{%
+\({c}%
+  \<{{#1}\linewidth}%
+  \begin{minipage}[c][.8\textheight]{\linewidth}%
+  \begin{center}%
+    {#2}%
+  \end{center}%
+  \end{minipage}%
+  \>%
+  \<{\linewidth-{#1}\linewidth}%
+  \begin{minipage}[c][.8\textheight]{\linewidth}%
+  \begin{center}%
+    {#3}%
+  \end{center}%
+  \end{minipage}
+  \>%
+\)%
+}
+
+\newcommand<>{\Image}[3][]{%
+\IfFileExists{#3.png}{%
+\includegraphics#4[width=\linewidth,height=#2,keepaspectratio,#1]{#3}%
+}{%
+\IfFileExists{#3.jpg}{%
+\includegraphics#4[width=\linewidth,height=#2,keepaspectratio,#1]{#3}%
+}{%
+\includegraphics#4[width=\linewidth,height=#2,keepaspectratio,#1]{img/placeholder}%
+}}}
+
+\newenvironment{TopAlign}[2][1]{\begin{minipage}[t][#2\textheight]{#1\linewidth}}{\end{minipage}}
+
+\newcommand{\pc}[1]{{\footnotesize\texttt{#1}}}
+\newcommand<>{\opc}[1]{\only#2{\pc{#1}}}
+\newcommand<>{\upc}[1]{\uncover#2{\pc{#1}}}
+\newcommand<>{\oic}[1]{\only#2{\ic{#1}}}
+\newcommand<>{\uic}[1]{\uncover#2{\ic{#1}}}
+
+\def\shruggie{\texttt{\raisebox{0.75em}{\char`\_}\char`\\\char`\_\kern-0.5ex(\kern-0.25ex\raisebox{0.25ex}{\rotatebox{45}{\raisebox{-.75ex}"\kern-1.5ex\rotatebox{-90})}}\kern-0.5ex)\kern-0.5ex\char`\_/\raisebox{0.75em}{\char`\_}}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Document
+
+\begin{document}
+
+
+
+%% Title frame
+
+\togglefalse{showpagenumber}
+\begin{frame}[fragile]
+  \titlepage
+\end{frame}
+\toggletrue{showpagenumber}
+\setcounter{framenumber}{0}
+
+
+
+%% Intro
+
+\section{Intro}
+
+\begin{frame}
+\frametitle{Goals}
+\Split{%
+  \begin{itemize}
+  \item 101: basic skills
+    \begin{itemize}
+    \item Reading function types
+    \item Pattern matching
+    \item Data structures
+  \end{itemize}
+  \end{itemize}
+  \begin{itemize}
+  \item 102: first project
+    \begin{itemize}
+    \item Genericity
+    \item IO and do notation
+    \item Build a game!
+  \end{itemize}
+  \end{itemize}
+}{%
+  \Image{3cm}{img/success}
+}%
+\end{frame}
+
+\begin{frame}
+\frametitle{Roadmap}
+\Split{%
+\begin{TopAlign}{.52}
+  \begin{itemize}
+  \item 101 Recap
+  \item Remaining obstacles
+  \item Typeclasses overview
+  \item \alt<2>{Typeclasses}{Common examples}
+  \item \alt<2>{Typeclasses}{Advanced syntax}
+  \item<2> Typeclasses
+  \item<2> Typeclasses\ldots
+  \end{itemize}
+\end{TopAlign}
+}{%
+  \alt<2>{%
+    \Image{4cm}{img/pinkie-ko}
+  }{%
+    \Image{4cm}{img/pinkie-ok}
+  }
+}%
+\end{frame}
+
+\begin{frame}
+\frametitle{Checklist}
+\Split[.6]{%
+  \begin{itemize}
+  \item Haskell 101
+  \item download the codelab
+  \item apt-get install haskell-platform
+  \end{itemize}
+}{%
+  \Image{4cm}{img/checklist}
+}%
+\end{frame}
+
+
+
+%% Recap 101
+
+\section{Recap}
+
+\begin{frame}
+\frametitle{Curried functions, partial application}
+\begin{center}
+\begin{tabular}{ l c r }
+  \uncover<2->{\\\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int -> ( Int -> [Int] )}}
+  \uncover<1->{\\\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int ->   Int -> [Int]}}
+  \uncover<3->{\\\inlinecode{f 1}    &\inlinecode{::}&\inlinecode{         Int -> [Int]}}
+  \uncover<5->{\\\inlinecode{f 1 2}  &\inlinecode{::}&\inlinecode{                [Int]}}
+  \uncover<4->{\\\inlinecode{(f 1) 2}&\inlinecode{::}&\inlinecode{                [Int]}}
+\end{tabular}
+~\\~\\~\\
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Type constructors}
+\begin{center}
+\begin{uncoverenv}<1->
+  \begin{code}
+      -- enum
+      data Bool  = False | True
+      data Color = Red | Green | Blue
+  \end{code}
+\end{uncoverenv}
+\begin{uncoverenv}<2->
+  \begin{code}
+      -- struct
+      data Point = Point { x :: Double, y :: Double }
+  \end{code}
+\end{uncoverenv}
+\begin{uncoverenv}<3->
+  \begin{onlyenv}<-3>
+    \begin{code}
+      -- a bit more interesting
+      data Minutes = Minutes Int
+      data Maybe a = Nothing | Just a
+      data List a  = Nil | Cell a (List a)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \begin{code}
+      -- a bit more interesting
+      data Minutes = Minutes Int
+      data Maybe a = Nothing | Just a
+      data [a]     = [] | (a:[a])
+    \end{code}
+  \end{onlyenv}
+\end{uncoverenv}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{"Deconstructors" and pattern matching}
+\begin{center}
+\begin{uncoverenv}<1->
+  \begin{code}
+      not :: Bool -> Bool
+      not True  = False
+      not False = True
+  \end{code}
+\end{uncoverenv}
+\begin{uncoverenv}<2->
+  \begin{code}
+      magnitude :: Point -> Double
+      magnitude (Point x y) = sqrt $ x^2 + y^2
+  \end{code}%$
+\end{uncoverenv}
+\begin{uncoverenv}<3->
+  \begin{code}
+      length :: [a] -> Int
+      length []     = 0
+      length (_:xs) = 1 + length xs
+  \end{code}
+\end{uncoverenv}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{We know}
+\begin{center}
+\begin{minipage}[c]{.8\linewidth}
+\begin{itemize}
+  \item how to read function types
+  \item how to declare new types
+  \item how to do pattern matching
+\end{itemize}
+\end{minipage}
+\end{center}
+\end{frame}
+
+
+
+%% Shortcomings
+
+\section{Obstacles}
+
+\begin{frame}[fragile]
+\frametitle{Our types are limited}
+\Split[.64]{%
+\begin{TopAlign}{.5}
+\begin{flushleft}
+               \footnotesize\texttt{\$ ghci}                                                ~\\
+\uncover<1->  {\footnotesize\texttt{> \uncover<2-> {\ic{data Color = Red | Green | Blue}}}} ~\\
+\uncover<3->  {\footnotesize\texttt{> \uncover<4-> {\ic{let mycolor = Red}}}}               ~\\
+\begin{onlyenv}<5-7>
+\uncover<5-7> {\footnotesize\texttt{> \uncover<6-7>{\ic{mycolor}}}}                         ~\\
+\uncover<7>   {\footnotesize\texttt{~~~~No instance for (Show Color)}}                      ~\\
+\uncover<7>   {\footnotesize\texttt{~~~~arising from a use of `print'}}                     ~\\
+\end{onlyenv}
+\begin{onlyenv}<8-10>
+\uncover<8-10>{\footnotesize\texttt{> \uncover<9-10>{\ic{mycolor == Red}}}}                 ~\\
+\uncover<10>  {\footnotesize\texttt{~~~~No instance for (Eq Color)}}                        ~\\
+\uncover<10>  {\footnotesize\texttt{~~~~arising from a use of `(==)'}}                      ~\\
+\end{onlyenv}
+\end{flushleft}
+\end{TopAlign}
+}{%
+\Image<1-6,8-9>{4cm}{img/rarity-surprised}
+\Image<7>{4.2cm}{img/rarity-angry}
+\Image<10>{4cm}{img/rarity-confused}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Type parameters constraints?}
+~\\
+\begin{code}
+  sumI :: [Int] -> Int        sumD :: [Double] -> Double
+  sumI = foldl' (+) 0         sumD = foldl' (+) 0
+\end{code}
+\pause~\\
+\begin{code}
+                  sum :: [a] -> a
+                  sum = foldl' (+) 0
+\end{code}
+\pause
+\vspace{-1.5cm}
+\Split[0.55]{%
+\begin{flushleft}
+\footnotesize
+\texttt{~~No instance for (Num a)}\\
+\texttt{~~arising from a use of `(+)'}
+\end{flushleft}
+}{%
+\vspace{1cm}
+\Image{4cm}{img/derpy-shrug}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Cascading context}
+  \begin{TopAlign}{1.0}
+  \begin{onlyenv}<1>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+  \end{code}
+  \begin{center}
+  \vspace{2.22cm}
+  \hspace{4cm}\Image{4cm}{img/fluttershy-walking}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+  \end{code}
+  \begin{center}
+  \vspace{.57cm}
+  \hspace{3cm}\Image{4cm}{img/fluttershy-walking}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId =
+  \end{code}
+  \begin{center}
+  \vspace{-.2cm}
+  \Image{4cm}{img/fluttershy-curious}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+  \end{code}
+  \begin{center}
+  \vspace{-.2cm}
+  \Image{4cm}{img/fluttershy-curious}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<5>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+  \end{code}
+  \begin{center}
+  \vspace{0.24cm}
+  \Image{3cm}{img/fluttershy-scared}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<6>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user ->
+  \end{code}
+  \begin{center}
+  \vspace{-.25cm}
+  \Image{3cm}{img/fluttershy-scared}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<7>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user -> case getNextOfKin user of
+  \end{code}
+  \begin{center}
+  \vspace{-.25cm}
+  \Image{3cm}{img/fluttershy-scared}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<8>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user -> case getNextOfKin user of
+        Nothing          -> Nothing
+  \end{code}
+  \begin{center}
+  \vspace{.09cm}
+  \Image{2.2cm}{img/fluttershy-flat}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<9>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user -> case getNextOfKin user of
+        Nothing          -> Nothing
+        Just nextOfKinId ->
+  \end{code}
+  \begin{center}
+  \vspace{-.4cm}
+  \Image{2.2cm}{img/fluttershy-flat}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<10>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user -> case getNextOfKin user of
+        Nothing          -> Nothing
+        Just nextOfKinId -> case getUser nextOfKinId of
+  \end{code}
+  \begin{center}
+  \vspace{-.4cm}
+  \Image{2.2cm}{img/fluttershy-flat}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<11>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user -> case getNextOfKin user of
+        Nothing          -> Nothing
+        Just nextOfKinId -> case getUser nextOfKinId of
+            Nothing        -> Nothing
+  \end{code}
+  \begin{center}
+  \vspace{-.15cm}
+  \Image{4cm}{img/fluttershy-screaming}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<12>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user -> case getNextOfKin user of
+        Nothing          -> Nothing
+        Just nextOfKinId -> case getUser nextOfKinId of
+            Nothing        -> Nothing
+            Just nextOfKin ->
+  \end{code}
+  \begin{center}
+  \vspace{-.64cm}
+  \Image{4cm}{img/fluttershy-screaming}
+  \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<13>
+  \begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber userId = case getUser userId of
+    Nothing   -> Nothing
+    Just user -> case getNextOfKin user of
+        Nothing          -> Nothing
+        Just nextOfKinId -> case getUser nextOfKinId of
+            Nothing        -> Nothing
+            Just nextOfKin -> getPhoneNumber nextOfKin
+  \end{code}
+  \begin{center}
+  \vspace{-.64cm}
+  \Image{4cm}{img/fluttershy-screaming}
+  \end{center}
+  \end{onlyenv}
+  \end{TopAlign}
+\end{frame}
+
+\begin{frame}
+\frametitle{IO}
+\begin{TopAlign}{.1}
+\begin{itemize}
+  \item<1-> Can't apply regular functions on IO values
+  \item<7-> Can't get values out of IO
+  \item<9-> Can't pattern match on IO
+\end{itemize}
+\end{TopAlign}
+\Split[0.6]{%
+\begin{onlyenv}<2-6>
+  \begin{flushleft}
+               \footnotesize\texttt{\$ ghci}                                                  ~\\
+  \uncover<2->{\footnotesize\texttt{> \uncover<3-> {\ic{let name = getLine -- IO String}}}}   ~\\
+  \uncover<4->{\footnotesize\texttt{> \uncover<5-> {\ic{putStr \$ "Hello " ++ name ++ "!"}}}} ~\\
+  \uncover<6->{\footnotesize\texttt{~~~~Expected type: `String'}}                             ~\\
+  \uncover<6->{\footnotesize\texttt{~~~~~~Actual type: `IO String'}}                          ~\\
+  \uncover<6->{\footnotesize\texttt{~~~~In second argument of (++)}}                          ~\\
+  \end{flushleft}
+\end{onlyenv}
+\only<8>{IO is impure}
+\only<10>{IO's implementation\\details are hidden}
+}{%
+\Image<1,7>{4.2cm}{img/twilight-thinking}
+\Image<2-5>{4cm}{img/twilight-focus}
+\Image<6>{4.2cm}{img/twilight-scared}
+\only<8>{\vspace{0.2cm}}
+\Image<8>{3.8cm}{img/twilight-disgust}
+\only<9>{\vspace{0.2cm}}
+\Image<9>{3.8cm}{img/twilight-jaded-2}
+\only<10>{\vspace{0.2cm}\hspace{-0.5cm}}
+\Image<10>{3.8cm}{img/twilight-jaded}
+}
+\end{frame}
+
+\begin{frame}
+\frametitle{We don't know}
+\begin{center}
+\begin{minipage}[c]{.8\linewidth}
+\begin{itemize}
+  \item how to extend our data types
+  \item how to express type constraints
+  \item how to chain contextual functions
+  \item how to use IO
+\end{itemize}
+\end{minipage}
+\end{center}
+\end{frame}
+
+\section{Typeclasses}
+
+\begin{frame}[fragile]
+\frametitle{Typeclasses}
+\({c}%
+  \<{.7\linewidth}%
+  \begin{minipage}[t][.6\textheight]{\linewidth}%
+\begin{onlyenv}<1>
+\begin{code}
+    class Show a where
+        show :: a -> String
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{code}
+    class Show a where
+        show :: a -> String
+
+    data Color = Red | Green | Blue
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\begin{code}
+    class Show a where
+        show :: a -> String
+
+    data Color = Red | Green | Blue
+
+    instance Show Color where
+        show Red   = "Red"
+        show Green = "Green"
+        show Blue  = "Blue"
+\end{code}
+\end{onlyenv}
+  \end{minipage}%
+  \>%
+  \<{.3\linewidth}%
+  \begin{minipage}[c][.8\textheight]{\linewidth}%
+  \begin{center}%
+    \vspace{2cm}
+    \Image{4.2cm}{img/rainbow-5}
+  \end{center}%
+  \end{minipage}
+  \>%
+\)%
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Constraints}
+\({c}%
+  \<{.26\linewidth}%
+  \begin{minipage}[c][.8\textheight]{\linewidth}%
+  \begin{center}%
+    \vspace{2cm}
+    \Image<1-3>{4cm}{img/rainbow-1}
+    \Image<4-5>{4cm}{img/rainbow-defiant}
+    \Image<6>{4cm}{img/rainbow-concerned}
+    \Image<7>{4cm}{img/rainbow-ok}
+  \end{center}%
+  \end{minipage}
+  \>%
+  \<{.74\linewidth}%
+  \begin{minipage}[t][.5\textheight]{\linewidth}%
+\begin{onlyenv}<1>
+\begin{code}
+  show :: Show a => a -> String
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{code}
+  show :: Show a => a -> String
+  sum  :: Num a  => [a] -> a
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\begin{code}
+  show :: Show a => a -> String
+  sum  :: Num a  => [a] -> a
+  (==) :: Eq a   => a -> a -> Bool
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+\begin{code}
+  show :: Show a => a -> String
+  sum  :: Num a  => [a] -> a
+  (==) :: Eq a   => a -> a -> Bool
+
+  instance Show (Maybe a) where
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<5>
+\begin{code}
+  show :: Show a => a -> String
+  sum  :: Num a  => [a] -> a
+  (==) :: Eq a   => a -> a -> Bool
+
+  instance Show (Maybe a) where
+      show Nothing  = "Nothing"
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{code}
+  show :: Show a => a -> String
+  sum  :: Num a  => [a] -> a
+  (==) :: Eq a   => a -> a -> Bool
+
+  instance Show (Maybe a) where
+      show Nothing  = "Nothing"
+      show (Just x) = "Just " ++ show x
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<7>
+\begin{code}
+  show :: Show a => a -> String
+  sum  :: Num a  => [a] -> a
+  (==) :: Eq a   => a -> a -> Bool
+
+  instance Show a => Show (Maybe a) where
+      show Nothing  = "Nothing"
+      show (Just x) = "Just " ++ show x
+\end{code}
+\end{onlyenv}
+  \end{minipage}%
+  \>%
+\)%
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Quick tour}
+\frametitle<9->{Quick boring tour...}
+\begin{center}
+\begin{minipage}[t][.2\textheight]{.8\linewidth}
+\begin{center}
+\begin{tabular}{ c c c c c c }
+\alt<2-5>{Show}{\color{lightgray}Show}&
+\alt<4-5>{Read}{\color{lightgray}Read}&
+\alt<6-8>{Eq}{\color{lightgray}Eq}&
+\alt<9-10>{Ord}{\color{lightgray}Ord}&
+\alt<11>{Bounded}{\color{lightgray}Bounded}&
+\alt<12>{Enum}{\color{lightgray}Enum}
+\end{tabular}
+\hrule
+\end{center}
+\end{minipage}
+~\\
+\begin{minipage}[t][.6\textheight]{.8\linewidth}
+\begin{onlyenv}<1>
+\begin{code}
+data Color = Red | Green | Blue
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2-5>
+\begin{code}
+data Color = Red | Green | Blue
+\end{code}
+\begin{flushleft}\footnotesize
+~\\\uncover<2->{\texttt{> show Blue}}
+~\\\uncover<3->{\texttt{"Blue"}}
+~\\\uncover<4->{\texttt{> read "Green" :: Color}}
+~\\\uncover<5->{\texttt{Green}}
+\end{flushleft}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{code}
+data Color = Red | Green | Blue
+
+class Eq a where
+    (==) :: a -> a -> Bool
+    (/=) :: a -> a -> Bool
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<7>
+\begin{code}
+data Color = Red | Green | Blue
+
+class Eq a where
+    (==) :: a -> a -> Bool
+    (/=) :: a -> a -> Bool
+    a == b = not $ a /= b
+    a /= b = not $ a == b
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<8>
+\begin{code}
+data Color = Red | Green | Blue
+
+instance Eq Color where
+    Red   == Red   = True
+    Green == Green = True
+    Blue  == Blue  = True
+    _     == _     = False
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<9>
+\begin{code}
+data Color = Red | Green | Blue
+
+class Eq a => Ord a where
+    compare :: a -> a -> Ordering
+    (<=)    :: a -> a -> Bool
+    (>=)    :: a -> a -> Bool
+    (<)     :: a -> a -> Bool
+    (>)     :: a -> a -> Bool
+    max     :: a -> a -> a
+    min     :: a -> a -> a
+\end{code}
+\vspace{-1.9cm}
+\hspace{6.2cm}
+\Image{2.8cm}{img/fluttershy-bored-1}
+\end{onlyenv}
+\begin{onlyenv}<10>
+\begin{code}
+data Color = Red | Green | Blue
+
+class Eq a => Ord a where
+    compare :: a -> a -> Ordering
+    (<=)    :: a -> a -> Bool
+\end{code}
+\vspace{0.6cm}
+\hspace{6.2cm}
+\Image{2.8cm}{img/fluttershy-bored-2}
+\end{onlyenv}
+\begin{onlyenv}<11>
+\begin{code}
+data Color = Red | Green | Blue
+
+class Bounded a where
+    minBound :: a
+    maxBound :: a
+\end{code}
+\vspace{0.6cm}
+\hspace{6.2cm}
+\Image{2.8cm}{img/fluttershy-bored-3}
+\end{onlyenv}
+\begin{onlyenv}<12>
+\begin{code}
+data Color = Red | Green | Blue
+
+class Enum a where
+    succ           :: a -> a
+    pred           :: a -> a
+    toEnum         :: Int -> a
+    fromEnum       :: a -> Int
+    enumFrom       :: a -> [a]
+    enumFromThen   :: a -> a -> [a]
+    enumFromTo     :: a -> a -> [a]
+    enumFromThenTo :: a -> a -> a -> [a]
+\end{code}
+\vspace{-2.4cm}
+\hspace{6.2cm}
+\Image{2.8cm}{img/fluttershy-bored-4}
+\end{onlyenv}
+\end{minipage}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Deriving}
+\({c}%
+  \<{.2\linewidth}%
+  \begin{minipage}[t][.8\textheight]{\linewidth}%
+  \begin{center}%
+    \vspace{1cm}
+    \Image<2>{1.8cm}{img/rainbow-3}
+  \end{center}%
+  \end{minipage}%
+  \>%
+  \<{.6\linewidth}%
+  \begin{minipage}[t][.8\textheight]{\linewidth}%
+  \begin{center}%
+\vspace{2cm}
+\begin{onlyenv}<1>
+\begin{code}
+data Color = Red | Green | Blue
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{code}
+data Color = Red | Green | Blue
+     deriving (Show,
+               Read,
+               Eq,
+               Ord,
+               Bounded,
+               Enum)
+\end{code}
+\end{onlyenv}
+  \end{center}%
+  \end{minipage}%
+  \>%
+  \<{.2\linewidth}%
+  \begin{minipage}[b][.8\textheight]{\linewidth}%
+  \begin{center}%
+    \Image<2>{3cm}{img/rainbow-2}
+  \end{center}%
+  \end{minipage}
+  \>%
+\)%
+\end{frame}
+
+\begin{frame}
+\frametitle{We still don't know}
+\begin{center}
+\begin{minipage}[c]{.8\linewidth}
+\begin{itemize}
+  \item \st{how to extend our data types}
+  \item \st{how to express type constraints}
+  \item how to chain contextual functions
+  \item how to use IO
+\end{itemize}
+\end{minipage}
+\end{center}
+\end{frame}
+
+
+%% Links
+
+\section{Monads}
+
+\begin{frame}
+\frametitle{Contexts / wrappers}
+\begin{minipage}[c]{\linewidth}
+  \begin{center}
+    \begin{tabular}{ r c r }
+      \uncover<1->{A          &~~~~~$\rightarrow$~~~~~& value} \\\\
+      \uncover<2->{Maybe A    &~~~~~$\rightarrow$~~~~~& optional value} \\
+      \uncover<3->{List A     &~~~~~$\rightarrow$~~~~~& repeated value} \\
+      \uncover<4->{IO A       &~~~~~$\rightarrow$~~~~~& impure value}   \\\\
+      \uncover<5->{C~~A       &~~~~~$\rightarrow$~~~~~& "contextual" value}   \\
+    \end{tabular}
+  \end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}
+\frametitle{Similarities}
+\begin{TopAlign}{.4}
+\begin{itemize}
+  \uncover<1->{\item Wrapping is trivial}
+  \uncover<5->{\item Unwrapping is non-trivial / destructive / impossible}
+  \uncover<9->{\item What we want: to apply functions \textbf{in the context}}
+\end{itemize}
+\end{TopAlign}
+\({c}%
+  \<{.6\linewidth}%
+  \begin{minipage}[t][.5\textheight]{\linewidth}%
+\begin{flushleft}
+\begin{onlyenv}<2-4>
+\uncover<2-4>{\footnotesize\texttt{~~~~\ic{wrap x = [x]}}\\}
+\uncover<3-4>{\footnotesize\texttt{~~~~\ic{wrap x = Just x}}\\}
+\uncover<4>{\footnotesize\texttt{~~~~\ic{wrap x = return x}}\\}
+\end{onlyenv}
+\begin{onlyenv}<6-8>
+\uncover<6->{\footnotesize\texttt{~~~~\ic{unwrap Nothing = ???}}\\}
+\uncover<7->{\footnotesize\texttt{~~~~\ic{unwrap [1,2,3] = ???}}\\}
+\uncover<8->{\footnotesize\texttt{~~~~\ic{unwrap getLine =} {\color{red}NOPE}}}\\
+\end{onlyenv}
+\end{flushleft}
+  \end{minipage}%
+  \>%
+  \<{.4\linewidth}%
+  \begin{minipage}[t][.5\textheight]{\linewidth}%
+  \begin{flushleft}%
+    \vspace{-0.75cm}
+    \Image<1>{4cm}{img/applejack-wink}
+    \Image<2-3>{4cm}{img/applejack-ok}
+    \Image<4>{4cm}{img/applejack-scared}
+    \Image<5>{4cm}{img/applejack-intrigued}
+    \Image<6-7>{4cm}{img/applejack-frown}
+    \Image<8>{4cm}{img/applejack-frightened}
+    \Image<9>{4cm}{img/applejack-intrigued}
+  \end{flushleft}%
+  \end{minipage}
+  \>%
+\)%
+\end{frame}
+
+\begin{frame}
+\frametitle{Context functions}
+\begin{minipage}[c][.3\textheight]{\linewidth}%
+\begin{center}
+  Three standard functions to deal with contexts
+\end{center}
+\end{minipage}
+\({c}%
+  \<{.61\linewidth}%
+  \begin{minipage}[t][.7\textheight]{\linewidth}%
+\begin{flushleft}
+\vspace{1cm}
+\upc<2->{~\\~~fmap :: ~~\ic{(a -> b) -> c a -> c b}\\}
+\upc<3->{~\\~~ap~~ :: \ic{c (a -> b) -> c a -> c b}\\}
+\upc<4->{~\\~~bind :: \ic{(a -> c b) -> c a -> c b}\\}
+\end{flushleft}
+  \end{minipage}%
+  \>%
+  \<{.39\linewidth}%
+  \begin{minipage}[t][.7\textheight]{\linewidth}%
+  \begin{flushleft}%
+    \Image<2->{3cm}{img/scootaloo-dwi}~\\
+    \vspace{-2.8cm}
+    \hspace{1cm}
+    \Image<3->{3.4cm}{img/applebloom-dwi}~\\
+    \vspace{-2.4cm}
+    \hspace{2cm}
+    \Image<4->{3cm}{img/sweetiebelle-dwi}~\\
+  \end{flushleft}%
+  \end{minipage}
+  \>%
+\)%
+\end{frame}
+
+\begin{frame}
+\frametitle{fmap}
+\begin{TopAlign}{.4}
+\begin{itemize}
+  \uncover<1->{\item fmap is like map\ldots}
+  \uncover<3->{\item but generalised to all contexts}
+  \uncover<13->{\item and it also has an operator version}
+\end{itemize}
+\end{TopAlign}
+\begin{center}%
+\begin{minipage}[t][.6\textheight]{.72\linewidth}%
+\begin{center}%
+\opc<2>{~\ic{map :: (a -> b) -> [a] -> [b]}}%
+\opc<3>{\ic{fmap :: (a -> b) -> c a -> c b}}%
+\begin{onlyenv}<4-13>
+\begin{minipage}[t]{\linewidth}%
+\begin{flushleft}
+  \upc<4-> {\ic{fmap show [1, 2, 3] =} \uic<5->{["1", "2", "3"]}\\}
+  \upc<6-> {\ic{fmap show (Just 42) =} \uic<7->{Just "42"}\\}
+  \upc<8-> {\ic{fmap show Nothing}\uic<9->{   = Nothing}\\}
+  \upc<10->{\ic{fmap length getLine =} \upc<11->{\shruggie} \uic<12->{-- IO Int}\\}
+\end{flushleft}
+\end{minipage}
+\end{onlyenv}
+\begin{onlyenv}<14>
+\begin{minipage}[t]{\linewidth}%
+\begin{flushleft}
+  \pc{\ic{show  <$> [1, 2, 3] =} \ic{["1", "2", "3"]}\\}
+  \pc{\ic{show  <$> (Just 42) =} \ic{Just "42"}\\}
+  \pc{\ic{show  <$> Nothing}\ic{   = Nothing}\\}
+  \pc{\ic{length <$>  getLine =} \pc{\shruggie} \ic{-- IO Int}\\}
+\end{flushleft}
+\end{minipage}
+\end{onlyenv}
+\end{center}
+\end{minipage}%
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{ap(ply)}
+\begin{TopAlign}{.4}
+\begin{itemize}
+  \uncover<1->{\item what about functions with several arguments?}
+  \uncover<5->{\item apply to the rescue!}
+  \uncover<8->{\item also defined as an operator}
+\end{itemize}
+\end{TopAlign}
+\begin{center}%
+\begin{minipage}[t][.6\textheight]{.72\linewidth}%
+\begin{onlyenv}<1->
+\begin{flushleft}
+  \upc<5->  {\ic{ap :: c (a -> b) -> c a -> c b}\\}
+  \opc<2-9> {\\\ic{fmap (+) (Just 3) =} \uic<3->{Just (3+)}\\}
+  \opc<10>  {\\\ic{(+) <$> Just 3 =} \uic<3->{Just (3+)}\\}
+  \opc<4-5> {\ic{Just (3+) :: Maybe (Int -> Int)}\\}
+  \opc<6-8> {\ic{ap (Just (3+)) (Just 39) =} \uic<7->{Just 42}\\}
+  \opc<9-10>{\ic{Just (3+) <*> Just 39 = Just 42}\\}
+  \opc<11-> {\\\ic{(+)} \uic<12->{<$> Just 3} \uic<13->{<*> Just 39} \uic<14->{= Just 42}\\}%$
+\end{flushleft}
+\end{onlyenv}
+\end{minipage}%
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{bind}
+\begin{TopAlign}{.32}
+\begin{itemize}
+  \uncover<1->{\item what about chaining functions?}
+  \uncover<10->{\item bind to the rescue!}
+  \uncover<13->{\item of course, also has an operator}
+\end{itemize}
+\end{TopAlign}
+\begin{center}%
+\begin{minipage}[t][.6\textheight]{\linewidth}%
+\begin{onlyenv}<2>
+\begin{code}
+          div2 :: Int -> Maybe Int
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\begin{code}
+          div2 :: Int -> Maybe Int
+
+          div2 42 = Just 21
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+\begin{code}
+          div2 :: Int -> Maybe Int
+
+          div2 42 = Just 21
+          div2 21 = Nothing
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<5>
+\begin{code}
+          div2 :: Int -> Maybe Int
+
+
+          div4 :: Int -> Maybe Int
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{code}
+          div2 :: Int -> Maybe Int
+
+
+          div4 :: Int -> Maybe Int
+          div4 x =
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<7>
+\begin{code}
+          div2 :: Int -> Maybe Int
+
+
+          div4 :: Int -> Maybe Int
+          div4 x = let y = div2 x
+                   in
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<8>
+\begin{code}
+          div2 :: Int -> Maybe Int
+
+
+          div4 :: Int -> Maybe Int
+          div4 x = let y = div2 x
+                   in fmap div2 y
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<9>
+\begin{code}
+          div2 :: Int -> Maybe Int
+
+
+          div4 :: Int -> Maybe Int
+          div4 x = let y = div2 x -- Maybe Int
+                   in fmap div2 y -- Maybe (Maybe Int)
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<10>
+\begin{code}
+          div2 :: Int -> Maybe Int
+          bind :: (a -> c b) -> c a -> c b
+
+          div4 :: Int -> Maybe Int
+          div4 x = let y = div2 x -- Maybe Int
+                   in fmap div2 y -- Maybe (Maybe Int)
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<11>
+\begin{code}
+          div2 :: Int -> Maybe Int
+          bind :: (a -> c b) -> c a -> c b
+
+          div4 :: Int -> Maybe Int
+          div4 x = let y = div2 x -- Maybe Int
+                   in bind div2 y -- Maybe Int
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<12>
+\begin{code}
+          div2 :: Int -> Maybe Int
+          bind :: (a -> c b) -> c a -> c b
+
+          div4 :: Int -> Maybe Int
+          div4 x = bind div2 $ div2 x
+\end{code}%$
+\end{onlyenv}
+\begin{onlyenv}<13>
+\begin{code}
+          div2 :: Int -> Maybe Int
+          (>>=) :: c a -> (a -> c b) -> c b
+
+          div4 :: Int -> Maybe Int
+          div4 x = bind div2 $ div2 x
+\end{code}%$
+\end{onlyenv}
+\begin{onlyenv}<14>
+\begin{code}
+          div2 :: Int -> Maybe Int
+          (>>=) :: c a -> (a -> c b) -> c b
+
+          div4 :: Int -> Maybe Int
+          div4 x = div2 x >>= div2
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<15>
+\begin{code}
+          div2 :: Int -> Maybe Int
+          (>>=) :: c a -> (a -> c b) -> c b
+
+          div8 :: Int -> Maybe Int
+          div8 x = div2 x >>= div2 >>= div2
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<16>
+\begin{code}
+          div2 :: Int -> Maybe Int
+          (>>=) :: c a -> (a -> c b) -> c b
+
+          div16 :: Int -> Maybe Int
+          div16 x = div2 x >>= div2 >>= div2 >>= div2
+\end{code}
+\end{onlyenv}
+\end{minipage}%
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{bind - continued}
+\begin{minipage}[t][.8\textheight]{\linewidth}
+\vspace{-0.8cm}
+\begin{onlyenv}<1>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+bind           :: (a -> c b) -> c a -> c b
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+(>>=)          :: c a -> (a -> c b) -> c b
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<5>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+(>>=)          :: c a -> (a -> c b) -> c b
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber uid =
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+(>>=)          :: c a -> (a -> c b) -> c b
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber uid =
+      getUser uid    -- Maybe User
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<7>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+(>>=)          :: c a -> (a -> c b) -> c b
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber uid =
+      getUser uid    -- Maybe User
+  >>= getNextOfKin   -- Maybe Id
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<8>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+(>>=)          :: c a -> (a -> c b) -> c b
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber uid =
+      getUser uid    -- Maybe User
+  >>= getNextOfKin   -- Maybe Id
+  >>= getUser        -- Maybe User
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<9>
+\begin{code}
+getUser        :: Id   -> Maybe User
+getNextOfKin   :: User -> Maybe Id
+getPhoneNumber :: User -> Maybe PhoneNumber
+(>>=)          :: c a -> (a -> c b) -> c b
+
+getNextOfKinPhoneNumber :: Id -> Maybe PhoneNumber
+getNextOfKinPhoneNumber uid =
+      getUser uid    -- Maybe User
+  >>= getNextOfKin   -- Maybe Id
+  >>= getUser        -- Maybe User
+  >>= getPhoneNumber
+\end{code}
+\end{onlyenv}
+\end{minipage}
+\begin{center}
+\begin{onlyenv}<1>
+\vspace{-3cm}
+\hspace{4.5cm}
+\Image{4cm}{img/fluttershy-walking}%
+\end{onlyenv}
+\begin{onlyenv}<2>
+\vspace{-3.4cm}
+\hspace{5.7cm}
+\Image{4cm}{img/fluttershy-scared2}%
+\end{onlyenv}
+\begin{onlyenv}<3-6>
+\vspace{-1.5cm}
+\hspace{5.7cm}
+\Image{2.2cm}{img/fluttershy-flat}%
+\end{onlyenv}
+\begin{onlyenv}<7>
+\vspace{-2.2cm}
+\hspace{5.7cm}
+\Image{3cm}{img/fluttershy-scared}%
+\end{onlyenv}
+\begin{onlyenv}<8>
+\vspace{-3.2cm}
+\hspace{5.7cm}
+\Image{3.9cm}{img/fluttershy-curious}%
+\end{onlyenv}
+\begin{onlyenv}<9>
+\vspace{-2.88cm}
+\hspace{6.1cm}
+\Image{3.5cm}{img/fluttershy-ok}%
+\end{onlyenv}
+\end{center}
+\end{frame}
+
+\def\Sep{~~~~~&~~~~~}
+\begin{frame}
+\frametitle{The typeclasses}
+\begin{onlyenv}<1-2>
+  \begin{center}
+    \pc{fmap :: ~~\ic{(a -> b) -> c a -> c b}\\}
+    \pc{ap~~ :: \ic{c (a -> b) -> c a -> c b}\\}
+    \pc{bind :: \ic{(a -> c b) -> c a -> c b}\\}
+
+    \uncover<2>{~\\But what about the typeclasses?}
+  \end{center}
+\end{onlyenv}
+\begin{onlyenv}<3-7,9->
+  \begin{center}
+    ~\\
+    \begin{tabular}{ c l c l c }
+\uncover<3->{                  \Sep\pc{fmap}\Sep$\rightarrow$\Sep\upc<4->{Functor    }\Sep                  \\}
+\uncover<5->{$^\downrcurvearrow$\Sep\pc{ap}  \Sep$\rightarrow$\Sep\upc<6->{Applicative}\Sep$^\downlcurvearrow$\\}
+\uncover<7->{$^\downrcurvearrow$\Sep\pc{bind}\Sep$\rightarrow$\Sep\upc<8->{Monad}      \Sep$^\downlcurvearrow$\\}
+    \end{tabular}
+  \end{center}
+\end{onlyenv}
+\begin{onlyenv}<8>
+\begin{minipage}[c][.8\textheight]{\linewidth}
+\begin{center}
+{\fontsize{150}{60}\selectfont MONAD}\\
+\end{center}
+\end{minipage}
+\begin{center}
+\vspace{-.5cm}
+\hspace{-2cm}
+\Image{2cm}{img/pinkie-dwi}
+\end{center}
+\end{onlyenv}
+\end{frame}
+
+\begin{frame}
+\frametitle{We still don't know}
+\begin{center}
+\begin{minipage}[c]{.8\linewidth}
+\begin{itemize}
+  \item \st{how to extend our data types}
+  \item \st{how to express type constraints}
+  \item \st{how to chain contextual functions}
+  \item how to use IO
+\end{itemize}
+\end{minipage}
+\end{center}
+\end{frame}
+
+
+%% Links
+
+\section{Monadic syntax}
+
+\begin{frame}[fragile]
+\frametitle{Monad}
+\begin{minipage}[t][.5\textheight]{\linewidth}
+\begin{center}
+  \begin{onlyenv}<1>
+  \begin{code}
+    class Applicative m => Monad m where
+        return :: a -> m a
+        (>>=)  :: m a -> (a -> m b) -> m b
+  \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+  \begin{code}
+    class Applicative m => Monad m where
+        return :: a -> m a
+        (>>=)  :: m a -> (a -> m b) -> m b
+
+    (>>)     :: m a -> m b -> m b
+    (>=>)    :: (a -> m b) -> (b -> m c) -> (a -> m c)
+  \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+  \begin{code}
+    class Applicative m => Monad m where
+        return :: a -> m a
+        (>>=)  :: m a -> (a -> m b) -> m b
+
+    (>>)     :: m a -> m b -> m b
+    (>=>)    :: (a -> m b) -> (b -> m c) -> (a -> m c)
+    sequence :: (Traversable t) => t (m a) -> m (t a)
+  \end{code}
+  \end{onlyenv}
+\end{center}
+\end{minipage}
+\begin{minipage}[t][.3\textheight]{\linewidth}
+\begin{center}
+  \only<1>{The basic building block\\}
+  \only<2>{Powerful abstractions!\\}
+  \only<3>{\ldots{}that could use some sugar\\}
+\begin{onlyenv}<1>
+\hspace{5cm}
+\Image{3.2cm}{img/twilight-crazy}%
+\end{onlyenv}
+\begin{onlyenv}<2>
+\hspace{5cm}
+\Image{3.2cm}{img/twilight-wut}%
+\end{onlyenv}
+\begin{onlyenv}<3>
+\vspace{0.6cm}
+\hspace{5cm}
+\Image{2.6cm}{img/twilight-coffee}%
+\end{onlyenv}
+\end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Do notation}
+\begin{center}
+\begin{minipage}[t][\textheight]{.8\linewidth}
+\vspace{-0.8cm}
+\begin{onlyenv}<1>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>=
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+\begin{code}5
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<5>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>=
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<7>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>= \ lastname ->
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<8>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>= \ lastname ->
+            greetUser firstname lastname
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<9>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName       firstname
+        getLastName       lastname
+            greetUser firstname lastname
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<10>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName ->    firstname
+        getLastName ->    lastname
+            greetUser firstname lastname
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<11>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>= \ lastname ->
+            greetUser firstname lastname
+
+main =
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<12>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>= \ lastname ->
+            greetUser firstname lastname
+
+main = do
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<13>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>= \ lastname ->
+            greetUser firstname lastname
+
+main = do
+    firstname <- getFirstName
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<14>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>= \ lastname ->
+            greetUser firstname lastname
+
+main = do
+    firstname <- getFirstName
+    lastname  <- getLastName
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<15>
+\begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+main         :: IO ()
+
+main =
+    getFirstName >>= \ firstname ->
+        getLastName >>= \ lastname ->
+            greetUser firstname lastname
+
+main = do
+    firstname <- getFirstName
+    lastname  <- getLastName
+    greetUser firstname lastname
+\end{code}
+\end{onlyenv}
+\end{minipage}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Recap}
+\begin{itemize}
+\item typeclasses to extend our data types
+\item typeclasses to express type constraints
+\item monadic operators to chain contextual functions
+\item do notation to use IO
+\end{itemize}
+\end{frame}
+
+
+
+%% Links
+
+\section{The end}
+
+\begin{frame}
+  \begin{center}
+    \vspace{0.20cm}
+    \includegraphics[width=0.9\textwidth]{img/pinkie-festive}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Links}
+  \begin{itemize}
+  \item \href{http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html}{adit.io} (functors, applicatives, and monads in pictures)
+  \item \href{http://dev.stephendiehl.com/hask/}{dev.stephendiehl.com/hask/} (what I wish I knew)
+  \end{itemize}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% End
+
+\end{document}

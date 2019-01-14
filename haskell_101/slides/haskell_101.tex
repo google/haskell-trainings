@@ -1,0 +1,850 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Header
+
+\documentclass[17pt]{beamer}
+
+\usepackage[english]{babel}
+\usepackage{beamerthemesplit}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{colortbl}
+\usepackage{floatflt}
+\usepackage{xunicode}
+\usepackage{wasysym}
+
+\usepackage[no-math]{fontspec}
+\usepackage{fdsymbol}
+
+\title{Haskell 101}
+\author{nicuveo@}
+%\institue{Google}
+\date{\small\today}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Customization
+
+\input{theme}
+
+\renewcommand{\(}[1]{\begin{columns}[#1]}
+\renewcommand{\)}{\end{columns}}
+\newcommand{\<}[1]{\begin{column}{#1}}
+\renewcommand{\>}{\end{column}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Document
+
+\begin{document}
+
+
+
+%% Title frame
+
+\togglefalse{showpagenumber}
+\begin{frame}[fragile]
+  \titlepage
+\end{frame}
+\toggletrue{showpagenumber}
+\setcounter{framenumber}{0}
+
+
+
+%% Intro
+
+\section{Intro}
+
+\begin{frame}
+  \frametitle{Today's menu}
+  \({c}
+  \<{.6\textwidth}
+  \begin{center}
+  \begin{itemize}
+  \item 101
+    \begin{itemize}
+    \item Concepts and generalities
+    \item Syntax overview
+    \item Data structures
+    \item Declaring functions
+    \end{itemize}
+  \end{itemize}
+  \end{center}
+  \>
+  \<{.4\textwidth}
+  \begin{center}
+    \includegraphics[width=.5\textwidth]{img/whirlwind}
+  \end{center}
+  \>
+  \)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Not today}
+  \({c}
+  \<{.6\textwidth}
+  \begin{center}
+  \begin{itemize}
+  \item Project environment
+    \begin{itemize}
+    \item Cabal? Cabal hell?
+    \item Stackage? Stack?
+    \item Haskell at Google?
+    \end{itemize}
+  \end{itemize}
+  \begin{itemize}
+  \item Advanced stuff
+    \begin{itemize}
+    \item Functors? Monads?
+    \item Monad Transformers?
+    \end{itemize}
+  \end{itemize}
+  \end{center}
+  \>
+  \<{.4\textwidth}
+  \begin{center}
+    \includegraphics[width=.8\textwidth]{img/derpywhat}
+  \end{center}
+  \>
+  \)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Prerequisites}
+  \({c}
+  \<{.4\textwidth}
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{img/dash_reading}
+  \end{center}
+  \>
+  \<{.6\textwidth}
+  \begin{center}
+  \begin{itemize}
+    \item Programming knowledge
+    \item FP knowledge is a plus
+    \item apt-get install haskell-platform
+  \end{itemize}
+  \end{center}
+  \>
+  \)
+\end{frame}
+
+\begin{frame}
+  \frametitle{GHCI is your new best friend}
+  \({c}
+  \<{.45\textwidth}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{img/hug}
+  \end{center}
+  \>
+  \<{.55\textwidth}
+  \begin{center}
+  \begin{itemize}
+    \item Type expressions, get result.
+    \item Test and debug your code.
+    \item \ic{:t}
+  \end{itemize}
+  \end{center}
+  \>
+  \)
+\end{frame}
+
+
+
+%% Haskell
+
+\section{Haskell}
+
+\begin{frame}
+  \frametitle{Haskell is...}
+  \({c}
+  \<{.5\textwidth}
+  \begin{center}
+    \begin{itemize}
+    \item Strongly statically typed
+    \item Purely functional
+    \item Lazily evaluated
+    \item General purpose
+    \end{itemize}
+  \end{center}
+  \>
+  \<{.5\textwidth}
+  \begin{center}
+    \includegraphics[width=.5\textwidth]{img/haskell}
+  \end{center}
+  \>
+  \)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Haskell is NOT...}
+  \({c}
+  \<{.5\textwidth}
+  \begin{center}
+    \begin{itemize}
+    \item A silver bullet
+    \item For category theorists
+    \item<2-> Hard! \only<3->{Just different...}
+    \end{itemize}
+  \end{center}
+  \>
+  \<{.5\textwidth}
+  \begin{center}
+    \includegraphics[width=\textwidth]{img/no}
+  \end{center}
+  \>
+  \)
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Purely functional}
+  \begin{minipage}[t][.3\textheight]{\textwidth}
+  \begin{itemize}
+  \item<1-> Everything is a function
+  \item<2-> Everything is immutable
+  \item<3-> Everything is an expression
+  \item<6-> No side effects\alt<7>{ \textbf{unless explicitly stated}}{!}
+  \end{itemize}
+  \end{minipage}
+  \begin{minipage}[c][.5\textheight]{\textwidth}
+  \begin{center}
+    \begin{onlyenv}<1>
+      \({c}
+      \<{5cm}
+      \begin{code}
+     f :: Int -> Int
+     f x = x + 1
+      \end{code}
+      \>
+      \<{5cm}
+      \begin{code}
+     f : Z -> Z
+     f(x) = x + 1
+      \end{code}
+      \>
+      \)
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+      \vfill
+      \begin{code}
+          let a = 3 in
+              a := a + 1 -- compile error
+      \end{code}
+      \vfill
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+      \begin{code}
+          let a = if someBool then 1 else 0 in
+              a + 1
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<4>
+      \begin{code}
+          let a = if someBool then 1 else 0 in
+              a + (let b = 2 in b)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<5>
+      \begin{code}
+              let offset = case colour of
+                               Red   ->  0
+                               Green ->  8
+                               Blue  -> 16
+              in baseValue + offset
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<6>
+      \begin{code}
+                  foo :: Int -> String
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<7>
+      \begin{code}
+            readFile :: String -> IO String
+      \end{code}
+    \end{onlyenv}
+  \end{center}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Purity...}
+  \begin{itemize}
+  \item All side effects are in IO
+  \item<2-> Functions $\not\in$ IO are deemed \textbf{pure}
+  \item<3-> Functions $\in$ IO are deemed \textbf{impure}
+  \end{itemize}
+
+  \({c}
+  \<{.4\textwidth}
+  \begin{center}
+    \uncover<2->{\includegraphics[width=\textwidth]{img/celestia}}
+  \end{center}
+  \>
+  \<{.4\textwidth}
+  \begin{center}
+    \uncover<3->{\includegraphics[width=\textwidth]{img/luna}}
+  \end{center}
+  \>
+  \)
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{...and corruption}
+  \begin{itemize}
+  \item $\exists$ ~~\inlinecode{f :: a -> IO a} ~~~~~{\small (from pure to impure)}
+  \item $\nexists$ ~~\inlinecode{f :: IO a -> a} ~~~~~{\small (from impure to pure)}
+  \end{itemize}
+
+  \begin{center}
+  \uncover<2->{IO \textbf{corrupts}.}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lazy}
+  \({c}
+  \<{.25\textwidth}
+  \includegraphics[width=\textwidth]{img/slowpoke}
+  \>
+  \<{.6\textwidth}
+  \begin{itemize}
+  \item Deferred expression evaluation
+  \item Not used $\Rightarrow$ not computed
+  \end{itemize}
+  \>
+  \)
+  \pause
+  ~\\
+  \begin{center}
+    \Large
+    \inlinecode{if (obj != NULL && obj->value > 0)}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Reduction steps}
+  \begin{itemize}
+  \item<1-> Strict evaluation: inner to outer
+  \item<2-> Lazy evaluation: outer to inner
+  \end{itemize}
+  \begin{onlyenv}<1>
+    \begin{center}
+      \begin{tabular}{ c c c c c }
+        \\ add( & 12 + 8 & ,  & 20 + 2 & )
+        \\ add( & 20     & ,  & 22     & )
+        \\      & 20     & +  & 22     &
+        \\      &        & 42 &        &
+      \end{tabular}
+    \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \begin{center}
+      \begin{tabular}{ c c c c c }
+        \\ add( & 12 + 8 & ,  & 20 + 2 & )
+        \\      & 12 + 8 & +  & 20 + 2 &
+        \\      &        & 42 &        &
+        \\      &        &    &        &
+      \end{tabular}
+    \end{center}
+  \end{onlyenv}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Laziness pros and cons}
+\begin{center}
+\begin{itemize}[<+->]
+\item[-] Memory pitfalls
+\item[-] IO and parallelism pitfalls
+\item[+] Huge optimizations
+\item[+] Greater expressivity (e.g. infinite structures)
+\end{itemize}
+\end{center}
+\begin{minipage}[c][.3\textheight]{\textwidth}
+\begin{center}
+\only<1-2>{Delayed computations (but escape hatches)}
+\only<3>{Equation reduction and short-circuiting}
+\begin{onlyenv}<4>
+  \begin{code}
+        > let naturalNumbers = [0,1..]
+        > let squaredNumbers = map (^2) naturalNumbers
+        > take 5 squaredNumbers
+        [0,1,4,9,16]
+  \end{code}
+\end{onlyenv}
+\end{center}
+\end{minipage}
+\end{frame}
+
+
+
+%% Functions
+
+\section{How to read function types}
+
+\begin{frame}
+\frametitle{Curried functions, partial application}
+\begin{center}
+\begin{tabular}{ l c r }
+  \uncover<2->{\\\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int -> ( Int -> [Int] )}}
+  \uncover<1->{\\\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int ->   Int -> [Int]}}
+  \uncover<3->{\\\inlinecode{f 1}    &\inlinecode{::}&\inlinecode{         Int -> [Int]}}
+  \uncover<5->{\\\inlinecode{f 1 2}  &\inlinecode{::}&\inlinecode{                [Int]}}
+  \uncover<4->{\\\inlinecode{(f 1) 2}&\inlinecode{::}&\inlinecode{                [Int]}}
+\end{tabular}
+~\\~\\~\\
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Quizz!}
+\begin{minipage}[c][.4\textheight]{\textwidth}
+\begin{center}
+\begin{tabular}{ r c l }
+                 \alt<4->{\ic{   map}}{\ic{   ???}}&\ic{::}&\ic{(a -> b) -> [a] -> [b]}
+  \\\uncover<5->{\alt<6->{\ic{filter}}{\ic{??????}}&\ic{::}&\ic{(a -> Bool) -> [a] -> [a]}}
+  \\\uncover<7->{\ic{(\$)}&\ic{::}&\ic{(a -> b) -> a -> b}}
+  \\\uncover<10->{\ic{(.)}&\ic{::}&\ic{(b -> c) -> (a -> b) -> (a -> c)}}
+\end{tabular}
+\end{center}
+\end{minipage}
+~\\
+\begin{minipage}[c][.3\textheight]{\textwidth}
+\begin{center}
+\only<2>{\small Lowercase letter: type parameter}
+\begin{onlyenv}<3-4>
+\begin{tabular}{ c l }
+  \ic{(a -> b)} & \small function from type A to type B\\
+  \ic{[a]}      & \small list of values of type A\\
+  \ic{[b]}      & \small list of values of type B
+\end{tabular}
+\end{onlyenv}
+\only<8>{\ic{let a = fun (x + y)}}
+\only<9>{\ic{let a = fun \$ x + y}}
+\only<11>{\small $(f \circ g) (x) = f(g(x))$}
+\begin{onlyenv}<12>
+  \begin{tabular}{ r c l c r c c c l}
+            &      & \ic{show} &\ic{::}& \ic{Stuff} &\ic{->}& \ic{String} &       &          \\
+\ic{length} &      &           &\ic{::}&            &       & \ic{String} &\ic{->}& \ic{Int} \\
+\ic{length} &\ic{.}& \ic{show} &\ic{::}& \ic{Stuff} &       &             &\ic{->}& \ic{Int} \\
+  \end{tabular}
+\end{onlyenv}
+\only<13>{\inlinecode{cat input | grep token | sed stuff | tee output}}
+\end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}
+\frametitle{Quizz with a vengeance!}
+\begin{center}
+\begin{tabular}{ r c l }
+  \ic{foldl}&\ic{::}&\ic{(a -> b -> a) -> a -> [b] -> a}
+\end{tabular}
+\pause~\\~\\
+\begin{tabular}{ c l }
+  \ic{(a -> b -> a)} & \small combines accumulator and value\\
+  \ic{a}             & \small initial accumulator\\
+  \ic{[b]}           & \small list of values\\
+  \ic{a}             & \small result
+\end{tabular}
+\pause~\\~\\~\\
+\small "reduce"
+\end{center}
+\end{frame}
+
+
+
+%% Structs
+
+\section{Data structures}
+
+\begin{frame}
+\frametitle{Algebraic data types}
+\({c}
+\<{.5\textwidth}
+\begin{itemize}
+\item Type composition
+\item Product and sum types
+\item Cardinality expressions
+\end{itemize}
+\>
+\pause
+\<{.5\textwidth}
+\includegraphics[width=\textwidth]{img/what}
+\>
+\)
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Type synonyms}
+\begin{code}
+    type Point   = (Int, Int)  -- tuple
+\end{code}
+\pause
+\begin{code}
+    type Polygon = [Point]     -- list
+\end{code}
+\pause
+\begin{code}
+    type Map k v = [(k, v)]    -- type parameters
+\end{code}
+\end{frame}
+
+\begin{frame}
+\frametitle{Immutable data structures...}
+\({c}
+\<{.6\textwidth}
+\begin{center}
+  \begin{itemize}
+  \item<2-> No methods...
+  \item<3-> No modifiers...
+  \item<4-> No private members...
+  \end{itemize}
+  \uncover<5->{~\\What's left?\uncover<6>{ Constructors!}}
+\end{center}
+\>
+\<{.4\textwidth}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{img/twilightthinking}
+\end{center}
+\>
+\)
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The almighty "data" keyword}
+\begin{code}
+    data None    = None
+\end{code}
+\begin{uncoverenv}<2->
+\begin{code}
+    data Minutes = Minutes Int
+\end{code}
+\end{uncoverenv}
+\begin{uncoverenv}<3->
+\begin{code}
+    data Bool    =   False | True
+\end{code}
+\end{uncoverenv}
+\begin{uncoverenv}<4->
+\begin{code}
+    data Maybe a = Nothing | Just a
+\end{code}
+\end{uncoverenv}
+\begin{uncoverenv}<5->
+\begin{onlyenv}<-6>
+\begin{code}
+    data List  a =     Nil | Cell a (List a)
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<7->
+\begin{code}
+    data [a]     =      [] | (a:[a])
+\end{code}
+\end{onlyenv}
+\end{uncoverenv}
+%~\\
+\begin{minipage}[t][.3\textheight]{\textwidth}
+\begin{center}
+\begin{onlyenv}<1>
+\begin{code}
+                      None :: None
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{code}
+                Minutes    :: Int -> Minutes
+                Minutes 42 ::        Minutes
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\begin{code}
+                     True  :: Bool
+                     False :: Bool
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+\begin{code}
+                   Nothing ::      Maybe a
+                   Just    :: a -> Maybe a
+                   Just 42 ::      Maybe Int
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<5>
+\begin{code}
+                       Nil :: List a
+                      Cell :: a -> List a -> List a
+     Cell 0 (Cell 1 (Nil)) :: List Int
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{code}
+                       Nil :: List a
+                      Cell :: a -> List a -> List a
+     Cell 0 $ Cell 1 $ Nil :: List Int
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<7>
+\begin{code}
+                        [] :: [a]
+                       (:) :: a -> [a] -> [a]
+                    0:1:[] :: [Int]
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<8>
+\begin{code}
+                        [] :: [a]
+                       (:) :: a -> [a] -> [a]
+                     [0,1] :: [Int]
+\end{code}
+\end{onlyenv}
+\end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Record syntax}
+\begin{minipage}[t][0.4\textheight]{1.0\linewidth}
+\begin{onlyenv}<1>
+\begin{code}
+          data User = User String Int
+\end{code}
+\end{onlyenv}
+\begin{onlyenv}<2->
+\begin{code}
+          data User = User {
+              userName :: String,
+              userAge  :: Int
+          }
+\end{code}
+\end{onlyenv}
+\end{minipage}
+\begin{code}
+          User     :: String -> Int -> User
+\end{code}
+\begin{uncoverenv}<3>
+\begin{code}
+          userName :: User -> String
+          userAge  :: User -> Int
+\end{code}
+\end{uncoverenv}
+\end{frame}
+
+
+
+%% Syntax
+
+\section{Functions}
+
+\begin{frame}[fragile]
+\frametitle{Not}
+\begin{minipage}[t][.4\textheight]{\textwidth}
+\begin{onlyenv}<1>
+  \begin{code}
+    not :: Bool -> Bool
+    not x = ???
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+  \begin{code}
+    not :: Bool -> Bool
+    not x = if x then False else True
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+  \begin{code}
+    not :: Bool -> Bool
+    not True  = False
+    not False = True
+  \end{code}
+\end{onlyenv}
+\end{minipage}
+\begin{minipage}[c][.3\textheight]{\textwidth}
+\begin{center}
+\only<3>{\#PatternMatching}
+\end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{And}
+\begin{minipage}[t][.4\textheight]{\textwidth}
+\begin{onlyenv}<1>
+  \begin{code}
+    (&&) :: Bool -> Bool -> Bool
+    x && y = ???
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+  \begin{code}
+    (&&) :: Bool -> Bool -> Bool
+    x && y = if x
+             then (if y then True else False)
+             else False
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+  \begin{code}
+    (&&) :: Bool -> Bool -> Bool
+    False && False = False
+    False && True  = False
+    True  && False = False
+    True  && True  = True
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+  \begin{code}
+    (&&) :: Bool -> Bool -> Bool
+    True && True = True
+    x    && y    = False
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<5>
+  \begin{code}
+    (&&) :: Bool -> Bool -> Bool
+    True && y = y
+    x    && y = False
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<6>
+  \begin{code}
+    (&&) :: Bool -> Bool -> Bool
+    True && y = y
+    _    && _ = False
+  \end{code}
+\end{onlyenv}
+\end{minipage}
+\begin{minipage}[c][.3\textheight]{\textwidth}
+\begin{center}
+\includegraphics<6>[width=0.4\textwidth]{img/dont-care}
+\end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Deconstructors?}
+\begin{minipage}[t][.4\textheight]{\textwidth}
+\begin{onlyenv}<1>
+  \begin{code}
+    data Minutes = Minutes Int
+
+    add :: Minutes -> Minutes -> Minutes
+    add mx my = ???
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+  \begin{code}
+    data Minutes = Minutes Int
+
+    add :: Minutes -> Minutes -> Minutes
+    add mx my = mx + my
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+  \begin{code}
+    data Minutes = Minutes Int
+
+    add :: Minutes -> Minutes -> Minutes
+    add (Minutes x) (Minutes y) = ???
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+  \begin{code}
+    data Minutes = Minutes Int
+
+    add :: Minutes -> Minutes -> Minutes
+    add (Minutes x) (Minutes y) = Minutes (x + y)
+  \end{code}%$
+\end{onlyenv}
+\begin{onlyenv}<5>
+  \begin{code}
+    data Minutes = Minutes Int
+
+    add :: Minutes -> Minutes -> Minutes
+    add (Minutes x) (Minutes y) = Minutes $ x + y
+  \end{code}%$
+\end{onlyenv}
+\end{minipage}
+\begin{minipage}[c][.3\textheight]{\textwidth}
+\begin{center}
+\end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Length}
+\begin{minipage}[t][.4\textheight]{\textwidth}
+\begin{onlyenv}<1>
+  \begin{code}
+    data [a] = [] | (a:[a])
+
+    length :: [a] -> Int
+    length l = ???
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<2>
+  \begin{code}
+    data [a] = [] | (a:[a])
+
+    length :: [a] -> Int
+    length []     = ???
+    length (x:xs) = ???
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<3>
+  \begin{code}
+    data [a] = [] | (a:[a])
+
+    length :: [a] -> Int
+    length []     = 0
+    length (x:xs) = ???
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<4>
+  \begin{code}
+    data [a] = [] | (a:[a])
+
+    length :: [a] -> Int
+    length []     = 0
+    length (_:xs) = 1 + length xs
+  \end{code}
+\end{onlyenv}
+\end{minipage}
+\begin{minipage}[c][.3\textheight]{\textwidth}
+\begin{center}
+\only<4>{\#Recursion}
+\end{center}
+\end{minipage}
+\end{frame}
+
+
+
+%% Links
+
+\section{The end}
+
+\begin{frame}
+  \frametitle{The end!}
+  \begin{center}
+    \includegraphics[width=0.82\textwidth]{img/pinkie-festive}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Links}
+  \begin{itemize}
+  \item \href{https://tryhaskell.org}{tryhaskell.org}
+  \item \href{https://learnyouahaskell.com}{learnyouahaskell.com}
+  \item \href{https://book.realworldhaskell.org}{book.realworldhaskell.org}
+  \item \href{http://haskellbook.com}{haskellbook.com}
+  \item \href{https://www.haskell.org/hoogle/}{haskell.org/hoogle/}
+  \end{itemize}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% End
+
+\end{document}
