@@ -8,8 +8,9 @@ allow newcomers to the language to get involved with the team.
 
 ### Slides
 
-The slides use \LaTeX{}. You'll need xelatex installed to build them. Simply run
-`make` to create the pdf.
+The slides use LaTeX. You'll need `xelatex` installed to build them. Simply run
+`make` to create the PDFs. You must also have the [Yanone Kaffeesatz](https://yanone.de/fonts/kaffeesatz/)
+fonts installed on your machine. 
 
 ### Exercises
 
