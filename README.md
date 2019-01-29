@@ -1,4 +1,4 @@
-## Haskell training: 101 and 102.
+# Haskell training: 101 and 102.
 
 This repository contains the source for the slides and the exercises used in the
 Haskell trainings at Google. Haskell is not one of the internally "blessed"
@@ -17,7 +17,12 @@ fonts installed on your machine.
 The codelabs only require ghc to be installed and in the path. Please read
 Codelab.hs and follow the instructions!
 
-## Warning
+### Release
+
+See the [releases](https://github.com/google/haskell-trainings/releases) to 
+download the generated PDFs and the codelabs.
+
+# Warning
 
 This code is presented as-is, without the speaker notes. At time of writing, no
 public recording of such a training exists. This is not an officially supported
