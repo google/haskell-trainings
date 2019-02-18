@@ -57,7 +57,11 @@ putTag tag color = do
 -- tests
 
 ifError :: (String -> a) -> ErrorCall -> a
+#if __GLASGOW_HASKELL__ < 800
+ifError f (ErrorCall s) = f s
+#else
 ifError f (ErrorCallWithLocation s _) = f s
+#endif
 
 timeLimit :: Int
 timeLimit = 1000000 -- 10^6 microseconds = 1 second
