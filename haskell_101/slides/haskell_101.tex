@@ -15,8 +15,11 @@
 \usepackage[no-math]{fontspec}
 \usepackage{fdsymbol}
 
+% When working on specific pages it is faster to generate just those pages.
+% \usepackage[11-30]{pagesel}
+
 \title{Haskell 101}
-\author{nicuveo@}
+\author{ibobyr@, nicuveo@}
 %\institue{Google}
 \date{\small\today}
 
@@ -82,72 +85,52 @@
 
 \begin{frame}
   \frametitle{Not today}
-  \({c}
-  \<{.6\textwidth}
   \begin{center}
   \begin{itemize}
   \item Project environment
     \begin{itemize}
-    \item Cabal? Cabal hell?
+    \item Cabal?
     \item Stackage? Stack?
-    \item Haskell at Google?
+    \item Haskell in Google3?
     \end{itemize}
   \end{itemize}
   \begin{itemize}
   \item Advanced stuff
     \begin{itemize}
-    \item Functors? Monads?
+    \item Functors?
+    \item Monads?
     \item Monad Transformers?
     \end{itemize}
   \end{itemize}
   \end{center}
-  \>
-  \<{.4\textwidth}
-  \begin{center}
-    \includegraphics[width=.8\textwidth]{img/replace_me_with_anything_you_want}
-  \end{center}
-  \>
-  \)
 \end{frame}
 
 \begin{frame}
   \frametitle{Prerequisites}
-  \({c}
-  \<{.4\textwidth}
-  \begin{center}
-    \includegraphics[width=0.9\textwidth]{img/replace_me_with_anything_you_want}
-  \end{center}
-  \>
-  \<{.6\textwidth}
   \begin{center}
   \begin{itemize}
     \item Programming knowledge
-    \item FP knowledge is a plus
-    \item apt-get install haskell-platform
+      \begin{itemize}
+      \item Functional programming is a plus
+      \item Imperative programming is enough
+      \end{itemize}
+    \item Compiler
+      \begin{itemize}
+      \item apt-get install haskell-platform
+      \end{itemize}
   \end{itemize}
   \end{center}
-  \>
-  \)
 \end{frame}
 
 \begin{frame}
   \frametitle{GHCI is your new best friend}
-  \({c}
-  \<{.45\textwidth}
-  \begin{center}
-    \includegraphics[width=0.8\textwidth]{img/replace_me_with_anything_you_want}
-  \end{center}
-  \>
-  \<{.55\textwidth}
   \begin{center}
   \begin{itemize}
-    \item Type expressions, get result.
+    \item Type expressions, get results.
     \item Test and debug your code.
     \item \ic{:t}
   \end{itemize}
   \end{center}
-  \>
-  \)
 \end{frame}
 
 
@@ -171,7 +154,7 @@
   \>
   \<{.5\textwidth}
   \begin{center}
-    \includegraphics[width=.5\textwidth]{img/haskell}
+    \includegraphics[width=.5\textwidth]{img/haskell-logo}
   \end{center}
   \>
   \)
@@ -179,8 +162,6 @@
 
 \begin{frame}
   \frametitle{Haskell is NOT...}
-  \({c}
-  \<{.5\textwidth}
   \begin{center}
     \begin{itemize}
     \item A silver bullet
@@ -188,13 +169,6 @@
     \item<2-> Hard! \only<3->{Just different...}
     \end{itemize}
   \end{center}
-  \>
-  \<{.5\textwidth}
-  \begin{center}
-    \includegraphics[width=\textwidth]{img/replace_me_with_anything_you_want}
-  \end{center}
-  \>
-  \)
 \end{frame}
 
 \begin{frame}[fragile]
@@ -202,9 +176,9 @@
   \begin{minipage}[t][.3\textheight]{\textwidth}
   \begin{itemize}
   \item<1-> Everything is a function
-  \item<2-> Everything is immutable
-  \item<3-> Everything is an expression
-  \item<6-> No side effects\alt<7>{ \textbf{unless explicitly stated}}{!}
+  \item<2-> Everything is an expression
+  \item<7-> Everything is immutable
+  \item<8-> No side effects\alt<9>{ \textbf{unless explicitly stated}}{!}
   \end{itemize}
   \end{minipage}
   \begin{minipage}[c][.5\textheight]{\textwidth}
@@ -212,56 +186,67 @@
     \begin{onlyenv}<1>
       \({c}
       \<{5cm}
-      \begin{code}
-     f :: Int -> Int
-     f x = x + 1
+      \begin{code}[gobble=8]
+        f :: ;\type{Int}; -> ;\type{Int};
+        f x = x + 1
       \end{code}
       \>
       \<{5cm}
-      \begin{code}
-     f : Z -> Z
-     f(x) = x + 1
+      \begin{code}[gobble=8]
+        f : Z `-> Z
+        f(x) = x + 1
       \end{code}
       \>
       \)
     \end{onlyenv}
     \begin{onlyenv}<2>
-      \vfill
-      \begin{code}
-          let a = 3 in
-              a := a + 1 -- compile error
+      \begin{code}[gobble=8]
+        1 + 2
       \end{code}
-      \vfill
     \end{onlyenv}
     \begin{onlyenv}<3>
-      \begin{code}
-          let a = if someBool then 1 else 0 in
-              a + 1
+      \begin{code}[gobble=8]
+        let a = 1
+        in  a + 2
       \end{code}
     \end{onlyenv}
     \begin{onlyenv}<4>
-      \begin{code}
-          let a = if someBool then 1 else 0 in
-              a + (let b = 2 in b)
+      \begin{code}[gobble=8]
+        let a = if someBool then 1 else 0
+        in  a + 2
       \end{code}
     \end{onlyenv}
     \begin{onlyenv}<5>
-      \begin{code}
-              let offset = case colour of
-                               Red   ->  0
-                               Green ->  8
-                               Blue  -> 16
-              in baseValue + offset
+      \begin{code}[gobble=8]
+        let a = if someBool then 1 else 0
+        in  a + (let b = 2 in b)
       \end{code}
     \end{onlyenv}
     \begin{onlyenv}<6>
-      \begin{code}
-                  foo :: Int -> String
+      \begin{code}[gobble=8]
+        let offset = case color of
+                         ;\cons{Red};   ->  0
+                         ;\cons{Green}; ->  8
+                         ;\cons{Blue};  -> 16
+        in baseValue + offset
       \end{code}
     \end{onlyenv}
     \begin{onlyenv}<7>
-      \begin{code}
-            readFile :: String -> IO String
+      \vfill
+      \begin{code}[gobble=8]
+        let a = 3
+        in  a = a + 1 -- compile error
+      \end{code}
+      \vfill
+    \end{onlyenv}
+    \begin{onlyenv}<8>
+      \begin{code}[gobble=8]
+        foo :: ;\type{Int}; -> String
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<9>
+      \begin{code}[gobble=8]
+        readFile :: String -> IO String
       \end{code}
     \end{onlyenv}
   \end{center}
@@ -275,26 +260,14 @@
   \item<2-> Functions $\not\in$ IO are deemed \textbf{pure}
   \item<3-> Functions $\in$ IO are deemed \textbf{impure}
   \end{itemize}
-
-  \({c}
-  \<{.4\textwidth}
-  \begin{center}
-    \uncover<2->{\includegraphics[width=\textwidth]{img/replace_me_with_anything_you_want}}
-  \end{center}
-  \>
-  \<{.4\textwidth}
-  \begin{center}
-    \uncover<3->{\includegraphics[width=\textwidth]{img/replace_me_with_anything_you_want}}
-  \end{center}
-  \>
-  \)
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{...and corruption}
   \begin{itemize}
-  \item $\exists$ ~~\inlinecode{f :: a -> IO a} ~~~~~{\small (from pure to impure)}
-  \item $\nexists$ ~~\inlinecode{f :: IO a -> a} ~~~~~{\small (from impure to pure)}
+  \item $\exists$ ~~\ict{f :: a -> IO a} ~~~~~{\small (from pure to impure)}
+  \item $\nexists$ ~~\ict{f :: IO a -> a} ~~~~~{\small (from impure to pure)}
+  \item<3-> $\exists$ ~~\ict{f :: IO a -> IO a} ~~~~~{\small (from impure to impure)}
   \end{itemize}
 
   \begin{center}
@@ -304,51 +277,100 @@
 
 \begin{frame}
   \frametitle{Lazy}
-  \({c}
-  \<{.25\textwidth}
-  \includegraphics[width=\textwidth]{img/replace_me_with_anything_you_want}
-  \>
-  \<{.6\textwidth}
+  \begin{minipage}[t][.3\textheight]{\textwidth}
   \begin{itemize}
   \item Deferred expression evaluation
   \item Not used $\Rightarrow$ not computed
   \end{itemize}
-  \>
-  \)
-  \pause
-  ~\\
-  \begin{center}
-    \Large
-    \inlinecode{if (obj != NULL && obj->value > 0)}
-  \end{center}
+  \end{minipage}
+
+  \begin{minipage}[c][.5\textheight]{\textwidth}
+  \begin{onlyenv}<2>
+    \begin{center}
+      Quiz
+    \end{center}
+  \end{onlyenv}
+
+  \begin{onlyenv}<3->
+    \begin{center}
+      (C++)\par
+      \Large
+      \inlinecode{if (obj != NULL && obj->value > 0)}
+    \end{center}
+  \end{onlyenv}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}
   \frametitle{Reduction steps}
   \begin{itemize}
   \item<1-> Strict evaluation: inner to outer
-  \item<2-> Lazy evaluation: outer to inner
+  \item<6-> Lazy evaluation: outer to inner
   \end{itemize}
-  \begin{onlyenv}<1>
-    \begin{center}
+  \begin{center}
+    add( x , y ) = x + y
+  \end{center}
+
+  \begin{minipage}[t][.7\textheight]{\textwidth}
+  \begin{center}
+    \begin{onlyenv}<2>
+      \begin{tabular}{ c c c c c }
+        \\ add( & 12 + 8 & ,              & 20 + 2 & )
+        \\      &        &                &        &
+        \\      &        &                &        &
+        \\      &        & \phantom{42}   &        &
+      \end{tabular}
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+      \begin{tabular}{ c c c c c }
+        \\ add( & 12 + 8 & ,              & 20 + 2 & )
+        \\ add( & 20     & ,              & 22     & )
+        \\      &        &                &        &
+        \\      &        & \phantom{42}   &        &
+      \end{tabular}
+    \end{onlyenv}
+    \begin{onlyenv}<4>
+      \begin{tabular}{ c c c c c }
+        \\ add( & 12 + 8 & ,              & 20 + 2 & )
+        \\ add( & 20     & ,              & 22     & )
+        \\      & 20     & +              & 22     &
+        \\      &        & \phantom{42}   &        &
+      \end{tabular}
+    \end{onlyenv}
+    \begin{onlyenv}<5>
       \begin{tabular}{ c c c c c }
         \\ add( & 12 + 8 & ,  & 20 + 2 & )
         \\ add( & 20     & ,  & 22     & )
         \\      & 20     & +  & 22     &
         \\      &        & 42 &        &
       \end{tabular}
-    \end{center}
-  \end{onlyenv}
-  \begin{onlyenv}<2>
-    \begin{center}
+    \end{onlyenv}
+    \begin{onlyenv}<7>
+      \begin{tabular}{ c c c c c }
+        \\ add( & 12 + 8 & ,              & 20 + 2 & )
+        \\      &        &                &        &
+        \\      &        & \phantom{42}   &        &
+        \\      &        &                &        &
+      \end{tabular}
+    \end{onlyenv}
+    \begin{onlyenv}<8>
+      \begin{tabular}{ c c c c c }
+        \\ add( & 12 + 8 & ,              & 20 + 2 & )
+        \\      & 12 + 8 & +              & 20 + 2 &
+        \\      &        & \phantom{42}   &        &
+        \\      &        &                &        &
+      \end{tabular}
+    \end{onlyenv}
+    \begin{onlyenv}<9>
       \begin{tabular}{ c c c c c }
         \\ add( & 12 + 8 & ,  & 20 + 2 & )
         \\      & 12 + 8 & +  & 20 + 2 &
         \\      &        & 42 &        &
         \\      &        &    &        &
       \end{tabular}
-    \end{center}
-  \end{onlyenv}
+    \end{onlyenv}
+  \end{center}
+  \end{minipage}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -402,10 +424,10 @@
 \begin{minipage}[c][.4\textheight]{\textwidth}
 \begin{center}
 \begin{tabular}{ r c l }
-                 \alt<4->{\ic{   map}}{\ic{   ???}}&\ic{::}&\ic{(a -> b) -> [a] -> [b]}
-  \\\uncover<5->{\alt<6->{\ic{filter}}{\ic{??????}}&\ic{::}&\ic{(a -> Bool) -> [a] -> [a]}}
-  \\\uncover<7->{\ic{(\$)}&\ic{::}&\ic{(a -> b) -> a -> b}}
-  \\\uncover<10->{\ic{(.)}&\ic{::}&\ic{(b -> c) -> (a -> b) -> (a -> c)}}
+                    \alt<4->{\ic{   map}}{\ic{???}} & \ic{::} & \ict{(a -> b) -> [a] -> [b]}
+  \\\uncover<5->{\alt<6->{\ic{filter}}{\ic{??????}} & \ic{::} & \ict{(a -> Bool) -> [a] -> [a]} }
+  \\\uncover<7->{\ic{(\$)}                          & \ic{::} & \ict{(a -> b) -> a -> b} }
+  \\\uncover<10->{\ic{(.)}                          & \ic{::} & \ict{(b -> c) -> (a -> b) -> (a -> c)} }
 \end{tabular}
 \end{center}
 \end{minipage}
@@ -415,9 +437,9 @@
 \only<2>{\small Lowercase letter: type parameter}
 \begin{onlyenv}<3-4>
 \begin{tabular}{ c l }
-  \ic{(a -> b)} & \small function from type A to type B\\
-  \ic{[a]}      & \small list of values of type A\\
-  \ic{[b]}      & \small list of values of type B
+  \ict{(a -> b)} & \small function from type A to type B\\
+  \ict{[a]}      & \small list of values of type A\\
+  \ict{[b]}      & \small list of values of type B
 \end{tabular}
 \end{onlyenv}
 \only<8>{\ic{let a = fun (x + y)}}
@@ -425,9 +447,9 @@
 \only<11>{\small $(f \circ g) (x) = f(g(x))$}
 \begin{onlyenv}<12>
   \begin{tabular}{ r c l c r c c c l}
-            &      & \ic{show} &\ic{::}& \ic{Stuff} &\ic{->}& \ic{String} &       &          \\
-\ic{length} &      &           &\ic{::}&            &       & \ic{String} &\ic{->}& \ic{Int} \\
-\ic{length} &\ic{.}& \ic{show} &\ic{::}& \ic{Stuff} &       &             &\ic{->}& \ic{Int} \\
+                 &      & \bi{\ic{show}} &\ic{::}& \type{\ic{Stuff}} &\ic{->}& \ic{String} &       &          \\
+\bi{\ic{length}} &      &                &\ic{::}&                   &       & \ic{String} &\ic{->}& \ic{Int} \\
+\bi{\ic{length}} &\ic{.}& \bi{\ic{show}} &\ic{::}& \type{\ic{Stuff}} &       &             &\ic{->}& \ic{Int} \\
   \end{tabular}
 \end{onlyenv}
 \only<13>{\inlinecode{cat input | grep token | sed stuff | tee output}}
@@ -439,14 +461,14 @@
 \frametitle{Quizz with a vengeance!}
 \begin{center}
 \begin{tabular}{ r c l }
-  \ic{foldl}&\ic{::}&\ic{(a -> b -> a) -> a -> [b] -> a}
+  \ic{foldl} & \ic{::} & \ict{(a -> b -> a) -> a -> [b] -> a}
 \end{tabular}
 \pause~\\~\\
 \begin{tabular}{ c l }
-  \ic{(a -> b -> a)} & \small combines accumulator and value\\
-  \ic{a}             & \small initial accumulator\\
-  \ic{[b]}           & \small list of values\\
-  \ic{a}             & \small result
+  \ict{(a -> b -> a)} & \small combines accumulator and value\\
+  \ict{a}             & \small initial accumulator\\
+  \ict{[b]}           & \small list of values\\
+  \ict{a}             & \small result
 \end{tabular}
 \pause~\\~\\~\\
 \small "reduce"
@@ -461,41 +483,32 @@
 
 \begin{frame}
 \frametitle{Algebraic data types}
-\({c}
-\<{.5\textwidth}
 \begin{itemize}
 \item Type composition
 \item Product and sum types
 \item Cardinality expressions
 \end{itemize}
-\>
-\pause
-\<{.5\textwidth}
-\includegraphics[width=\textwidth]{img/replace_me_with_anything_you_want}
-\>
-\)
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Type synonyms}
 \begin{code}
-    type Point   = (Int, Int)  -- tuple
+    type ;\type{Point};   = (Int, Int)  -- tuple
 \end{code}
 \pause
 \begin{code}
-    type Polygon = [Point]     -- list
+    type ;\type{Polygon}; = [;\type{Point};]     -- list
 \end{code}
 \pause
 \begin{code}
-    type Map k v = [(k, v)]    -- type parameters
+    type ;\type{Map}; ;\tvar{k}; ;\tvar{v}; = [(;\tvar{k};, ;\tvar{v};)]    -- type parameters
 \end{code}
 \end{frame}
 
 \begin{frame}
 \frametitle{Immutable data structures...}
-\({c}
-\<{.6\textwidth}
 \begin{center}
+  {~ What do they consist of?}
   \begin{itemize}
   \item<2-> No methods...
   \item<3-> No modifiers...
@@ -503,44 +516,37 @@
   \end{itemize}
   \uncover<5->{~\\What's left?\uncover<6>{ Constructors!}}
 \end{center}
-\>
-\<{.4\textwidth}
-\begin{center}
-  \includegraphics[width=0.8\textwidth]{img/replace_me_with_anything_you_want}
-\end{center}
-\>
-\)
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{The almighty "data" keyword}
 \begin{code}
-    data None    = None
+    data ;\type{None};    = ;\cons{None}
 \end{code}
 \begin{uncoverenv}<2->
 \begin{code}
-    data Minutes = Minutes Int
+    data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
 \end{code}
 \end{uncoverenv}
 \begin{uncoverenv}<3->
 \begin{code}
-    data Bool    =   False | True
+    data ;\type{Bool};    =   ;\cons{False}; | ;\cons{True};
 \end{code}
 \end{uncoverenv}
 \begin{uncoverenv}<4->
 \begin{code}
-    data Maybe a = Nothing | Just a
+    data ;\type{Maybe}; ;\tvar{a}; = ;\cons{Nothing}; | ;\cons{Just}; ;\tvar{a};
 \end{code}
 \end{uncoverenv}
 \begin{uncoverenv}<5->
 \begin{onlyenv}<-6>
 \begin{code}
-    data List  a =     Nil | Cell a (List a)
+    data ;\type{List};  ;\tvar{a}; =     ;\cons{Nil}; | ;\cons{Cell}; ;\tvar{a}; (;\type{List}; ;\tvar{a};)
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<7->
 \begin{code}
-    data [a]     =      [] | (a:[a])
+    data [;\tvar{a};]     =      [] | (;\tvar{a};:[;\tvar{a};])
 \end{code}
 \end{onlyenv}
 \end{uncoverenv}
@@ -549,54 +555,54 @@
 \begin{center}
 \begin{onlyenv}<1>
 \begin{code}
-                      None :: None
+                      ;\cons{None}; :: ;\type{None};
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<2>
 \begin{code}
-                Minutes    :: Int -> Minutes
-                Minutes 42 ::        Minutes
+                ;\cons{Minutes};    :: ;\type{Int}; -> ;\type{Minutes};
+                ;\cons{Minutes}; 42 ::        ;\type{Minutes};
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<3>
 \begin{code}
-                     True  :: Bool
-                     False :: Bool
+                     ;\cons{True};  :: ;\type{Bool};
+                     ;\cons{False}; :: ;\type{Bool};
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<4>
 \begin{code}
-                   Nothing ::      Maybe a
-                   Just    :: a -> Maybe a
-                   Just 42 ::      Maybe Int
+                   ;\cons{Nothing}; ::      ;\type{Maybe}; ;\tvar{a};
+                   ;\cons{Just};    :: ;\tvar{a}; -> ;\type{Maybe}; ;\tvar{a};
+                   ;\cons{Just}; 42 ::      ;\type{Maybe}; ;\type{Int};
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<5>
 \begin{code}
-                       Nil :: List a
-                      Cell :: a -> List a -> List a
-     Cell 0 (Cell 1 (Nil)) :: List Int
+                       ;\cons{Nil}; :: ;\type{List}; ;\tvar{a};
+                      ;\cons{Cell}; :: ;\tvar{a}; -> ;\type{List}; ;\tvar{a}; -> ;\type{List}; ;\tvar{a};
+     ;\cons{Cell}; 0 (;\cons{Cell}; 1 (;\cons{Nil};)) :: ;\type{List}; ;\type{Int};
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<6>
 \begin{code}
-                       Nil :: List a
-                      Cell :: a -> List a -> List a
-     Cell 0 $ Cell 1 $ Nil :: List Int
+                       ;\cons{Nil}; :: ;\type{List}; ;\tvar{a};
+                      ;\cons{Cell}; :: ;\type{a}; -> ;\type{List}; ;\tvar{a}; -> ;\type{List}; ;\tvar{a};
+     ;\cons{Cell}; 0 $ ;\cons{Cell}; 1 $ ;\cons{Nil}; :: ;\type{List}; ;\type{Int};
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<7>
 \begin{code}
-                        [] :: [a]
-                       (:) :: a -> [a] -> [a]
-                    0:1:[] :: [Int]
+                        [] :: [;\tvar{a};]
+                       (:) :: ;\tvar{a}; -> [;\tvar{a};] -> [;\tvar{a};]
+                    0:1:[] :: [;\type{Int};]
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<8>
 \begin{code}
-                        [] :: [a]
-                       (:) :: a -> [a] -> [a]
-                     [0,1] :: [Int]
+                        [] :: [;\tvar{a};]
+                       (:) :: ;\tvar{a}; -> [;\tvar{a};] -> [;\tvar{a};]
+                     [0,1] :: [;\type{Int};]
 \end{code}
 \end{onlyenv}
 \end{center}
@@ -608,25 +614,25 @@
 \begin{minipage}[t][0.4\textheight]{1.0\linewidth}
 \begin{onlyenv}<1>
 \begin{code}
-          data User = User String Int
+          data ;\type{User}; = ;\cons{User}; ;\type{String}; ;\type{Int};
 \end{code}
 \end{onlyenv}
 \begin{onlyenv}<2->
 \begin{code}
-          data User = User {
-              userName :: String,
-              userAge  :: Int
+          data ;\type{User}; = ;\cons{User}; {
+              userName :: ;\type{String};,
+              userAge  :: ;\type{Int};
           }
 \end{code}
 \end{onlyenv}
 \end{minipage}
 \begin{code}
-          User     :: String -> Int -> User
+          ;\cons{User};     :: ;\type{String}; -> ;\type{Int}; -> ;\type{User};
 \end{code}
 \begin{uncoverenv}<3>
 \begin{code}
-          userName :: User -> String
-          userAge  :: User -> Int
+          userName :: ;\type{User}; -> ;\type{String};
+          userAge  :: ;\type{User}; -> ;\type{Int};
 \end{code}
 \end{uncoverenv}
 \end{frame}
@@ -640,29 +646,33 @@
 \begin{frame}[fragile]
 \frametitle{Not}
 \begin{minipage}[t][.4\textheight]{\textwidth}
+\begin{code}
+    data ;\type{Bool}; = ;\cons{False}; | ;\cons{True};
+\end{code}
 \begin{onlyenv}<1>
   \begin{code}
-    not :: Bool -> Bool
+    not :: ;\type{Bool}; -> ;\type{Bool};
     not x = ???
   \end{code}
 \end{onlyenv}
-\begin{onlyenv}<2>
+\begin{onlyenv}<2-3>
   \begin{code}
-    not :: Bool -> Bool
-    not x = if x then False else True
+    not :: ;\type{Bool}; -> ;\type{Bool};
+    not x = if x then ;\cons{False}; else ;\cons{True};
   \end{code}
 \end{onlyenv}
-\begin{onlyenv}<3>
+\begin{onlyenv}<4>
   \begin{code}
-    not :: Bool -> Bool
-    not True  = False
-    not False = True
+    not :: ;\type{Bool}; -> ;\type{Bool};
+    not ;\cons{True};  = ;\cons{False};
+    not ;\cons{False}; = ;\cons{True};
   \end{code}
 \end{onlyenv}
 \end{minipage}
 \begin{minipage}[c][.3\textheight]{\textwidth}
 \begin{center}
-\only<3>{\#PatternMatching}
+\only<3>{Only for built-in type(s)}
+\only<4->{\#PatternMatching}
 \end{center}
 \end{minipage}
 \end{frame}
@@ -670,54 +680,59 @@
 \begin{frame}[fragile]
 \frametitle{And}
 \begin{minipage}[t][.4\textheight]{\textwidth}
+\begin{code}
+    data ;\type{Bool}; = ;\cons{False}; | ;\cons{True};
+\end{code}
 \begin{onlyenv}<1>
   \begin{code}
-    (&&) :: Bool -> Bool -> Bool
+    (&&) :: ;\type{Bool}; -> ;\type{Bool}; -> ;\type{Bool};
     x && y = ???
   \end{code}
 \end{onlyenv}
-\begin{onlyenv}<2>
+\begin{onlyenv}<2-3>
   \begin{code}
-    (&&) :: Bool -> Bool -> Bool
+    (&&) :: ;\type{Bool}; -> ;\type{Bool}; -> ;\type{Bool};
     x && y = if x
-             then (if y then True else False)
-             else False
-  \end{code}
-\end{onlyenv}
-\begin{onlyenv}<3>
-  \begin{code}
-    (&&) :: Bool -> Bool -> Bool
-    False && False = False
-    False && True  = False
-    True  && False = False
-    True  && True  = True
+             then (if y then ;\cons{True}; else ;\cons{False};)
+             else ;\cons{False};
   \end{code}
 \end{onlyenv}
 \begin{onlyenv}<4>
   \begin{code}
-    (&&) :: Bool -> Bool -> Bool
-    True && True = True
-    x    && y    = False
+    (&&) :: ;\type{Bool}; -> ;\type{Bool}; -> ;\type{Bool};
+    ;\cons{True};  && ;\cons{True};  = ;\cons{True};
+    ;\cons{True};  && ;\cons{False}; = ;\cons{False};
+    ;\cons{False}; && ;\cons{True};  = ;\cons{False};
+    ;\cons{False}; && ;\cons{False}; = ;\cons{False};
   \end{code}
 \end{onlyenv}
-\begin{onlyenv}<5>
+\begin{onlyenv}<5-7>
   \begin{code}
-    (&&) :: Bool -> Bool -> Bool
-    True && y = y
-    x    && y = False
+    (&&) :: ;\type{Bool}; -> ;\type{Bool}; -> ;\type{Bool};
+    ;\cons{True}; && ;\cons{True}; = ;\cons{True};
+    x    && y    = ;\cons{False};
   \end{code}
 \end{onlyenv}
-\begin{onlyenv}<6>
+\begin{onlyenv}<8>
   \begin{code}
-    (&&) :: Bool -> Bool -> Bool
-    True && y = y
-    _    && _ = False
+    (&&) :: ;\type{Bool}; -> ;\type{Bool}; -> ;\type{Bool};
+    ;\cons{True}; && y = y
+    x    && y = ;\cons{False};
+  \end{code}
+\end{onlyenv}
+\begin{onlyenv}<9>
+  \begin{code}
+    (&&) :: ;\type{Bool}; -> ;\type{Bool}; -> ;\type{Bool};
+    ;\cons{True}; && y = y
+    _    && _ = ;\cons{False};
   \end{code}
 \end{onlyenv}
 \end{minipage}
 \begin{minipage}[c][.3\textheight]{\textwidth}
 \begin{center}
-\includegraphics<6>[width=0.4\textwidth]{img/replace_me_with_anything_you_want}
+  \only<3>{Only for built-in type(s)}
+  \only<6>{Can you spot a problem?}
+  \only<7>{Eager in the second argument :(}
 \end{center}
 \end{minipage}
 \end{frame}
@@ -727,42 +742,42 @@
 \begin{minipage}[t][.4\textheight]{\textwidth}
 \begin{onlyenv}<1>
   \begin{code}
-    data Minutes = Minutes Int
+    data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
 
-    add :: Minutes -> Minutes -> Minutes
+    add :: ;\type{Minutes}; -> ;\type{Minutes}; -> ;\type{Minutes};
     add mx my = ???
   \end{code}
 \end{onlyenv}
 \begin{onlyenv}<2>
   \begin{code}
-    data Minutes = Minutes Int
+    data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
 
-    add :: Minutes -> Minutes -> Minutes
+    add :: ;\type{Minutes}; -> ;\type{Minutes}; -> ;\type{Minutes};
     add mx my = mx + my
   \end{code}
 \end{onlyenv}
 \begin{onlyenv}<3>
   \begin{code}
-    data Minutes = Minutes Int
+    data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
 
-    add :: Minutes -> Minutes -> Minutes
-    add (Minutes x) (Minutes y) = ???
+    add :: ;\type{Minutes}; -> ;\type{Minutes}; -> ;\type{Minutes};
+    add (;\cons{Minutes}; x) (;\cons{Minutes}; y) = ???
   \end{code}
 \end{onlyenv}
 \begin{onlyenv}<4>
   \begin{code}
-    data Minutes = Minutes Int
+    data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
 
-    add :: Minutes -> Minutes -> Minutes
-    add (Minutes x) (Minutes y) = Minutes (x + y)
+    add :: ;\type{Minutes}; -> ;\type{Minutes}; -> ;\type{Minutes};
+    add (;\cons{Minutes}; x) (;\cons{Minutes}; y) = ;\cons{Minutes}; (x + y)
   \end{code}%$
 \end{onlyenv}
 \begin{onlyenv}<5>
   \begin{code}
-    data Minutes = Minutes Int
+    data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
 
-    add :: Minutes -> Minutes -> Minutes
-    add (Minutes x) (Minutes y) = Minutes $ x + y
+    add :: ;\type{Minutes}; -> ;\type{Minutes}; -> ;\type{Minutes};
+    add (;\cons{Minutes}; x) (;\cons{Minutes}; y) = ;\cons{Minutes}; $ x + y
   \end{code}%$
 \end{onlyenv}
 \end{minipage}
@@ -777,35 +792,35 @@
 \begin{minipage}[t][.4\textheight]{\textwidth}
 \begin{onlyenv}<1>
   \begin{code}
-    data [a] = [] | (a:[a])
+    data [;\tvar{a};] = [] | (;\tvar{a};:[;\tvar{a};])
 
-    length :: [a] -> Int
+    length :: [;\tvar{a};] -> ;\type{Int};
     length l = ???
   \end{code}
 \end{onlyenv}
 \begin{onlyenv}<2>
   \begin{code}
-    data [a] = [] | (a:[a])
+    data [;\tvar{a};] = [] | (;\tvar{a};:[;\tvar{a};])
 
-    length :: [a] -> Int
+    length :: [;\tvar{a};] -> ;\type{Int};
     length []     = ???
     length (x:xs) = ???
   \end{code}
 \end{onlyenv}
 \begin{onlyenv}<3>
   \begin{code}
-    data [a] = [] | (a:[a])
+    data [;\tvar{a};] = [] | (;\tvar{a};:[;\tvar{a};])
 
-    length :: [a] -> Int
+    length :: [;\tvar{a};] -> ;\type{Int};
     length []     = 0
     length (x:xs) = ???
   \end{code}
 \end{onlyenv}
 \begin{onlyenv}<4>
   \begin{code}
-    data [a] = [] | (a:[a])
+    data [;\tvar{a};] = [] | (;\tvar{a};:[;\tvar{a};])
 
-    length :: [a] -> Int
+    length :: [;\tvar{a};] -> ;\type{Int};
     length []     = 0
     length (_:xs) = 1 + length xs
   \end{code}
@@ -827,9 +842,7 @@
 \begin{frame}
   \frametitle{The end!}
   \begin{center}
-    %\includegraphics[width=0.82\textwidth]{img/replace_me_with_anything_you_want}
-    ~\\
-    Congratulations for reaching the end!
+    Questions?
   \end{center}
 \end{frame}
 
@@ -841,6 +854,7 @@
   \item \href{https://book.realworldhaskell.org}{book.realworldhaskell.org}
   \item \href{http://haskellbook.com}{haskellbook.com}
   \item \href{https://www.haskell.org/hoogle/}{haskell.org/hoogle/}
+  \item \href{https://dev.to/stereobooster/pragmatic-types-type-systems-vs-tests-4k3e}{Pragmatic types: types vs tests}
   \end{itemize}
 \end{frame}
 
