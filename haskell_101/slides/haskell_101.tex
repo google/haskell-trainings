@@ -405,14 +405,26 @@
 \section{How to read function types}
 
 \begin{frame}
+\frametitle{Function types}
+\begin{center}
+\begin{tabular}{ l c r }
+  \uncover<1->{\inlinecode{f}     & \inlinecode{::} & \inlinecode{Int -> Int -> Int}} \\
+  \multicolumn{3}{l}{\uncover<2->{\inlinecode{f x y = x + y}}} \\
+  \uncover<3->{\inlinecode{f 1 2} & \inlinecode{::} & \inlinecode{              Int}} \\
+  \multicolumn{3}{l}{\uncover<4->{\inlinecode{3}}}
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}
 \frametitle{Curried functions, partial application}
 \begin{center}
 \begin{tabular}{ l c r }
-  \uncover<2->{\\\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int -> ( Int -> [Int] )}}
-  \uncover<1->{\\\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int ->   Int -> [Int]}}
-  \uncover<3->{\\\inlinecode{f 1}    &\inlinecode{::}&\inlinecode{         Int -> [Int]}}
-  \uncover<5->{\\\inlinecode{f 1 2}  &\inlinecode{::}&\inlinecode{                [Int]}}
-  \uncover<4->{\\\inlinecode{(f 1) 2}&\inlinecode{::}&\inlinecode{                [Int]}}
+  \uncover<2->{\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int -> ( Int -> Int )}} \\
+  \uncover<1->{\inlinecode{f}      &\inlinecode{::}&\inlinecode{Int ->   Int -> Int}} \\
+  \uncover<3->{\inlinecode{f 1}    &\inlinecode{::}&\inlinecode{         Int -> Int}} \\
+  \uncover<5->{\inlinecode{f 1 2}  &\inlinecode{::}&\inlinecode{                Int}} \\
+  \uncover<4->{\inlinecode{(f 1) 2}&\inlinecode{::}&\inlinecode{                Int}}
 \end{tabular}
 ~\\~\\~\\
 \end{center}
