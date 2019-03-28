@@ -24,6 +24,7 @@ download the generated PDFs and the codelabs.
 
 # Warning
 
-This code is presented as-is, without the speaker notes. At time of writing, no
-public recording of such a training exists. This is not an officially supported
+This code is presented as-is, without the speaker notes. Public recordings of
+the training are available: [Haskell 101](http://youtu.be/cTN1Qar4HSw),
+[Haskell 102](http://youtu.be/Ug9yJnOYR4U). This is not an officially supported
 Google product.
