@@ -64,7 +64,7 @@ import Control.Monad        (void)
 import Data.Maybe           (isJust)
 import Text.Read            (readMaybe)
 import Prelude       hiding (null, head, tail, length, and, or, (++),
-                             map, filter, foldr, foldl)
+                             map, filter, foldr, foldl, gcd)
 
 codelab :: a
 codelab = error "SOMETHING IS NOT IMPLEMENTED!"
@@ -74,7 +74,44 @@ codelab = error "SOMETHING IS NOT IMPLEMENTED!"
 
 
 {- #####################################################################
-   SECTION 1: deconstructing lists
+   SECTION 1: number manipulation
+
+   As we have not looked at any complex data structures yet, so the
+   only thing we have for now are numbers.
+-}
+
+add :: Int -> Int -> Int
+add x y = x + y
+
+subtract :: Int -> Int -> Int
+subtract x y = x - y
+
+double :: Int -> Int
+double x = 2 * x
+
+multiply :: Int -> Int -> Int
+multiply x y = x * y
+
+divide :: Int -> Int -> Double
+divide x y = fromIntegral x / fromIntegral y
+
+factorial :: Integer -> Integer
+factorial n = if n <= 1
+              then 1
+              else n * factorial (n-1)
+
+gcd :: Int -> Int -> Int
+gcd a b
+  | a == b = a
+  | a > b = gcd (a - b) b
+  | otherwise = gcd a (b - a)
+
+
+
+
+
+{- #####################################################################
+   SECTION 2: deconstructing lists
 
    The default list is ubiquitous in the Prelude; the default String
    type is but a type alias to [Char] after all. Though they have
@@ -113,7 +150,7 @@ tail (_:xs) = xs
 
 
 {- #####################################################################
-   SECTION 2: recursion (c.f. SECTION 2)
+   SECTION 3: recursion (c.f. SECTION 3)
 
    There is no loop in Haskell, so to go through a list, we have to use
    recursion. Here are a few more common functions for you to
@@ -159,7 +196,7 @@ or (x:xs) = x || or xs
 
 
 {- #####################################################################
-   SECTION 3: abstractions
+   SECTION 4: abstractions
 
    Have you noticed that we keep using the same pattern?
    If the list is empty we return a specific value.
@@ -266,7 +303,7 @@ foldr f a (x:xs) = x `f` foldr f a xs
 
 
 {- #####################################################################
-   SECTION 4: am I being indecisive? ....hmmmm Maybe?
+   SECTION 5: am I being indecisive? ....hmmmm Maybe?
 
    Partial functions are bad. Null pointers are a billion dollar
    mistake. Sometimes, what we just want is to have an optional value,
@@ -485,7 +522,7 @@ allPrimes = sieve [2..]
 
 instinct :: [Int] -> [Int]
 instinct []     = []
-instinct (x:xs) = instinct [a | a <- xs, a < x] ++ [x] ++ (instinct $ filter (>= x) xs)
+instinct (x:xs) = instinct [a | a <- xs, a < x] ++ [x] ++ instinct (filter (>= x) xs)
 
 qsort :: Ord a => [a] -> [a] -- for all types a that provide (>) and (<=)
 qsort [] = []

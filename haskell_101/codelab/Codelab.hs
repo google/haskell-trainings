@@ -66,7 +66,7 @@ import Control.Monad        (void)
 import Data.Maybe           (isJust)
 import Text.Read            (readMaybe)
 import Prelude       hiding (null, head, tail, length, and, or, (++),
-                             map, filter, foldr, foldl)
+                             map, filter, foldr, foldl, gcd)
 
 codelab :: a
 codelab = error "SOMETHING IS NOT IMPLEMENTED!"
@@ -76,7 +76,60 @@ codelab = error "SOMETHING IS NOT IMPLEMENTED!"
 
 
 {- #####################################################################
-   SECTION 1: deconstructing lists
+   SECTION 1: number manipulation
+
+   As we have not looked at any complex data structures yet, so the
+   only thing we have for now are numbers.
+-}
+
+add :: Int -> Int -> Int
+add x y = codelab
+
+subtract :: Int -> Int -> Int
+subtract x y = codelab
+
+double :: Int -> Int
+double x = codelab
+
+multiply :: Int -> Int -> Int
+multiply x y = codelab
+
+-- Note that Haskell is strict about types even for basic integral
+-- types.  Int is never automatically converted to Double.  But you
+-- can use fromIntegral to convert from any itegral type to any number
+-- type.
+
+divide :: Int -> Int -> Double
+divide x y = codelab
+
+-- Remember that you can use if/then/else:
+--
+--  if <expr> then <expr> else <expr>
+--
+-- Integer is just like Int, except that it can store arbitrary large numbers.
+
+factorial :: Integer -> Integer
+factorial n = codelab
+
+-- Expressions can be assigned names, called "bindings", using the following syntax:
+--
+--   let x = <expr1>
+--    in <expr2>
+--
+-- Spacing is irrelevant - you can put spaces anywhere you want.
+-- As for the GCD itself, consider Euclid's algorithm:
+--
+--   https://en.wikipedia.org/wiki/Greatest_common_divisor#Using_Euclid's_algorithm
+
+gcd :: Int -> Int -> Int
+gcd a b = codelab
+
+
+
+
+
+{- #####################################################################
+   SECTION 2: deconstructing lists
 
    The default list is ubiquitous in the Prelude; the default String
    type is but a type alias to [Char] after all. Though they have
@@ -113,7 +166,7 @@ tail = codelab
 
 
 {- #####################################################################
-   SECTION 2: recursion (c.f. SECTION 2)
+   SECTION 3: recursion (c.f. SECTION 3)
 
    There is no loop in Haskell, so to go through a list, we have to use
    recursion. Here are a few more common functions for you to
@@ -153,7 +206,7 @@ l1 ++ l2 = codelab
 
 
 {- #####################################################################
-   SECTION 3: abstractions
+   SECTION 4: abstractions
 
    Have you noticed that we keep using the same pattern?
    If the list is empty we return a specific value.
@@ -224,7 +277,7 @@ foldr f a (x:xs) = codelab
 {- #####################################################################
    BONUS STAGE!
 
-   For fun, you can try reimplementing all the functions in section 2
+   For fun, you can try reimplementing all the functions in section 3
    with foldr or foldl! For length, remember that the syntax for a
    lambda function is (\arg1 arg2 -> value).
 
@@ -260,7 +313,7 @@ foldr f a (x:xs) = codelab
 
 
 {- #####################################################################
-   SECTION 4: am I being indecisive? ....hmmmm Maybe?
+   SECTION 5: am I being indecisive? ....hmmmm Maybe?
 
    Partial functions are bad. Null pointers are a billion dollar
    mistake. Sometimes, what we just want is to have an optional value,

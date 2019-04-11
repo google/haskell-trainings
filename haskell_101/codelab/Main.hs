@@ -140,7 +140,6 @@ test name expected actual = do
 testI :: String -> Int -> Int -> IO Bool
 testI = test
 
-
 -- main
 
 tests :: [Section] -> [IO Bool]
@@ -150,7 +149,15 @@ tests sections =
      $ flip map sections
      $ \case Section 1 ->
                [ display "#### Section 1"
-               , display "TODO"
+               , test "add       1 2"  3                 $ C.add 1 2
+               , test "subtract  7 2"  5                 $ C.subtract 7 2
+               , test "double    3"    6                 $ C.double 3
+               , test "multiply  3 11" 33                $ C.multiply 3 11
+               , test "divide    9 2"  4.5               $ C.divide 9 2
+               , test "divide    8 4"  2                 $ C.divide 8 4
+               , test "factorial 30"   (product [1..30]) $ C.factorial 30
+               , test "gcd       12 4" 4                 $ C.gcd 12 4
+               , test "gcd       17 7" 1                 $ C.gcd 17 7
                ]
              Section 2 ->
                [ display "#### Section 2"
