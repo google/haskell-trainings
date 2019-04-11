@@ -14,29 +14,27 @@
 
 
 
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, LambdaCase #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
 import Control.Exception
 import Control.Monad
-import Data.Function         (on)
-import Data.List             (nub)
-import Data.Map              (empty, fromList)
+import Data.Function (on)
+import Data.List (intercalate, nub)
+import Data.Map  (empty, fromList)
+import System.Console.GetOpt (ArgDescr(ReqArg, NoArg)
+                             , ArgOrder(Permute), OptDescr(Option)
+                             , getOpt, usageInfo
+                             )
+import System.Environment (getArgs)
 import System.Exit
-import System.Posix.IO       (stdOutput)
+import System.IO (Handle, hPutStr, hPutStrLn, stderr, stdout)
+import System.Posix.IO (stdOutput)
 import System.Posix.Terminal (queryTerminal)
 import System.Timeout
 import Text.Printf
 
 import Game
-
-
-
-
-
-{- #####################################################################
-   SECTION 0: setting up the tests.
--}
 
 
 -- term color
@@ -47,11 +45,66 @@ kR = "\x1b[31;1m"
 kG = "\x1b[32;1m"
 
 putTag :: String -> TermColor -> IO ()
-putTag tag color = do
+putTag = hPutTag stdout
+
+hPutTag :: Handle -> String -> TermColor -> IO ()
+hPutTag h tag color = do
   isTTY <- queryTerminal stdOutput
   if isTTY
-    then putStr $ "[" ++ color ++ tag ++ "\x1b[0m]"
-    else putStr $ "[" ++ tag ++ "]"
+    then hPutStr h $ "[" ++ color ++ tag ++ "\x1b[0m]"
+    else hPutStr h $ "[" ++ tag ++ "]"
+
+
+-- options
+
+newtype Section = Section Int
+  deriving Eq
+
+instance Bounded Section where
+  minBound = Section 1
+  maxBound = Section 4
+
+instance Ord Section where
+  compare (Section s1) (Section s2) = compare s1 s2
+
+instance Enum Section where
+  toEnum = Section
+  fromEnum (Section i) = i
+
+validSection :: Section -> Bool
+validSection s = s >= minBound && s <= maxBound
+
+newtype Options = Options
+    { optSections :: [Section]
+    }
+
+options :: [OptDescr (Options -> IO Options)]
+options =
+  [
+    Option ['s'] ["section"]
+      (ReqArg (\v opts ->
+                 do let i = read v
+                    unless (validSection (Section i)) $ do
+                      hPutTag stderr "Error" kR
+                      hPutStrLn stderr $ " Invalid section number: " ++ v
+                      let (Section from, Section to) = (minBound, maxBound)
+                      hPrintf stderr "Valid section numbers: %d..%d\n" from to
+                      exitFailure
+                    return $ opts { optSections = optSections opts ++ [Section i] }
+              )
+        "<id>"
+      )
+      "Include section <id> in the run",
+    Option ['h'] ["help"]
+      (NoArg (\_ ->
+                do hPutStrLn stderr (usageInfo usageHeader options)
+                   exitSuccess
+             ))
+      "Show this help message"
+  ]
+
+usageHeader :: String
+usageHeader = "Usage: ./test_codelab [-h] [-s|--section <id>] [--help]"
 
 
 -- tests
@@ -153,6 +206,7 @@ t33_2 = test "[3.3] add color in map"       (s3m Blue 3) $ addColorToMap Blue $ 
 
 
 
+
 {- #####################################################################
    SECTION 4: codes
 -}
@@ -191,30 +245,63 @@ t45_3 = test "[4.5] countScore  [B,B,C,G] [B,B,C,G]" (Score 4 0) $ countScore [B
    Main
 -}
 
-display s = True <$ putStrLn s
+tests :: [Section] -> [IO Bool]
+tests sections =
+  let display s = True <$ putStrLn s
+  in intercalate [display ""]
+     $ flip map sections
+     $ \case Section 1 ->
+               [ display "#### Section 1"
+               , t11_1, t11_2
+               , t12_1, t12_2, t12_3
+               , t13_1, t13_2, t13_3, t13_4
+               , t14_1, t14_2, t14_3
+               ]
+             Section 2 ->
+               [ display "#### Section 2"
+               , t21_1, t21_2, t21_3, t21_4, t21_5, t21_6, t21_7
+               ]
+             Section 3 ->
+               [ display "#### Section 3"
+               , t31_1, t31_2
+               , t32_1, t32_2
+               , t33_1, t33_2
+               ]
+             Section 4 ->
+               [ display "#### Section 4"
+               , t41_1, t41_2, t41_3, t41_4, t41_5, t41_6, t41_7
+               , t42_1, t42_2
+               , t43_1, t43_2, t43_3, t43_4
+               , t44_1, t44_2, t44_3, t44_4, t44_5
+               , t45_1, t45_2, t45_3
+               ]
+             Section unexpected ->
+               [ display $ "Unexpected section requested: " ++ show unexpected
+               ]
 
-tests = [display "#### Section 1",
-         t11_1, t11_2,
-         t12_1, t12_2, t12_3,
-         t13_1, t13_2, t13_3, t13_4,
-         t14_1, t14_2, t14_3,
-         display "",
-         display "#### Section 2",
-         t21_1, t21_2, t21_3, t21_4, t21_5, t21_6, t21_7,
-         display "",
-         display "#### Section 3",
-         t31_1, t31_2,
-         t32_1, t32_2,
-         t33_1, t33_2,
-         display "",
-         display "#### Section 4",
-         t41_1, t41_2, t41_3, t41_4, t41_5, t41_6, t41_7,
-         t42_1, t42_2,
-         t43_1, t43_2, t43_3, t43_4,
-         t44_1, t44_2, t44_3, t44_4, t44_5,
-         t45_1, t45_2, t45_3]
+parseOpts :: IO Options
+parseOpts = do
+  args <- getArgs
+  case getOpt Permute options args of
+    (o, [], []) -> do
+      let defaultOptions = Options { optSections = [] }
+      opts <- foldM (flip id) defaultOptions o
+      let opts' = opts { optSections = if null $ optSections opts
+                                       then [minBound .. maxBound]
+                                       else optSections opts }
+      return opts'
+    (_, nonOptions@(_:_), _) -> do
+      hPrintf stderr " Unexpected non-option argument(s): %s\n"
+        (intercalate ", " $ map show nonOptions)
+      hPutStrLn stderr $ usageInfo usageHeader options
+      exitFailure
+    (_, _, errs@(_:_)) -> do
+      hPutStrLn stderr (concat errs ++ usageInfo usageHeader options)
+      exitFailure
 
 main :: IO ()
 main = do
-  failing <- length . filter not <$> sequence tests
+  opts <- parseOpts
+  results <- sequence $ tests (optSections opts)
+  let failing = length . filter not $ results
   when (failing > 0) exitFailure
