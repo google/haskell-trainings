@@ -25,7 +25,6 @@ $ ./codelab
 You can also load this file in ghci:
 
 $ ghci
-> :set -DCODELAB
 > :l Codelab
 > :l Main
 > main
@@ -465,4 +464,4 @@ valor = let s l = head l : s [n | n <- tail l, n `mod` head l /= 0] in s [2..]
 
 instinct :: [Int] -> [Int]
 instinct []     = []
-instinct (x:xs) = instinct [a | a <- xs, a < x] ++ [x] ++ (instinct $ filter (>= x) xs)
+instinct (x:xs) = instinct [a | a <- xs, a < x] ++ [x] ++ instinct (filter (>= x) xs)

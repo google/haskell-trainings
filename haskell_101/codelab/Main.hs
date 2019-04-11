@@ -18,25 +18,19 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
-import           Control.Exception
-import           Control.Monad
-import           System.Exit
-import           System.Posix.IO       (stdOutput)
-import           System.Posix.Terminal (queryTerminal)
-import           System.Timeout
-import           Text.Printf
-
-#ifdef CODELAB
-import qualified Codelab               as C
-#endif
+import Control.Exception
+import Control.Monad
+import System.Exit
+import System.Posix.IO       (stdOutput)
+import System.Posix.Terminal (queryTerminal)
+import System.Timeout
+import Text.Printf
 
 #ifdef SOLUTION
 import qualified Solution              as C
+#else
+import qualified Codelab               as C
 #endif
-
-(+=+) :: [a] -> [a] -> [a]
-(+=+) = (C.++) -- lol C++
-
 
 
 -- term color
@@ -114,9 +108,9 @@ tests = [ display "#### Section 1"
         , test  "or     [False, True]"        True      $ C.or [False, True]
         , test  "or     [False, False]"       False     $ C.or [False, False]
         , test  "or     [False, False, True]" True      $ C.or [False, False, True]
-        , test  "[8,0] ++ [   ]"              [8,0]     $ [8,0] +=+ []
-        , test  "[   ] ++ [6,4]"              [6,4]     $ [   ] +=+ [6,4]
-        , test  "[8,0] ++ [6,4]"              [8,0,6,4] $ [8,0] +=+ [6,4]
+        , test  "[8,0] ++ [   ]"              [8,0]     $ [8,0] C.++ []
+        , test  "[   ] ++ [6,4]"              [6,4]     $ [   ] C.++ [6,4]
+        , test  "[8,0] ++ [6,4]"              [8,0,6,4] $ [8,0] C.++ [6,4]
         , display ""
         , display "#### Section 3"
         , test  "map    (+1)   []"        []                     $ C.map (+1) []
@@ -124,7 +118,7 @@ tests = [ display "#### Section 1"
         , test  "filter (>5)   []"        []                     $ C.filter (>5) []
         , test  "filter (>5)   [8,0,6,4]" [8,6]                  $ C.filter (>5) [8,0,6,4]
         , testI "foldl  (-)  1   [10]" (-9)                      $ C.foldl (-) 1 [10]
-        , testI "foldr  (-)  1   [10]" ( 9)                      $ C.foldr (-) 1 [10]
+        , testI "foldr  (-)  1   [10]"   9                       $ C.foldr (-) 1 [10]
         , testI "foldl  (-)  0   [1,2,3,4]" (-10)                $ C.foldl (-) 0 [1,2,3,4]
         , testI "foldr  (-)  0   [1,2,3,4]" (-2)                 $ C.foldr (-) 0 [1,2,3,4]
         , test  "foldl  (++) \"_\" [\"A\", \"B\", \"C\"]" "_ABC" $ C.foldl  (++) "_" ["A","B","C"]

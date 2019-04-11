@@ -6,7 +6,7 @@ TARGETS = codelab solution
 all: $(TARGETS)
 
 codelab: Main.hs Codelab.hs
-	ghc $(FLAGS) -DCODELAB $< -o $@
+	ghc $(FLAGS) $< -o $@
 
 solution: Main.hs Solution.hs
 	ghc $(FLAGS) -DSOLUTION $< -o $@

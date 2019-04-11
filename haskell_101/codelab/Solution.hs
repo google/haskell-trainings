@@ -25,7 +25,6 @@ $ ./codelab
 You can also load this file in ghci:
 
 $ ghci
-> :set -DCODELAB
 > :l Codelab
 > :l Main
 > main

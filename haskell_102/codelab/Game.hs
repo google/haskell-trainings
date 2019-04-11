@@ -17,14 +17,12 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-#ifdef CODELAB
-module Game (module Game, module Codelab) where
-import Codelab
-#endif
-
 #ifdef SOLUTION
 module Game (module Game, module Solution) where
 import Solution
+#else
+module Game (module Game, module Codelab) where
+import Codelab
 #endif
 
 import System.IO

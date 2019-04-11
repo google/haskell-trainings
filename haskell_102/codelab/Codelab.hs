@@ -26,7 +26,6 @@ $ ./codelab play
 You can also test your functions in GHCI:
 
 $ ghci
-> :set -DCODELAB
 > :l Tests
 > main            -- run the tests
 > :r              -- recompile
@@ -66,7 +65,7 @@ import Data.Maybe
 import Prelude    hiding (lookup)
 
 codelab :: a
-codelab = error "CODELAB NOT IMPLEMENTED"
+codelab = error "SOMETHING IS NOT IMPLEMENTED!"
 
 
 

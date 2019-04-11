@@ -7,7 +7,6 @@ haskell_test(
         "Main.hs",
     ],
     ghcopts = [
-        "-DCODELAB",
         "-Wwarn",
     ],
 )

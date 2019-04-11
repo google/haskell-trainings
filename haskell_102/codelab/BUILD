@@ -8,7 +8,6 @@ haskell_binary(
         "Main.hs",
     ],
     ghcopts = [
-        "-DCODELAB",
         "-Wwarn",
     ],
     deps = [
@@ -24,7 +23,6 @@ haskell_test(
         "Tests.hs",
     ],
     ghcopts = [
-        "-DCODELAB",
         "-Wwarn",
     ],
     deps = [

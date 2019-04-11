@@ -26,7 +26,6 @@ $ ./codelab play
 You can also test your functions in GHCI:
 
 $ ghci
-> :set -DCODELAB
 > :l Tests
 > main -- run the tests
 
