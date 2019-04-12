@@ -132,7 +132,7 @@ test name expected actual = do
   result <- runTest >>= maybe (False <$ onTimeout) return
   putStrLn ""
   return result
-  where onSuccess   = putTag "OK" kG
+  where onSuccess   = putTag "OK" kG >> printf " got: %s" (show actual)
         onError     = putTag "KO" kR >> printf " want: %s; got: %s" (show expected) (show actual)
         onFailure s = putTag "!!" kR >> printf " error: %s" s
         onTimeout   = putTag "??" kR >> putStr " (timeout)"
