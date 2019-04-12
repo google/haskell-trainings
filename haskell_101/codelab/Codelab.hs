@@ -59,6 +59,7 @@ Good luck and, most importantly, have fun!
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 {-# OPTIONS_GHC -fno-warn-unused-binds   #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults  #-}
 
 module Codelab where
 
@@ -129,7 +130,50 @@ gcd a b = codelab
 
 
 {- #####################################################################
-   SECTION 2: deconstructing lists
+   SECTION 2: simple pattern matching
+
+   Not that we can defined simple data structures, let's try using them.
+-}
+
+data Minutes = Minutes Int
+
+-- Integer division is called "div".  If you want, you can use a
+-- function of two arguments as an infix operator, by quoting it using
+-- back quotes, like this:
+--
+--     let v = a `div` b
+
+hours :: Minutes -> Int
+hours m = codelab
+
+-- In case you might need some mathematical functions, you can use
+--
+--     https://hoogle.haskell.org/
+--
+-- to search for anything supported by the standard library and beyond.
+--
+-- Distance here means the number of minutes to get from m1 to m2.
+-- For example, for 15 and 25, distance is 10.
+
+timeDistance :: Minutes -> Minutes -> Minutes
+timeDistance m1 m2 = codelab
+
+type Point = (Int, Int)
+
+-- Do not forget about Hoogle, should you need a new function.
+--
+-- Notice, when you are declare a new type with the "data" keyword
+-- you also declare new constructor(s) that you can use to pattern
+-- match on.  But when you are declaring a type alias with the "type"
+-- keyword, no constructors are declared.  You will pattern match on
+-- the original type you are aliasing - a tuple in this case.
+
+pointDistance :: Point -> Point -> Double
+pointDistance p1 p2 = codelab
+
+
+{- #####################################################################
+   SECTION 3: deconstructing lists
 
    The default list is ubiquitous in the Prelude; the default String
    type is but a type alias to [Char] after all. Though they have
@@ -166,7 +210,7 @@ tail = codelab
 
 
 {- #####################################################################
-   SECTION 3: recursion (c.f. SECTION 3)
+   SECTION 4: recursion (c.f. SECTION 4)
 
    There is no loop in Haskell, so to go through a list, we have to use
    recursion. Here are a few more common functions for you to
@@ -206,7 +250,7 @@ l1 ++ l2 = codelab
 
 
 {- #####################################################################
-   SECTION 4: abstractions
+   SECTION 5: abstractions
 
    Have you noticed that we keep using the same pattern?
    If the list is empty we return a specific value.
@@ -313,7 +357,7 @@ foldr f a (x:xs) = codelab
 
 
 {- #####################################################################
-   SECTION 5: am I being indecisive? ....hmmmm Maybe?
+   SECTION 6: am I being indecisive? ....hmmmm Maybe?
 
    Partial functions are bad. Null pointers are a billion dollar
    mistake. Sometimes, what we just want is to have an optional value,

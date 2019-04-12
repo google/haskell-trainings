@@ -57,6 +57,7 @@ Good luck and, most importantly, have fun!
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 {-# OPTIONS_GHC -fno-warn-unused-binds   #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults  #-}
 
 module Solution where
 
@@ -111,7 +112,31 @@ gcd a b
 
 
 {- #####################################################################
-   SECTION 2: deconstructing lists
+   SECTION 2: simple pattern matching
+
+   Not that we can defined simple data structures, let's try using them.
+-}
+
+type Point = (Int, Int)
+
+-- Do not forget about Hoogle, should you need a new function.
+
+pointDistance :: Point -> Point -> Double
+pointDistance (x1, y1) (x2, y2) =
+  sqrt $ fromIntegral $ (x1 - x2) ^ 2 + (y1 - y2) ^ 2
+
+data Minutes = Minutes Int
+
+hours :: Minutes -> Int
+hours (Minutes m) = m `div` 60
+
+timeDistance :: Minutes -> Minutes -> Minutes
+timeDistance (Minutes m1) (Minutes m2) = Minutes (abs $ m2 - m1)
+
+
+
+{- #####################################################################
+   SECTION 3: deconstructing lists
 
    The default list is ubiquitous in the Prelude; the default String
    type is but a type alias to [Char] after all. Though they have
@@ -150,7 +175,7 @@ tail (_:xs) = xs
 
 
 {- #####################################################################
-   SECTION 3: recursion (c.f. SECTION 3)
+   SECTION 4: recursion (c.f. SECTION 4)
 
    There is no loop in Haskell, so to go through a list, we have to use
    recursion. Here are a few more common functions for you to
@@ -196,7 +221,7 @@ or (x:xs) = x || or xs
 
 
 {- #####################################################################
-   SECTION 4: abstractions
+   SECTION 5: abstractions
 
    Have you noticed that we keep using the same pattern?
    If the list is empty we return a specific value.
@@ -267,7 +292,7 @@ foldr f a (x:xs) = x `f` foldr f a xs
 {- #####################################################################
    BONUS STAGE!
 
-   For fun, you can try reimplementing all the functions in section 2
+   For fun, you can try reimplementing all the functions in section 4
    with foldr or foldl! For length, remember that the syntax for a
    lambda function is (\arg1 arg2 -> value).
 
@@ -303,7 +328,7 @@ foldr f a (x:xs) = x `f` foldr f a xs
 
 
 {- #####################################################################
-   SECTION 5: am I being indecisive? ....hmmmm Maybe?
+   SECTION 6: am I being indecisive? ....hmmmm Maybe?
 
    Partial functions are bad. Null pointers are a billion dollar
    mistake. Sometimes, what we just want is to have an optional value,

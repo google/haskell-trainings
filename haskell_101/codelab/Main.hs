@@ -14,9 +14,10 @@
 
 
 
-{-# LANGUAGE CPP, LambdaCase #-}
+{-# LANGUAGE CPP, LambdaCase, StandaloneDeriving #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 import Control.Exception
 import Control.Monad
@@ -39,6 +40,8 @@ import qualified Solution              as C
 import qualified Codelab               as C
 #endif
 
+deriving instance Eq C.Minutes
+deriving instance Show C.Minutes
 
 -- term color
 
@@ -65,7 +68,7 @@ newtype Section = Section Int
 
 instance Bounded Section where
   minBound = Section 1
-  maxBound = Section 5
+  maxBound = Section 6
 
 instance Ord Section where
   compare (Section s1) (Section s2) = compare s1 s2
@@ -161,13 +164,24 @@ tests sections =
                ]
              Section 2 ->
                [ display "#### Section 2"
+               , test "hours (Minutes 271)" 4 $ C.hours (C.Minutes 271)
+               , test "hours (Minutes 15)" 0 $ C.hours (C.Minutes 15)
+               , test "timeDistance (Minutes 15) (Minutes 25)" (C.Minutes 10)
+                 $ C.timeDistance (C.Minutes 15) (C.Minutes 25)
+               , test "timeDistance (Minutes 99) (Minutes 47)" (C.Minutes 52)
+                 $ C.timeDistance (C.Minutes 99) (C.Minutes 47)
+               , test "pointDistance (1, 1) (1, 3)" 2 $ C.pointDistance (1, 1) (1, 3)
+               , test "pointDistance (3, 4) (0, 0)" 5 $ C.pointDistance (3, 4) (0, 0)
+               ]
+             Section 3 ->
+               [ display "#### Section 3"
                , test  "null []"      True  $ C.null []
                , test  "null [8,0,6]" False $ C.null [8,0,6]
                , testI "head [8,0,6]" 8     $ C.head [8,0,6]
                , test  "tail [8,0,6]" [0,6] $ C.tail [8,0,6]
                ]
-             Section 3 ->
-               [ display "#### Section 3"
+             Section 4 ->
+               [ display "#### Section 4"
                , testI "length []"                   0         $ C.length []
                , testI "length [8,0,6]"              3         $ C.length [8,0,6]
                , test  "and    []"                   True      $ C.and []
@@ -190,8 +204,8 @@ tests sections =
                , test  "[   ] ++ [6,4]"              [6,4]     $ [   ] C.++ [6,4]
                , test  "[8,0] ++ [6,4]"              [8,0,6,4] $ [8,0] C.++ [6,4]
                ]
-             Section 4 ->
-               [ display "#### Section 4"
+             Section 5 ->
+               [ display "#### Section 5"
                , test  "map    (+1)   []"        []                     $ C.map (+1) []
                , test  "map    (+1)   [8,0,6,4]" [9,1,7,5]              $ C.map (+1) [8,0,6,4]
                , test  "filter (>5)   []"        []                     $ C.filter (>5) []
@@ -203,8 +217,8 @@ tests sections =
                , test  "foldl  (++) \"_\" [\"A\", \"B\", \"C\"]" "_ABC" $ C.foldl  (++) "_" ["A","B","C"]
                , test  "foldr  (++) \"_\" [\"A\", \"B\", \"C\"]" "ABC_" $ C.foldr  (++) "_" ["A","B","C"]
                ]
-             Section 5 ->
-               [ display "#### Section 5"
+             Section 6 ->
+               [ display "#### Section 6"
                , test  "safeHead  []"           Nothing  $ C.safeHead ([] :: [Int])
                , test  "safeHead  [8,0,6]"      (Just 8) $ C.safeHead [8,0,6]
                , test  "isNothing (Just 42)"    False    $ C.isNothing (Just 42)
