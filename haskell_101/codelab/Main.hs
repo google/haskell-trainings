@@ -211,10 +211,10 @@ tests sections =
                , test  "filter (>5)   []"        []                     $ C.filter (>5) []
                , test  "filter (>5)   [8,0,6,4]" [8,6]                  $ C.filter (>5) [8,0,6,4]
                , testI "foldl  (-)  1   [10]" (-9)                      $ C.foldl (-) 1 [10]
-               , testI "foldr  (-)  1   [10]"   9                       $ C.foldr (-) 1 [10]
                , testI "foldl  (-)  0   [1,2,3,4]" (-10)                $ C.foldl (-) 0 [1,2,3,4]
-               , testI "foldr  (-)  0   [1,2,3,4]" (-2)                 $ C.foldr (-) 0 [1,2,3,4]
                , test  "foldl  (++) \"_\" [\"A\", \"B\", \"C\"]" "_ABC" $ C.foldl  (++) "_" ["A","B","C"]
+               , testI "foldr  (-)  1   [10]"   9                       $ C.foldr (-) 1 [10]
+               , testI "foldr  (-)  0   [1,2,3,4]" (-2)                 $ C.foldr (-) 0 [1,2,3,4]
                , test  "foldr  (++) \"_\" [\"A\", \"B\", \"C\"]" "ABC_" $ C.foldr  (++) "_" ["A","B","C"]
                ]
              Section 6 ->
