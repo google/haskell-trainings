@@ -27,7 +27,9 @@ You can also test your functions in GHCI:
 
 $ ghci
 > :l Tests
-> main -- run the tests
+> main            -- run the tests
+> :r              -- recompile
+
 
 It will fail hilariously (or ridiculously, depending on your sense of
 humour), because you're supposed to write some of the code! You have to
@@ -57,95 +59,20 @@ may the odds always be in your favor!
 
 module Solution where
 
-import Data.List  hiding (lookup)
+import Data.List  hiding (lookup, insert)
 import Data.Map   (Map, empty, insert, insertWith, lookup)
 import Data.Maybe
 import Prelude    hiding (lookup)
 
 codelab :: a
-codelab = error "CODELAB NOT IMPLEMENTED"
+codelab = error "SOMETHING IS NOT IMPLEMENTED!"
 
 
 
 
 
 {- #####################################################################
-   SECTION 1: ErrorOr (handling errors in pure code)
-
-   We know about Maybe. It is used to represent an optional value.
-   But sometimes, when a computation fails, we want to have more
-   information than just a "Nothing" value.
-
-   For those purposes, we'll introduce here the type "ErrorOr". It
-   works almost like the StatusOr that you already know. The error
-   it may or may not contain is simply a String.
-
-   Interestingly, it is a Monad! We'll implement the Monad typeclass
-   for it.
-
-   TO GO FURTHER: there is a built-in type that does exactly the same
-   thing: it is Either a b; though there is no need to know about it
-   for this codelab, you can read about it here:
-   https://hackage.haskell.org/package/base/docs/Data-Either.html
--}
-
-
--- An error message is just a String
-
-type ErrorMsg = String
-
-
--- ErrorOr has two constructors; a value of type "ErrorOr a" is either
-
-data ErrorOr a = Error ErrorMsg -- an error with a message
-               | Value a        -- a wrapped value of type a
-               deriving (Show, Eq)
-
-
--- [1.1]
--- wrapValue takes a value, and puts it in the context of an ErrorOr a.
-
-wrapValue :: a -> ErrorOr a
-wrapValue = Value
-
-
--- [1.2]
--- fmapValue takes a function, and tries to apply it on the value inside
--- the "ErrorOr a". If it cannot apply the function because the "ErrorOr
--- a" contains an error, it simply returns this existing error. We do a
--- simple pattern match to decide what to do.
-
-fmapValue :: (a -> b) -> ErrorOr a -> ErrorOr b
-fmapValue _ (Error msg) = Error msg
-fmapValue f (Value   x) = Value $ f x
-
-
--- [1.3]
--- apValue is the version of "ap" for our ErrorOr type. The first value
--- is an "ErrorOr (a -> b)": if we indeed have a function in it, we can
--- apply it on the second argument; if we don't, we simply keep the
--- error. To apply the function, we will need a way to apply a function
--- on a contextual value...
-
-apValue :: ErrorOr (a -> b) -> ErrorOr a -> ErrorOr b
-apValue (Error msg) _   = Error msg
-apValue (Value   f) eoa = fmapValue f eoa
-
-
--- [1.4]
--- Finally, bindValue is our version of "bind". It works exactly like
--- fmapValue, except we don't have to wrap the result.
-
-bindValue :: (a -> ErrorOr b) -> ErrorOr a -> ErrorOr b
-bindValue _ (Error msg) = Error msg
-bindValue f (Value   x) = f x
-
-
-
-
-
-{- #####################################################################
-   SECTION 2: Color (Enum and Bounded)
+   SECTION 1: Color (Enum and Bounded)
 
    Our game, being a coding exercise, works with the six dev colors:
    red, yellow, green, cyan, blue, and magenta.
@@ -165,7 +92,7 @@ data Color = Red     -- this is a constructor, of type Color
                )
 
 
--- [2.1]
+-- [1.1]
 -- We want to have a list of all the colors. We could write such a list
 -- manually, but that'd be cumbersome and error prone. Thankfully,
 -- lists support interpolation! The [a .. b] syntax is translated into
@@ -183,9 +110,9 @@ allColors = [minColor .. maxColor] -- enumFromTo minColor maxColor
 
 
 {- #####################################################################
-   SECTION 3: ColorMap (how to use maps)
+   SECTION 2: ColorMap (how to use maps)
 
-   We will use color maps to count the occurences of each color in a
+   We will use color maps to count the occurrences of each color in a
    code. The type Map comes from Data.Map. Its documentation is here:
    https://hackage.haskell.org/package/containers/docs/Data-Map-Lazy.html
 
@@ -196,16 +123,17 @@ allColors = [minColor .. maxColor] -- enumFromTo minColor maxColor
 type ColorMap = Map Color Int
 
 
--- [3.1]
+-- [2.1]
 -- This simple helper extracts an Int value out of a Maybe. If there is
 -- no value to extract, it returns 0. You can implement it by pattern
 -- matching, but there is a shorter way to implement it.
+-- https://hackage.haskell.org/package/base/docs/Data-Maybe.html
 
 getIntOr0 :: Maybe Int -> Int
 getIntOr0 = fromMaybe 0
 
 
--- [3.2]
+-- [2.2]
 -- getCount extracts a color count from a color map; if the color isn't
 -- in the map, it returns 0 instead.
 -- To implement it, you will need a lookup function:
@@ -215,7 +143,7 @@ getCount :: Color -> ColorMap -> Int
 getCount color = getIntOr0 . lookup color
 
 
--- [3.3]
+-- [2.3]
 -- Increase the count of a color in the map by 1. Since a map is
 -- immutable, you in fact create a new one with the modification.
 -- The two functions you will need are:
@@ -225,6 +153,79 @@ getCount color = getIntOr0 . lookup color
 
 addColorToMap :: Color -> ColorMap -> ColorMap
 addColorToMap color = insertWith (+) color 1
+
+
+
+
+
+{- #####################################################################
+   SECTION 3: ErrorOr (handling errors in pure code)
+
+   We know about Maybe. It is used to represent an optional value.
+   But sometimes, when a computation fails, we want to have more
+   information than just a "Nothing" value.
+
+   For those purposes, we'll introduce here the type "ErrorOr". The
+   error it may or may not contain is simply a String.
+
+   Interestingly, it is a Monad! We'll implement the Monad typeclass
+   for it.
+
+   TO GO FURTHER: there is a built-in type that does exactly the same
+   thing: it is Either a b; though there is no need to know about it
+   for this codelab, you can read about it here:
+   https://hackage.haskell.org/package/base/docs/Data-Either.html
+-}
+
+-- An error message is just a String
+
+type ErrorMsg = String
+
+
+-- ErrorOr has two constructors; a value of type "ErrorOr a" is either
+
+data ErrorOr a = Error ErrorMsg -- an error with a message
+               | Value a        -- a wrapped value of type a
+               deriving (Show, Eq)
+
+
+-- [3.1]
+-- wrapValue takes a value, and puts it in the context of an ErrorOr a.
+
+wrapValue :: a -> ErrorOr a
+wrapValue = Value
+
+
+-- [3.2]
+-- fmapValue takes a function, and tries to apply it on the value inside
+-- the "ErrorOr a". If it cannot apply the function because the "ErrorOr
+-- a" contains an error, it simply returns this existing error. We do a
+-- simple pattern match to decide what to do.
+
+fmapValue :: (a -> b) -> ErrorOr a -> ErrorOr b
+fmapValue _ (Error msg) = Error msg
+fmapValue f (Value   x) = Value $ f x
+
+
+-- [3.3]
+-- apValue is the version of "ap" for our ErrorOr type. The first value
+-- is an "ErrorOr (a -> b)": if we indeed have a function in it, we can
+-- apply it on the second argument; if we don't, we simply keep the
+-- error. To apply the function, we will need a way to apply a function
+-- on a contextual value...
+
+apValue :: ErrorOr (a -> b) -> ErrorOr a -> ErrorOr b
+apValue (Error msg) _   = Error msg
+apValue (Value   f) eoa = fmapValue f eoa
+
+
+-- [3.4]
+-- Finally, bindValue is our version of "bind". It works exactly like
+-- fmapValue, except we don't have to wrap the result.
+
+bindValue :: (a -> ErrorOr b) -> ErrorOr a -> ErrorOr b
+bindValue _ (Error msg) = Error msg
+bindValue f (Value   x) = f x
 
 
 
@@ -254,9 +255,21 @@ data Score = Score
 --     allCodes 0 = [[]]
 --     allCodes 1 = [[Red], [Yellow]...]
 --     allCodes 2 = [[Red, Red], [Red, Yellow]...]
+--
 -- We use a list comprehension to generate the list of codes.
 -- The trick, here, is recursion: the codes of size n are obtained
 -- by adding all possible colors to all possible codes of size (n-1).
+-- The syntax of list comprehension in Haskell is:
+--     [result | value1 <- container1, value2 <- container2]
+-- The same list comprehension in Python would be:
+--     [result for value1 in container1 for value2 in container2]
+--
+-- As a reminder: this guard syntax is equivalent to a series of if / else:
+-- if s < 0
+-- then ...
+-- else if s == 0
+--      then ...
+--      else ...
 
 allCodes :: Int -> [Code]
 allCodes s

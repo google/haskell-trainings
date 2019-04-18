@@ -72,83 +72,7 @@ codelab = error "SOMETHING IS NOT IMPLEMENTED!"
 
 
 {- #####################################################################
-   SECTION 1: ErrorOr (handling errors in pure code)
-
-   We know about Maybe. It is used to represent an optional value.
-   But sometimes, when a computation fails, we want to have more
-   information than just a "Nothing" value.
-
-   For those purposes, we'll introduce here the type "ErrorOr". It
-   works almost like the StatusOr that you already know. The error
-   it may or may not contain is simply a String.
-
-   Interestingly, it is a Monad! We'll implement the Monad typeclass
-   for it.
-
-   TO GO FURTHER: there is a built-in type that does exactly the same
-   thing: it is Either a b; though there is no need to know about it
-   for this codelab, you can read about it here:
-   https://hackage.haskell.org/package/base/docs/Data-Either.html
--}
-
-
--- An error message is just a String
-
-type ErrorMsg = String
-
-
--- ErrorOr has two constructors; a value of type "ErrorOr a" is either
-
-data ErrorOr a = Error ErrorMsg -- an error with a message
-               | Value a        -- a wrapped value of type a
-               deriving (Show, Eq)
-
-
-
--- [1.1]
--- wrapValue takes a value, and puts it in the context of an ErrorOr a.
-
-wrapValue :: a -> ErrorOr a
-wrapValue = codelab
-
-
--- [1.2]
--- fmapValue takes a function, and tries to apply it on the value inside
--- the "ErrorOr a". If it cannot apply the function because the "ErrorOr
--- a" contains an error, it simply returns this existing error. We do a
--- simple pattern match to decide what to do.
-
-fmapValue :: (a -> b) -> ErrorOr a -> ErrorOr b
-fmapValue _ (Error msg) = codelab
-fmapValue f (Value   x) = codelab
-
-
--- [1.3]
--- apValue is the version of "ap" for our ErrorOr type. The first value
--- is an "ErrorOr (a -> b)": if we indeed have a function in it, we can
--- apply it on the second argument; if we don't, we simply keep the
--- error. To apply the function, we will need a way to apply a function
--- on a contextual value...
-
-apValue :: ErrorOr (a -> b) -> ErrorOr a -> ErrorOr b
-apValue (Error msg) _   = codelab
-apValue (Value   f) eoa = codelab
-
-
--- [1.4]
--- Finally, bindValue is our version of "bind". It works exactly like
--- fmapValue, except we don't have to wrap the result.
-
-bindValue :: (a -> ErrorOr b) -> ErrorOr a -> ErrorOr b
-bindValue _ (Error msg) = codelab
-bindValue f (Value   x) = codelab
-
-
-
-
-
-{- #####################################################################
-   SECTION 2: Color (Enum and Bounded)
+   SECTION 1: Color (Enum and Bounded)
 
    Our game, being a coding exercise, works with the six dev colors:
    red, yellow, green, cyan, blue, and magenta.
@@ -168,7 +92,7 @@ data Color = Red     -- this is a constructor, of type Color
                )
 
 
--- [2.1]
+-- [1.1]
 -- We want to have a list of all the colors. We could write such a list
 -- manually, but that'd be cumbersome and error prone. Thankfully,
 -- lists support interpolation! The [a .. b] syntax is translated into
@@ -186,7 +110,7 @@ allColors = [minColor .. maxColor] -- enumFromTo minColor maxColor
 
 
 {- #####################################################################
-   SECTION 3: ColorMap (how to use maps)
+   SECTION 2: ColorMap (how to use maps)
 
    We will use color maps to count the occurrences of each color in a
    code. The type Map comes from Data.Map. Its documentation is here:
@@ -199,7 +123,7 @@ allColors = [minColor .. maxColor] -- enumFromTo minColor maxColor
 type ColorMap = Map Color Int
 
 
--- [3.1]
+-- [2.1]
 -- This simple helper extracts an Int value out of a Maybe. If there is
 -- no value to extract, it returns 0. You can implement it by pattern
 -- matching, but there is a shorter way to implement it.
@@ -209,8 +133,7 @@ getIntOr0 :: Maybe Int -> Int
 getIntOr0 = codelab
 
 
-
--- [3.2]
+-- [2.2]
 -- getCount extracts a color count from a color map; if the color isn't
 -- in the map, it returns 0 instead.
 -- To implement it, you will need a lookup function:
@@ -220,7 +143,7 @@ getCount :: Color -> ColorMap -> Int
 getCount color cmap = codelab
 
 
--- [3.3]
+-- [2.3]
 -- Increase the count of a color in the map by 1. Since a map is
 -- immutable, you in fact create a new one with the modification.
 -- The two functions you will need are:
@@ -230,6 +153,79 @@ getCount color cmap = codelab
 
 addColorToMap :: Color -> ColorMap -> ColorMap
 addColorToMap color cmap = codelab
+
+
+
+
+
+{- #####################################################################
+   SECTION 3: ErrorOr (handling errors in pure code)
+
+   We know about Maybe. It is used to represent an optional value.
+   But sometimes, when a computation fails, we want to have more
+   information than just a "Nothing" value.
+
+   For those purposes, we'll introduce here the type "ErrorOr". The
+   error it may or may not contain is simply a String.
+
+   Interestingly, it is a Monad! We'll implement the Monad typeclass
+   for it.
+
+   TO GO FURTHER: there is a built-in type that does exactly the same
+   thing: it is Either a b; though there is no need to know about it
+   for this codelab, you can read about it here:
+   https://hackage.haskell.org/package/base/docs/Data-Either.html
+-}
+
+-- An error message is just a String
+
+type ErrorMsg = String
+
+
+-- ErrorOr has two constructors; a value of type "ErrorOr a" is either
+
+data ErrorOr a = Error ErrorMsg -- an error with a message
+               | Value a        -- a wrapped value of type a
+               deriving (Show, Eq)
+
+
+-- [3.1]
+-- wrapValue takes a value, and puts it in the context of an ErrorOr a.
+
+wrapValue :: a -> ErrorOr a
+wrapValue = codelab
+
+
+-- [3.2]
+-- fmapValue takes a function, and tries to apply it on the value inside
+-- the "ErrorOr a". If it cannot apply the function because the "ErrorOr
+-- a" contains an error, it simply returns this existing error. We do a
+-- simple pattern match to decide what to do.
+
+fmapValue :: (a -> b) -> ErrorOr a -> ErrorOr b
+fmapValue _ (Error msg) = codelab
+fmapValue f (Value   x) = codelab
+
+
+-- [3.3]
+-- apValue is the version of "ap" for our ErrorOr type. The first value
+-- is an "ErrorOr (a -> b)": if we indeed have a function in it, we can
+-- apply it on the second argument; if we don't, we simply keep the
+-- error. To apply the function, we will need a way to apply a function
+-- on a contextual value...
+
+apValue :: ErrorOr (a -> b) -> ErrorOr a -> ErrorOr b
+apValue (Error msg) _   = codelab
+apValue (Value   f) eoa = codelab
+
+
+-- [3.4]
+-- Finally, bindValue is our version of "bind". It works exactly like
+-- fmapValue, except we don't have to wrap the result.
+
+bindValue :: (a -> ErrorOr b) -> ErrorOr a -> ErrorOr b
+bindValue _ (Error msg) = codelab
+bindValue f (Value   x) = codelab
 
 
 
@@ -280,6 +276,7 @@ allCodes s
   | s <  0    = error "allCodes: size was lower than 0"
   | s == 0    = codelab
   | otherwise = [color:code | color <- codelab, code <- codelab]
+
 
 -- [4.2]
 -- Transforms a code into the corresponding map of Color to Int. To do

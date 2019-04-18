@@ -139,69 +139,69 @@ test name expected actual = do
 
 
 {- #####################################################################
-   SECTION 1: ErrorOr
+   SECTION 1: Color
 -}
 
-type S1F = ErrorOr (Int -> String)
+t11_1 = test "[1.1] allColors contains Red"     True $ elem Red     allColors
+t11_2 = test "[1.1] allColors contains Yellow"  True $ elem Yellow  allColors
+t11_3 = test "[1.1] allColors contains Green"   True $ elem Green   allColors
+t11_4 = test "[1.1] allColors contains Cyan"    True $ elem Cyan    allColors
+t11_5 = test "[1.1] allColors contains Blue"    True $ elem Blue    allColors
+t11_6 = test "[1.1] allColors contains Magenta" True $ elem Magenta allColors
+t11_7 = test "[1.1] allColors size is 6"        6 $ length allColors
 
-s1f :: Int -> ErrorOr Int
-s1f x | even x    = Value x
+
+
+
+
+{- #####################################################################
+   SECTION 2: ColorMaps
+-}
+
+s2m c x = fromList [(c, x)]
+
+t21_1 = test "[2.1] getIntOr0 (Just 42)" 42 $ getIntOr0 (Just 42)
+t21_2 = test "[2.1] getIntOr0 Nothing"    0 $ getIntOr0 Nothing
+
+t22_1 = test "[2.2] getCount on empty map" 0 $ getCount Cyan empty
+t22_2 = test "[2.2] getCount on map"       2 $ getCount Cyan $ s2m Cyan 2
+
+t23_1 = test "[2.3] add color in empty map" (s2m Blue 1) $ addColorToMap Blue empty
+t23_2 = test "[2.3] add color in map"       (s2m Blue 3) $ addColorToMap Blue $ s2m Blue 2
+
+
+
+
+
+
+{- #####################################################################
+   SECTION 3: ErrorOr
+-}
+
+type S3F = ErrorOr (Int -> String)
+
+s3f :: Int -> ErrorOr Int
+s3f x | even x    = Value x
       | otherwise = Error "ODD X"
 
-s1x = 42       :: Int
-s1v = Value 42 :: ErrorOr Int
+s3x = 42       :: Int
+s3v = Value 42 :: ErrorOr Int
 
-t11_1 = test "[1.1] wrapValue on Int"    (Value 42)    $ wrapValue s1x
-t11_2 = test "[1.1] wrapValue on String" (Value "foo") $ wrapValue "foo"
+t31_1 = test "[3.1] wrapValue on Int"    (Value 42)    $ wrapValue s3x
+t31_2 = test "[3.1] wrapValue on String" (Value "foo") $ wrapValue "foo"
 
-t12_1 = test "[1.2] fmapValue show   on Int"    (Value $ show s1x)     $ fmapValue show   s1v
-t12_2 = test "[1.2] fmapValue length on String" (Value $ length "foo") $ fmapValue length (Value "foo")
-t12_3 = test "[1.2] fmapValue show   on Error"  (Error "OH NOES")      $ fmapValue id     (Error "OH NOES" :: ErrorOr String)
+t32_1 = test "[3.2] fmapValue show   on Int"    (Value $ show s3x)     $ fmapValue show   s3v
+t32_2 = test "[3.2] fmapValue length on String" (Value $ length "foo") $ fmapValue length (Value "foo")
+t32_3 = test "[3.2] fmapValue show   on Error"  (Error "OH NOES")      $ fmapValue id     (Error "OH NOES" :: ErrorOr String)
 
-t13_1 = test "[1.3] apValue function on value" (Value "42")      $ apValue (Value show      :: S1F) s1v
-t13_2 = test "[1.3] apValue function on error" (Error "WAT")     $ apValue (Value show      :: S1F) (Error "WAT")
-t13_3 = test "[1.3] apValue error    on value" (Error "OH NOES") $ apValue (Error "OH NOES" :: S1F) s1v
-t13_4 = test "[1.3] apValue error    on error" (Error "OH NOES") $ apValue (Error "OH NOES" :: S1F) (Error "WAT")
+t33_1 = test "[3.3] apValue function on value" (Value "42")      $ apValue (Value show      :: S3F) s3v
+t33_2 = test "[3.3] apValue function on error" (Error "WAT")     $ apValue (Value show      :: S3F) (Error "WAT")
+t33_3 = test "[3.3] apValue error    on value" (Error "OH NOES") $ apValue (Error "OH NOES" :: S3F) s3v
+t33_4 = test "[3.3] apValue error    on error" (Error "OH NOES") $ apValue (Error "OH NOES" :: S3F) (Error "WAT")
 
-t14_1 = test "[1.4] bindValue on good Int" (Value 42)        $ bindValue s1f (Value 42)
-t14_2 = test "[1.4] bindValue on bad  Int" (Error "ODD X")   $ bindValue s1f (Value 21)
-t14_3 = test "[1.4] bindValue on Error"    (Error "OH NOES") $ bindValue s1f (Error "OH NOES")
-
-
-
-
-
-{- #####################################################################
-   SECTION 2: Color
--}
-
-t21_1 = test "[2.1] allColors contains Red"     True $ elem Red     allColors
-t21_2 = test "[2.1] allColors contains Yellow"  True $ elem Yellow  allColors
-t21_3 = test "[2.1] allColors contains Green"   True $ elem Green   allColors
-t21_4 = test "[2.1] allColors contains Cyan"    True $ elem Cyan    allColors
-t21_5 = test "[2.1] allColors contains Blue"    True $ elem Blue    allColors
-t21_6 = test "[2.1] allColors contains Magenta" True $ elem Magenta allColors
-t21_7 = test "[2.1] allColors size is 6"        6 $ length allColors
-
-
-
-
-
-{- #####################################################################
-   SECTION 3: ColorMaps
--}
-
-s3m c x = fromList [(c, x)]
-
-t31_1 = test "[3.1] getIntOr0 (Just 42)" 42 $ getIntOr0 (Just 42)
-t31_2 = test "[3.1] getIntOr0 Nothing"    0 $ getIntOr0 Nothing
-
-t32_1 = test "[3.2] getCount on empty map" 0 $ getCount Cyan empty
-t32_2 = test "[3.2] getCount on map"       2 $ getCount Cyan $ s3m Cyan 2
-
-t33_1 = test "[3.3] add color in empty map" (s3m Blue 1) $ addColorToMap Blue empty
-t33_2 = test "[3.3] add color in map"       (s3m Blue 3) $ addColorToMap Blue $ s3m Blue 2
-
+t34_1 = test "[3.4] bindValue on good Int" (Value 42)        $ bindValue s3f (Value 42)
+t34_2 = test "[3.4] bindValue on bad  Int" (Error "ODD X")   $ bindValue s3f (Value 21)
+t34_3 = test "[3.4] bindValue on Error"    (Error "OH NOES") $ bindValue s3f (Error "OH NOES")
 
 
 
@@ -252,20 +252,20 @@ tests sections =
      $ flip map sections
      $ \case Section 1 ->
                [ display "#### Section 1"
-               , t11_1, t11_2
-               , t12_1, t12_2, t12_3
-               , t13_1, t13_2, t13_3, t13_4
-               , t14_1, t14_2, t14_3
+               , t11_1, t11_2, t11_3, t11_4, t11_5, t11_6, t11_7
                ]
              Section 2 ->
                [ display "#### Section 2"
-               , t21_1, t21_2, t21_3, t21_4, t21_5, t21_6, t21_7
+               , t21_1, t21_2
+               , t22_1, t22_2
+               , t23_1, t23_2
                ]
              Section 3 ->
                [ display "#### Section 3"
                , t31_1, t31_2
-               , t32_1, t32_2
-               , t33_1, t33_2
+               , t32_1, t32_2, t32_3
+               , t33_1, t33_2, t33_3, t33_4
+               , t34_1, t34_2, t34_3
                ]
              Section 4 ->
                [ display "#### Section 4"
