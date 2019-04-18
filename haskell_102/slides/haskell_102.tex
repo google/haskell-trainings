@@ -961,22 +961,6 @@ getNextOfKinPhoneNumber uid =
 \end{onlyenv}
 \end{frame}
 
-\begin{frame}
-\frametitle{We still don't know}
-\begin{center}
-\begin{minipage}[c]{.8\linewidth}
-\begin{itemize}
-  \item \st{how to extend our data types}
-  \item \st{how to express type constraints}
-  \item \st{how to chain contextual functions}
-  \item how to use IO
-\end{itemize}
-\end{minipage}
-\end{center}
-\end{frame}
-
-
-\section{Monadic syntax}
 
 \begin{frame}[fragile]
 \frametitle{Monad}
@@ -995,6 +979,46 @@ getNextOfKinPhoneNumber uid =
 \end{center}
 \end{minipage}
 \end{frame}
+
+
+\begin{frame}
+\frametitle{We still don't know}
+\begin{center}
+\begin{minipage}[c]{.8\linewidth}
+\begin{itemize}
+  \item \st{how to extend our data types}
+  \item \st{how to express type constraints}
+  \item \st{how to chain contextual functions}
+  \item how to use IO
+\end{itemize}
+\end{minipage}
+\end{center}
+\end{frame}
+
+\section{Monadic syntax}
+
+
+\begin{frame}[fragile]
+  \frametitle{New syntax: Lambda functions}
+  \begin{minipage}[c][.1\textheight]{\textwidth}
+    \begin{itemize}
+    \item New syntax: Lambda functions
+    \end{itemize}
+  \end{minipage}
+  \begin{minipage}[c][.5\textheight]{\textwidth}
+    \begin{uncoverenv}<2->
+      \begin{code}[gobble=8]
+        ;{$\lambda$}; x . x + 1 ;\uncover<5->{~~: Z $\rightarrow$ Z};
+      \end{code}
+    \end{uncoverenv}
+    \begin{uncoverenv}<3->
+      \begin{code}[gobble=8]
+        \ x -> x + 1 ;\uncover<4->{:: ;\type{Int}; -> ;\type{Int};};
+      \end{code}
+    \end{uncoverenv}
+  \end{minipage}
+\end{frame}
+
 
 \begin{frame}[fragile]
 \frametitle{Do notation}
