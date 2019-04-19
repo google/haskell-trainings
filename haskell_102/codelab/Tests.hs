@@ -62,7 +62,7 @@ newtype Section = Section Int
 
 instance Bounded Section where
   minBound = Section 1
-  maxBound = Section 4
+  maxBound = Section 5
 
 instance Ord Section where
   compare (Section s1) (Section s2) = compare s1 s2
@@ -242,6 +242,29 @@ t45_3 = test "[4.5] countScore  [B,B,C,G] [B,B,C,G]" (Score 4 0) $ countScore [B
 
 
 {- #####################################################################
+   SECTION 5: "do" notation
+-}
+
+t51_1 = test "[5.1] # codes of size 0: 1"       1  $ length $ allCodesDo 0
+t51_2 = test "[5.1] # codes of size 1: 6"       6  $ length $ allCodesDo 1
+t51_3 = test "[5.1] # codes of size 4: 1296" 1296  $ length $ allCodesDo 4
+t51_4 = test "[5.1] all codes 0 have size 0"  [0]  $ nub $ length <$> allCodesDo 0
+t51_5 = test "[5.1] all codes 1 have size 1"  [1]  $ nub $ length <$> allCodesDo 1
+t51_6 = test "[5.1] all codes 4 have size 4"  [4]  $ nub $ length <$> allCodesDo 4
+t51_7 = test "[5.1] no duplicated codes"      True $ on (==) length (allCodesDo 4) (nub $ allCodesDo 4)
+
+t52_1 = test "[5.2] len: 0: []"                []  $ duplicatesList 0
+t52_2 = test "[5.2] len: 3: [1, 1, 2, 2, 3, 3]" [1, 1, 2, 2, 3, 3] $ duplicatesList 3
+
+t53_1 = test "[5.3] len: 0: []"                       []                       $ oddlyDuplicateList 0
+t53_2 = test "[5.3] len: 3: [1, 1, 2, 3, 3]"          [1, 1, 2, 3, 3]          $ oddlyDuplicateList 3
+t53_3 = test "[5.3] len: 5: [1, 1, 2, 3, 3, 4, 5, 5]" [1, 1, 2, 3, 3, 4, 5, 5] $ oddlyDuplicateList 5
+
+
+
+
+
+{- #####################################################################
    Main
 -}
 
@@ -274,6 +297,12 @@ tests sections =
                , t43_1, t43_2, t43_3, t43_4
                , t44_1, t44_2, t44_3, t44_4, t44_5
                , t45_1, t45_2, t45_3
+               ]
+             Section 5 ->
+               [ display "#### Section 5"
+               , t51_1, t51_2, t51_3, t51_4, t51_5, t51_6, t51_7
+               , t52_1, t52_2
+               , t53_1, t53_2, t53_3
                ]
              Section unexpected ->
                [ display $ "Unexpected section requested: " ++ show unexpected

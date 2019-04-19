@@ -341,6 +341,93 @@ countScore c1 c2 = Score black white
 
 
 
+{- #####################################################################
+   SECTION 5: "do" notation
+
+   While "do" notation is commonly used for "imperative" code, it can
+   be used with anything that is a monad (or even applicative).  As we
+   have seen in the lecture lists are monads, meaning we can use "do"
+   notation to write our list generators in a very flexible way!
+
+   For example, a generator like this:
+
+     [x + 1 | x <- [1..10]]
+
+   can be written using "do" notation like this:
+
+     do x <- [1..10]
+        x + 1
+
+-}
+
+-- [5.1]
+-- Can you rewrite allColors to use the "do" notation?
+--
+-- Note that inside "do" blocks Haskell switches to indentation
+-- sensitive mode!  It is like Python but better, as the rules are
+-- more nuanced.  Make sure you follow the indendation proposed in the
+-- examples.
+
+allCodesDo :: Int -> [Code]
+allCodesDo s
+  | s <  0    = error "allCodes: size was lower than 0"
+  | s == 0    = [[]]
+  | otherwise = do color <- allColors
+                   code <- allCodesDo (s - 1)
+                   return $ color:code
+
+-- [5.2]
+-- Unlike generators, a "do" block can return any wrapped value.  For
+-- lists, it means it can return any list, not necessarily a list of
+-- length 1.  Let's build a "generator" using the "do" notation that
+-- would produce a list of duplicates of the specified length.  For
+-- example, for length 5 it should produce
+--
+--   [1, 1, 2, 2, 3, 3, 4, 4, 5, 5]
+
+duplicatesList :: Int -> [Int]
+duplicatesList len =
+  do i <- [1..len]
+     [i, i]
+
+
+-- [5.3]
+-- How about the case when the length of different "blocks" would be
+-- different?  Let's build a "generator" similar to the previous one,
+-- but that would duplicate only odd values.  For example, for length
+-- 5 it should produce
+--
+--   [1, 2, 2, 3, 4, 4, 5]
+--
+-- I this, this is not something that can be easily expressed with
+-- ordinary generator, is it?
+--
+-- Hint: Should you use a conditional expression, make sure to put it
+-- in one line, as we did not discuss correct indentation rules for
+-- that case.
+
+oddlyDuplicateList :: Int -> [Int]
+oddlyDuplicateList len =
+  do i <- [1..len]
+     if odd i
+       then [i, i]
+       else [i]
+
+-- When you solve [5.3], think about the fact that when coding in "do"
+-- notation you have the full power of the language, but you are
+-- building something like a generator.  For imperative code that uses
+-- IO, your generator is producing sequences of actions that your
+-- application needs to execute to actually acheive the desired
+-- result.
+--
+-- This approach provides an amazing level of flexibility in terms of
+-- abstraction.  You can apply all the abstraction, code sharing and
+-- other techniques to the code that produces imperatives actions, as
+-- you normally apply to the code that is building lists.
+
+
+
+
 
 {- #####################################################################
    THE END
