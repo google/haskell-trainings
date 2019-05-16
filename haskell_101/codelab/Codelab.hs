@@ -162,7 +162,7 @@ type Point = (Int, Int)
 
 -- Do not forget about Hoogle, should you need a new function.
 --
--- Notice, when you are declare a new type with the "data" keyword
+-- Notice, when you are declaring a new type with the "data" keyword
 -- you also declare new constructor(s) that you can use to pattern
 -- match on.  But when you are declaring a type alias with the "type"
 -- keyword, no constructors are declared.  You will pattern match on
