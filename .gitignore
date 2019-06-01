@@ -1,3 +1,5 @@
+/.emacs.desktop*
+
 /haskell_*/codelab/*.hi
 /haskell_*/codelab/*.o
 /haskell_*/codelab/codelab
