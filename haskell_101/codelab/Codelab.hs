@@ -18,7 +18,7 @@
 
 Welcome to the Haskell 101 codelab!
 
-To run this file, make sure you have the haskell platform, and simply:
+To run this file, make sure you have the Haskell Platform, and simply:
 $ make
 $ ./codelab
 
@@ -32,10 +32,10 @@ $ ghci
 > main
 
 It will fail hilariously (or ridiculously, depending on your sense of
-humour), because you're supposed to write some of the code! You have to
+humor), because you're supposed to write some of the code! You have to
 replace and code everything that is named "codelab".
 
-Our goal, here, is to implement some of the builtin functions in the
+Our goal, here, is to implement some of the built-in functions in the
 language, as a way to get familiar with the type system.
 
 Good luck and, most importantly, have fun!
@@ -95,10 +95,9 @@ double x = codelab
 multiply :: Int -> Int -> Int
 multiply x y = codelab
 
--- Note that Haskell is strict about types even for basic integral
--- types.  Int is never automatically converted to Double.  But you
--- can use fromIntegral to convert from any itegral type to any number
--- type.
+-- Note that Haskell is strict about types even for basic integral types.
+-- Int is never automatically converted to Double.  But you can use
+-- fromIntegral to convert from any integral type to any number type.
 
 divide :: Int -> Int -> Double
 divide x y = codelab
@@ -107,18 +106,20 @@ divide x y = codelab
 --
 --  if <expr> then <expr> else <expr>
 --
--- Integer is just like Int, except that it can store arbitrary large numbers.
+-- Integer is just like Int, except that it can store arbitrary large
+-- numbers.
 
 factorial :: Integer -> Integer
 factorial n = codelab
 
--- Expressions can be assigned names, called "bindings", using the following syntax:
+-- Expressions can be assigned names, called "bindings", using the
+-- following syntax:
 --
 --   let x = <expr1>
 --    in <expr2>
 --
--- Spacing is irrelevant - you can put spaces anywhere you want.
--- As for the GCD itself, consider Euclid's algorithm:
+-- Spacing is irrelevant - you can put spaces anywhere you want.  As for
+-- the GCD itself, consider Euclid's algorithm:
 --
 --   https://en.wikipedia.org/wiki/Greatest_common_divisor#Using_Euclid's_algorithm
 
@@ -132,14 +133,14 @@ gcd a b = codelab
 {- #####################################################################
    SECTION 2: simple pattern matching
 
-   Not that we can defined simple data structures, let's try using them.
+   Not that we can define simple data structures, let's try using them.
 -}
 
 data Minutes = Minutes Int
 
--- Integer division is called "div".  If you want, you can use a
--- function of two arguments as an infix operator, by quoting it using
--- back quotes, like this:
+-- Integer division is called "div".  If you want, you can use a function
+-- of two arguments as an infix operator, by quoting it using backquotes,
+-- like this:
 --
 --     let v = a `div` b
 
@@ -152,8 +153,8 @@ hours m = codelab
 --
 -- to search for anything supported by the standard library and beyond.
 --
--- Distance here means the number of minutes to get from m1 to m2.
--- For example, for 15 and 25, distance is 10.
+-- Distance here means the number of minutes to get from m1 to m2.  For
+-- example, for 15 and 25, distance is 10.
 
 timeDistance :: Minutes -> Minutes -> Minutes
 timeDistance m1 m2 = codelab
@@ -162,11 +163,14 @@ type Point = (Int, Int)
 
 -- Do not forget about Hoogle, should you need a new function.
 --
--- Notice, when you are declare a new type with the "data" keyword
--- you also declare new constructor(s) that you can use to pattern
--- match on.  But when you are declaring a type alias with the "type"
--- keyword, no constructors are declared.  You will pattern match on
--- the original type you are aliasing - a tuple in this case.
+-- Notice, when you declare a new type with the "data" keyword you also
+-- declare new constructor(s) that you can use to pattern match on.  But
+-- when you are declaring a type alias with the "type" keyword, no
+-- constructors are declared.  You will pattern match on the original type
+-- you are aliasing - a tuple in this case, for example:
+--
+--     f :: Point -> Int
+--     f (x, y) = abs x + abs y
 
 pointDistance :: Point -> Point -> Double
 pointDistance p1 p2 = codelab
@@ -218,29 +222,28 @@ tail = codelab
 -}
 
 
--- do you remember it from the slides?
+-- Do you remember it from the slides?
 
 length :: [a] -> Int
 length l = codelab
 
 
--- and returns True if all the boolean values in the list are True
--- what do you think it returns for an empty list?
+-- "and" returns True if all the boolean values in the list are True.
+-- What do you think it returns for an empty list?
 
 and :: [Bool] -> Bool
 and l = codelab
 
 
--- or returns True if at least one value in the list is True
--- what do you think it returns for an empty list?
+-- "or" returns True if at least one value in the list is True.
+-- What do you think it returns for an empty list?
 
 or :: [Bool] -> Bool
 or l = codelab
 
 
--- (++) is the concatenation operator
--- to concatenate two linked lists you have to chain the second one
--- at the end of the first one
+-- "(++)" is the concatenation operator.  To concatenate two linked lists
+-- you have to chain the second one at the end of the first one.
 
 (++) :: [a] -> [a] -> [a]
 l1 ++ l2 = codelab
@@ -252,18 +255,17 @@ l1 ++ l2 = codelab
 {- #####################################################################
    SECTION 5: abstractions
 
-   Have you noticed that we keep using the same pattern?
-   If the list is empty we return a specific value.
-   If it is not, we call a function to combine the element with the
-   result of the recursive calls.
+   Have you noticed that we keep using the same pattern?  If the list is
+   empty we return a specific value.  If it is not, we call a function to
+   combine the element with the result of the recursive calls.
 
    This is Haskell: if there is a pattern, it can (must) be abstracted!
    Fortunately, some useful functions are here for us.
 
-   To understand the difference between foldr and foldl, remember that
-   the last letter indicates if the "reduction" function is left
-   associative or right associative: foldr goes from right to left,
-   foldl goes from left to right.
+   To understand the difference between foldr and foldl, remember that the
+   last letter indicates if the "reduction" function is left associative or
+   right associative: foldr goes from right to left, foldl goes from left
+   to right.
 
    foldl :: (a -> x -> a) -> a -> [x] -> a
    foldr :: (x -> a -> a) -> a -> [x] -> a
@@ -272,19 +274,18 @@ l1 ++ l2 = codelab
 -}
 
 
--- you probably remember this one?
--- nothing extraordinary here
+-- You probably remember this one?  Nothing extraordinary here.
 
 map :: (a -> b) -> [a] -> [b]
 map _ []     = codelab
 map f (a:as) = codelab
 
 
--- same thing here for filter, except that we use it to introduce a new
--- syntax: those | are called guards; they let you specify different
+-- Same thing here for filter, except that we use it to introduce a new
+-- syntax: those | are called "guards"; they let you specify different
 -- implementations of your function depending on some Boolean
--- value. "otherwise" is not a keyword but simply a constant whose
--- value is True! Try to evaluate "otherwise" in GHCI.
+-- value. "otherwise" is not a keyword but simply a constant whose value is
+-- True! Try to evaluate "otherwise" in GHCI.
 --
 -- Simple example of guards usage:
 --   abs :: Int -> Int
@@ -321,13 +322,13 @@ foldr f a (x:xs) = codelab
 {- #####################################################################
    BONUS STAGE!
 
-   For fun, you can try reimplementing all the functions in section 3
-   with foldr or foldl! For length, remember that the syntax for a
-   lambda function is (\arg1 arg2 -> value).
+   For fun, you can try reimplementing all the functions in section 4 with
+   foldr or foldl! For length, remember that the syntax for a lambda
+   function is (\arg1 arg2 -> value).
 
-   You can replace your previous implementation if you want. Otherwise,
-   you can add new functions (such as andF, orF), and test them by
-   loading your file in GHCI:
+   You can replace your previous implementation if you want. Otherwise, you
+   can add new functions (such as andF, orF), and test them by loading your
+   file in GHCI:
 
    $ ghci
    > :load Codelab
@@ -339,12 +340,12 @@ foldr f a (x:xs) = codelab
    > import Test.QuickCheck
    > quickCheck $ \anyList -> and anyList == andF anyList
 
-   QuickCheck automatically generates tests based on the types
-   expected (here, list of boolean values).
+   QuickCheck automatically generates tests based on the types expected
+   (here, list of boolean values).
 
    It is also worth noting that there is a special syntax for list
-   comprehension in Haskell, which is at a first glance quite similar
-   to the syntax of Python's list comprehension
+   comprehension in Haskell, which is at a first glance quite similar to
+   the syntax of Python's list comprehension
 
    Python:  [transform(value) for value in container if test(value)]
    Haskell: [transform value  |   value <- container ,  test value ]
@@ -360,8 +361,8 @@ foldr f a (x:xs) = codelab
    SECTION 6: am I being indecisive? ....hmmmm Maybe?
 
    Partial functions are bad. Null pointers are a billion dollar
-   mistake. Sometimes, what we just want is to have an optional value,
-   a value that is either here or not, but with type safety.
+   mistake. Sometimes, what we just want is to have an optional value, a
+   value that is either here or not, but with type safety.
 
    Remember Maybe? If not, here's the definition:
 
@@ -369,21 +370,21 @@ foldr f a (x:xs) = codelab
 -}
 
 
--- if we were to fix the "head" function, how could we do that?
+-- If we were to fix the "head" function, how could we do that?
 
 safeHead :: [a] -> Maybe a
 safeHead []    = codelab
 safeHead (x:_) = codelab
 
 
--- isNothing should not need an explanation by now!
+-- "isNothing" should not need an explanation by now!
 
 isNothing :: Maybe a -> Bool
 isNothing = codelab
 
 
--- the fromMaybe function is your way out of a Maybe value
--- it takes a default value to use in case our Maybe value is Nothing
+-- The "fromMaybe" function is your way out of a Maybe value.
+-- It takes a default value to use in case our Maybe value is Nothing.
 
 fromMaybe :: a -> Maybe a -> a
 fromMaybe _ _ = codelab
@@ -393,8 +394,8 @@ fromMaybe _ _ = codelab
 -- fromMaybe _   fixme = codelab
 
 
--- the maybe function is an extended version of fromMaybe
--- can you guess what it is supposed to do?
+-- The "maybe" function is an extended version of "fromMaybe".  Can you
+-- guess what it is supposed to do?
 -- ...doesn't it kinda look like fold?
 
 maybe :: b -> (a -> b) -> Maybe a -> b
@@ -414,7 +415,7 @@ maybe _ _ _ = codelab
    with lists? You haven't seen Either yet, but spoilers: the pattern
    matching looks quite the same.
 
-   Could we therefore define an equivalent of map for Maybe? For Either?
+   Could we, therefore, define an equivalent of map for Maybe? For Either?
    But how could we write a function with the same name for different
    types? Will we end up needing some kind of *shivers* interface?
 
@@ -430,7 +431,7 @@ maybe _ _ _ = codelab
 {- #####################################################################
    BONUS SECTION: let's play a game.
 
-   This sections goes a bit further and is optional.
+   This section goes a bit further and is optional.
 
    In it, we implement a small (and, arguably, not very interesting)
    game: Rock Paper Scissors! You don't have to write a lot of code in
@@ -444,16 +445,16 @@ maybe _ _ _ = codelab
 -}
 
 
--- some simple types for our game
--- ignore the "deriving" part (or don't, I'm a comment, not a cop)
+-- Some simple types for our game.  Ignore the "deriving" part (or don't,
+-- I'm a comment, not a cop).
 
 data Hand = Rock | Paper | Scissors deriving (Show, Read, Eq)
 type Score = (Int, Int)
 
 
--- winsOver tells you if a hand wins over another one
--- it introduces a nifty trick: any binary function can be used in an
--- infix way if surrounded by backquotes
+-- "winsOver" tells you if a hand wins over another one.  It introduces a
+-- nifty trick: any binary function can be used in an infix way if
+-- surrounded by backquotes.
 
 winsOver :: Hand -> Hand -> Bool
 Rock     `winsOver` Scissors = True
@@ -462,8 +463,8 @@ Scissors `winsOver` Paper    = True
 _        `winsOver` _        = False
 
 
--- computeScore... computes the score!
--- remember those | guards?
+-- "computeScore"... computes the score!
+-- Remember those | guards?
 
 computeScore :: Hand -> Hand -> Score
 computeScore h1 h2
@@ -472,24 +473,24 @@ computeScore h1 h2
   | otherwise        = (0, 0)
 
 
--- combine... combines!
--- remember pattern matching?
+-- "combine"... combines!
+-- Remember pattern matching?
 
 combine :: Score -> Score -> Score
 combine (a1, a2) (b1, b2) = (a1 + b1, a2 + b2)
 
 
--- ok, here's where you come in
-
--- we want to create a function score, that takes the two lists of hands
--- the players have played, computes the score at each round, then
--- combines all the scores to yield the final count
-
--- this functions is partially pre-defined, using the ($) operator, to showcase
--- how easily you can combine existing functions into new ones; your job
--- is to figure out which function goes where
-
--- here is the list of functions you will need:
+-- Ok, here's where you come in.
+--
+-- We want to create a function "score", that takes the two lists of hands
+-- the players have played, computes the score at each round, then combines
+-- all the scores to yield the final count.
+--
+-- This function is partially pre-defined, using the ($) operator, to
+-- showcase how easily you can combine existing functions into new ones.
+-- Your job is to figure out which function goes where.
+--
+-- Here is the list of functions you will need:
 --     combine      :: Score -> Score -> Score
 --     computeScore :: Hand  -> Hand  -> Score
 --     uncurry      :: (a -> b -> c) -> ((a, b) -> c)
@@ -503,21 +504,21 @@ pairScore = codelab codelab
 score :: [Hand] -> [Hand] -> Score
 score h1 h2 = codelab codelab $ codelab codelab $ codelab h1 h2
 
--- hint: it creates a list of plays by merging the two lists,
+-- Hint: It creates a list of plays by merging the two lists,
 --       then it scores each play,
 --       then it sums the scores.
 --       merge -> map -> reduce
 
 
--- we play up to 3
+-- We play up to 3.
 
 gameOver :: Score -> Bool
 gameOver (s1, s2) = s1 >= 3 || s2 >= 3
 
 
--- below is the impure IO code that lets us read hands from the
--- standard input and play the game!
--- beware: Haskell 102 spoilers!
+-- Below is the impure IO code that lets us read hands from the standard
+-- input and play the game!
+-- Beware: Haskell 102 spoilers!
 
 readHand :: String -> IO Hand
 readHand prompt = do
@@ -548,8 +549,8 @@ play = void $ playTurn (0,0)
 {- #####################################################################
    BONUS BONUS SECTION: wait, you actually read all of that?
 
-   Just for fun, here are a few common one-liners; can you guess what
-   they do, what they are, without testing them in GHCI?
+   Just for fun, here are a few common one-liners; can you guess what they
+   do, what they are, without testing them in GHCI?
 -}
 
 
@@ -562,3 +563,5 @@ valor = let s l = head l : s [n | n <- tail l, n `mod` head l /= 0] in s [2..]
 instinct :: [Int] -> [Int]
 instinct []     = []
 instinct (x:xs) = instinct [a | a <- xs, a < x] ++ [x] ++ instinct (filter (>= x) xs)
+
+-- -*- fill-column: 75; -*-
