@@ -33,9 +33,9 @@ $ ghci
 
 It will fail hilariously (or ridiculously, depending on your sense of
 humor), because you're supposed to write some of the code! You have to
-replace and code everything that is named "codelab".
+replace and code everything that is currently implemented as "codelab".
 
-Our goal, here, is to implement some of the built-in functions in the
+Our goal here is to implement some of the built-in functions in the
 language, as a way to get familiar with the type system.
 
 Good luck and, most importantly, have fun!
@@ -51,9 +51,9 @@ Good luck and, most importantly, have fun!
 
    Nothing to see here, please go directly to section 1!
 
-   This section simply define the "codelab" alias that we'll use
-   everywhere in the code and still have it compile and does all the
-   necessary boilerplate: imports, compiler options, that kind of stuff.
+   This section simply defines the "codelab" alias that we'll use
+   everywhere in the code and does all the necessary boilerplate: imports,
+   compiler options, that kind of stuff.
 -}
 
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
@@ -79,8 +79,8 @@ codelab = error "SOMETHING IS NOT IMPLEMENTED!"
 {- #####################################################################
    SECTION 1: number manipulation
 
-   As we have not looked at any complex data structures yet, so the
-   only thing we have for now are numbers.
+   As we have not looked at any complex data structures yet, the only thing
+   we have for now is numbers.
 -}
 
 add :: Int -> Int -> Int
@@ -106,8 +106,9 @@ divide x y = codelab
 --
 --  if <expr> then <expr> else <expr>
 --
--- Integer is just like Int, except that it can store arbitrary large
--- numbers.
+-- Integer is just like Int, except that it can store arbitrarily large
+-- numbers. Without a type like this, we couldn't compute the factorial of
+-- even relatively small numbers.
 
 factorial :: Integer -> Integer
 factorial n = codelab
@@ -116,10 +117,10 @@ factorial n = codelab
 -- following syntax:
 --
 --   let x = <expr1>
---    in <expr2>
+--   in <expr2>
 --
--- Spacing is irrelevant - you can put spaces anywhere you want.  As for
--- the GCD itself, consider Euclid's algorithm:
+-- Spacing within an expression is (mostly) irrelevant - you can put spaces
+-- anywhere you want.  As for the GCD itself, consider Euclid's algorithm:
 --
 --   https://en.wikipedia.org/wiki/Greatest_common_divisor#Using_Euclid's_algorithm
 
@@ -133,25 +134,30 @@ gcd a b = codelab
 {- #####################################################################
    SECTION 2: simple pattern matching
 
-   Not that we can define simple data structures, let's try using them.
+   Now that we can define simple data structures, let's try using them.
 -}
 
 data Minutes = Minutes Int
 
 -- Integer division is called "div".  If you want, you can use a function
--- of two arguments as an infix operator, by quoting it using backquotes,
--- like this:
+-- of two arguments as an infix operator, by surrounding it with
+-- backquotes. For example, this
 --
---     let v = a `div` b
+--     a `div` b
+--
+-- is the same as
+--
+--     div a b
 
 hours :: Minutes -> Int
 hours m = codelab
 
--- In case you might need some mathematical functions, you can use
+-- In case you need some mathematical functions, you can use
 --
---     https://hoogle.haskell.org/
+--     Hoogle     https://hoogle.haskell.org
 --
--- to search for anything supported by the standard library and beyond.
+-- to search for anything supported by the standard library and beyond. You
+-- can search by name, or even by type signature!
 --
 -- Distance here means the number of minutes to get from m1 to m2.  For
 -- example, for 15 and 25, distance is 10.
@@ -161,13 +167,13 @@ timeDistance m1 m2 = codelab
 
 type Point = (Int, Int)
 
--- Do not forget about Hoogle, should you need a new function.
+-- Do not forget about Hoogle (see above), should you need a new function.
 --
--- Notice, when you declare a new type with the "data" keyword you also
--- declare new constructor(s) that you can use to pattern match on.  But
+-- Notice that when you declare a new type with the "data" keyword, you
+-- also declare new constructor(s) that you can use to pattern match.  But
 -- when you are declaring a type alias with the "type" keyword, no
 -- constructors are declared.  You will pattern match on the original type
--- you are aliasing - a tuple in this case, for example:
+-- you are aliasing - a tuple in this case. For example:
 --
 --     f :: Point -> Int
 --     f (x, y) = abs x + abs y
@@ -179,13 +185,13 @@ pointDistance p1 p2 = codelab
 {- #####################################################################
    SECTION 3: deconstructing lists
 
-   The default list is ubiquitous in the Prelude; the default String
-   type is but a type alias to [Char] after all. Though they have
-   limitations, they're always useful.
+   The default list is ubiquitous in the Prelude; the default String type
+   is but a type alias to [Char] after all. Though they have limitations,
+   they're always useful.
 
    As a reminder, a list is either:
      * []     the empty list
-     * (x:xs) a cell containing the value x and followed by the list xs
+     * (x:xs) a cell containing the value x, followed by the list xs
 -}
 
 
@@ -195,16 +201,17 @@ null :: [a] -> Bool
 null fixme = codelab
 
 
--- head returns the first element of the list
--- if the list is empty, it panics: this function is partial
+-- head returns the first element of the list.
+--
+-- On an empty list, head panics: functions that can panic are "partial"
 
 head :: [a] -> a
 head []    = error "head: empty list"
 head fixme = codelab
 
 
--- tail returns everything but the first element
--- if the list is empty it panics
+-- tail returns everything but the first element.
+-- If the list is empty it panics
 
 tail :: [a] -> [a]
 tail = codelab
@@ -216,8 +223,8 @@ tail = codelab
 {- #####################################################################
    SECTION 4: recursion (c.f. SECTION 4)
 
-   There is no loop in Haskell, so to go through a list, we have to use
-   recursion. Here are a few more common functions for you to
+   There is no looping construct in Haskell. To go through a list, we use
+   recursion instead. Here are a few more common functions for you to
    reimplement!
 -}
 
@@ -242,7 +249,7 @@ or :: [Bool] -> Bool
 or l = codelab
 
 
--- "(++)" is the concatenation operator.  To concatenate two linked lists
+-- (++) is the concatenation operator.  To concatenate two linked lists
 -- you have to chain the second one at the end of the first one.
 
 (++) :: [a] -> [a] -> [a]
@@ -282,12 +289,12 @@ map f (a:as) = codelab
 
 
 -- Same thing here for filter, except that we use it to introduce a new
--- syntax: those | are called "guards"; they let you specify different
+-- syntax: those | are called "guards". They let you specify different
 -- implementations of your function depending on some Boolean
 -- value. "otherwise" is not a keyword but simply a constant whose value is
 -- True! Try to evaluate "otherwise" in GHCI.
 --
--- Simple example of guards usage:
+-- Simple example of guard usage:
 --   abs :: Int -> Int
 --   abs x
 --     | x < 0     = -x
