@@ -249,7 +249,7 @@ or :: [Bool] -> Bool
 or l = codelab
 
 
--- (++) is the concatenation operator.  To concatenate two linked lists
+-- "(++)" is the concatenation operator.  To concatenate two linked lists
 -- you have to chain the second one at the end of the first one.
 
 (++) :: [a] -> [a] -> [a]

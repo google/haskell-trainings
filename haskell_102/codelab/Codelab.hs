@@ -86,7 +86,7 @@ data Color = Red     -- this is a constructor, of type Color
            | Blue
            | Magenta
              deriving ( -- the compiler automatically generates the
-               Ord,     -- instances for those built-in typeclasses
+               Ord,     -- instances for these built-in typeclasses
                Eq,
                Enum,
                Bounded
@@ -319,7 +319,7 @@ codeToMap code = codelab
 -- For bonus points, reimplement it with "filter" or with a list comprehension.
 
 countBlacks :: Code -> Code -> Int
-countBlacks l1 l2 = codelab $ codelab codelab $ codelab codelab l1 l2
+countBlacks c1 c2 = codelab $ codelab codelab $ codelab codelab c1 c2
 
 
 -- [4.4]
@@ -406,16 +406,15 @@ duplicatesList len =
   do i <- [1..codelab]
      codelab
 
--- [5.3]
--- How about the case when the length of different "blocks" would be
--- different?  Let's build a "generator" similar to the previous one, but
+-- [5.3] What if we want the different "blocks" to have different
+-- lengths? Let's build a "generator" similar to the previous one, but
 -- that would duplicate only odd values.  For example, for length 5 it
 -- should produce
 --
 --   [1, 1, 2, 3, 3, 4, 5, 5]
 --
--- I this, this is not something that can be easily expressed with an
--- ordinary generator, is it?
+-- This is not something that can be easily expressed with an ordinary
+-- generator, is it?
 --
 -- Do not forget about Hoogle, should you need a new function.
 --
