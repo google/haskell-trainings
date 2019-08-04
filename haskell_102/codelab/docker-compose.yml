@@ -1,0 +1,26 @@
+version: '3'
+services:
+  codelab_test:
+    build: .
+    image: haskell102:latest
+    command: "./test_codelab"
+  codelab_play:
+    build: .
+    image: haskell102:latest
+    command: "./codelab play"
+  codelab_solve:
+    build: .
+    image: haskell102:latest
+    command: "./codelab solve"
+  solution_test:
+    build: .
+    image: haskell102:latest
+    command: "./test_solution"
+  solution_play:
+    build: .
+    image: haskell102:latest
+    command: "./solution play"
+  solution_solve:
+    build: .
+    image: haskell102:latest
+    command: "./solution solve"
