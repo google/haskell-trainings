@@ -8,7 +8,7 @@ To setup your machine please consult [the official haskell website](https://www.
 
 To run the tests first build the binary `make codelab` and then run the binary `./codelab` and you should see output similar to below as you progress through the lab.
 ```
-### Setction 1
+### Section 1
 add       1 2                             [OK] got: 3
 subtract  7 2                             [OK] got: 5
 ```
