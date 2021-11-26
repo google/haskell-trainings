@@ -11,10 +11,18 @@ the team.
 
 ### Slides
 
-The slides use LaTeX. You'll need `xelatex` installed to build them. Simply
-run `make` to create the PDFs. You must also have the [Yanone
+The slides use LaTeX. Simply run `make` to create the PDFs, assuming you have
+all the required dependencies.
+
+You need `xelatex` and the [Yanone
 Kaffeesatz](https://yanone.de/fonts/kaffeesatz/) fonts installed on your
 machine.
+
+On an Ubuntu system, you can get all of these by running
+
+```
+sudo apt-get install texlive-xetex texlive-fonts-extra fonts-yanone-kaffeesatz
+```
 
 ### Exercises
 
