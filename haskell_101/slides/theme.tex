@@ -271,30 +271,59 @@
         emphstyle={[5]\color{hsk-constructors}\textbf},
         emph=
         {[6]
-                a,b,c
+                a,b,c,m,t
         },
         emphstyle={[6]\color{hsk-typevar}\textbf}
 }
 
-\lstnewenvironment{code}
-    {\lstset{language=ColorHaskell,basicstyle=\footnotesize\ttfamily}%
-      \csname lst@SetFirstLabel\endcsname}
-    {\csname lst@SaveFirstLabel\endcsname}
-    \lstset{
-      basicstyle=\footnotesize\ttfamily,
-      flexiblecolumns=false,
-      basewidth={0.5em,0.45em},
-      escapechar=;,
-      literate={`\\}{{$\lambda$}}1
-               {`\\\\}{{\char`\\\char`\\}}1
-               {`->}{{$\rightarrow$}}2
-               {`<-}{{$\leftarrow$}}2
-               {`=>}{{$\Rightarrow$}}2
-               {`>>}{{>>}}2
-               {`>>=}{{>>=}}3
-               {`>=>}{{>=>}}3
-               {`|}{{$\mid$}}1
-    }
+\lstnewenvironment{code}[1][Haskell]
+    {\lstset{
+        language=ColorHaskell,
+        basicstyle=\footnotesize\ttfamily,
+        flexiblecolumns=false,
+        basewidth={0.5em,0.45em},
+        escapeinside={(*}{*)},
+        frame=trlb,
+        frameround=tttt,
+        literate={`\\}{{$\lambda$}}1
+                 {`\\\\}{{\char`\\\char`\\}}1
+                 {`->}{{$\rightarrow$}}2
+                 {`<-}{{$\leftarrow$}}2
+                 {`=>}{{$\Rightarrow$}}2
+                 {`>>}{{>>}}2
+                 {`>>=}{{>>=}}3
+                 {`>=>}{{>=>}}3
+                 {`|}{{$\mid$}}1
+    }\csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname\begin{flushright}{\color{lightgray!90}\vspace{-15mm}\footnotesize(#1)}\end{flushright}}
+
+% C-like code
+\lstnewenvironment{ccode}[1][C++]
+    {\lstset{
+        language=C,
+        basicstyle=\footnotesize\ttfamily,
+        flexiblecolumns=false,
+        keywordstyle=\color{google-g},
+        basewidth={0.5em,0.45em},
+        escapeinside={(*}{*)},
+        frame=trlb,
+        frameround=tttt,
+    }\csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname\begin{flushright}{\color{lightgray!90}\vspace{-15mm}\footnotesize(#1)}\end{flushright}}
+
+% Python code
+\lstnewenvironment{pycode}[1][Python]
+    {\lstset{
+        language=Python,
+        basicstyle=\footnotesize\ttfamily,
+        flexiblecolumns=false,
+        keywordstyle=\color{google-g},
+        basewidth={0.5em,0.45em},
+        escapeinside={(*}{*)},
+        frame=trlb,
+        frameround=tttt,
+    }\csname lst@SetFirstLabel\endcsname}
+    {\csname lst@SaveFirstLabel\endcsname\begin{flushright}{\color{lightgray!90}\vspace{-15mm}\footnotesize(#1)}\end{flushright}}
 
 \def\inlinecode{\lstinline[language=ColorHaskell,
       basicstyle=\footnotesize\ttfamily,
@@ -334,6 +363,7 @@
 \newcommand<>{\tvar}[1]{\textcolor{hsk-typevar}{#1}}
 \newcommand<>{\cons}[1]{\textcolor{hsk-constructors}{#1}}
 \newcommand<>{\bi}[1]{\textcolor{hsk-built-ins}{#1}}
+\newcommand<>{\str}[1]{\textcolor{hsk-strings}{#1}}
 
 
 
