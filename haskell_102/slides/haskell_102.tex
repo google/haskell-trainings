@@ -14,13 +14,14 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{soul}
+\usepackage{tikz}
 \usepackage{xunicode}
 
 % When working on specific pages it is faster to generate just those pages.
 % \usepackage[163-180]{pagesel}
 
 \title{Haskell 102}
-\author{ibobyr@, nicuveo@}
+\author{mihaimaruseac@, ibobyr@, nicuveo@}
 %\institute{Google}
 \date{\small\today}
 
@@ -82,10 +83,19 @@
 \begin{document}
 
 
-
-%% Title frame
-
+% Set-up: have on screen while people are gathering
 \togglefalse{showpagenumber}
+\begin{frame}[fragile]
+  \frametitle{Before we begin}
+  \begin{code}[setup]
+cd 00_setup && make
+# Windows users: see setup.md
+  \end{code}
+\end{frame}
+
+
+% Title frame
+
 \begin{frame}[fragile]
   \titlepage
 \end{frame}
@@ -93,1186 +103,1554 @@
 \setcounter{framenumber}{0}
 
 
-
-%% Intro
-
 \section{Intro}
 
 \begin{frame}
-\frametitle{Goals}
-\Split{%
-  \begin{itemize}
-  \item 101: basic skills
+  \frametitle{Goals}
+  \Split{%
     \begin{itemize}
-    \item Reading function types
-    \item Pattern matching
-    \item Data structures
-  \end{itemize}
-  \end{itemize}
-  \begin{itemize}
-  \item 102: first project
+      \item 101: basic skills
+        \begin{itemize}
+          \item Reading function types
+          \item Pattern matching
+          \item Data structures
+        \end{itemize}
+    \end{itemize}
     \begin{itemize}
-    \item Genericity
-    \item IO and do notation
-    \item Build a game!
-  \end{itemize}
-  \end{itemize}
-}{%
-  \Image{3cm}{img/success}
-}%
+      \item 102: first project
+        \begin{itemize}
+          \item Genericity
+          \item IO and do notation
+	  \item Build a game! (demo)
+        \end{itemize}
+    \end{itemize}
+  }{%
+    \Image{3cm}{img/success}
+  }%
 \end{frame}
 
 \begin{frame}
-\frametitle{Roadmap}
-\begin{TopAlign}{.52}
-  \begin{itemize}
-  \item 101 Recap
-  \item Remaining obstacles
-  \item Typeclasses overview
-  \item \alt<2>{Typeclasses}{Common examples}
-  \item \alt<2>{Typeclasses}{Advanced syntax}
-  \item<2> Typeclasses\ldots
-  \end{itemize}
-\end{TopAlign}
+  \frametitle{Roadmap}
+  \begin{TopAlign}{.52}
+    \begin{itemize}
+      \item 101 Recap
+      \item Remaining obstacles
+      \item Typeclasses overview
+      \item \alt<2>{Typeclasses}{Common examples}
+      \item \alt<2>{Typeclasses}{Advanced syntax}
+      \item<2> Typeclasses\ldots
+    \end{itemize}
+  \end{TopAlign}
 \end{frame}
 
-\begin{frame}
-\frametitle{Checklist}
-\begin{itemize}
-\item Haskell 101
-\item Haskell 102 codelab
-\item apt-get install haskell-platform
-\end{itemize}
-\end{frame}
-
-
-
-%% Recap 101
 
 \section{Recap}
 
-\begin{frame}
-\frametitle{Curried functions, partial application}
-\begin{center}
-\begin{tabular}{ l c r }
-  \uncover<2->{\\\ic{f}      &\ic{::}&\ic{Int -> ( Int -> [Int] )}}
-  \uncover<1->{\\\ic{f}      &\ic{::}&\ic{Int ->   Int -> [Int]}}
-  \uncover<3->{\\\ic{f 1}    &\ic{::}&\ic{         Int -> [Int]}}
-  \uncover<5->{\\\ic{f 1 2}  &\ic{::}&\ic{                [Int]}}
-  \uncover<4->{\\\ic{(f 1) 2}&\ic{::}&\ic{                [Int]}}
-\end{tabular}
-~\\~\\~\\
-\end{center}
-\end{frame}
-
 \begin{frame}[fragile]
-\frametitle{Type constructors}
-\begin{center}
-\begin{uncoverenv}<1->
-  \begin{code}
-      -- enum
-      data ;\type{Bool};  = ;\cons{False}; | ;\cons{True};
-      data ;\type{Color}; = ;\cons{Red}; | ;\cons{Green}; | ;\cons{Blue};
-  \end{code}
-\end{uncoverenv}
-\begin{uncoverenv}<2->
-  \begin{code}
-      -- struct
-      data ;\type{Point}; = ;\cons{Point}; { x :: ;\type{Double};, y :: ;\type{Double}; }
-  \end{code}
-\end{uncoverenv}
-\begin{uncoverenv}<3->
-  \begin{onlyenv}<-3>
+  \frametitle{Curried functions, partial application}
+  \begin{onlyenv}<1>
     \begin{code}
-      -- a bit more interesting
-      data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
-      data ;\type{Maybe}; ;\tvar{a}; = ;\cons{Nothing}; | ;\cons{Just}; ;\tvar{a};
-      data ;\type{List}; ;\tvar{a};  = ;\cons{Nil}; | ;\cons{Cell}; ;\tvar{a}; (;\cons{List}; ;\tvar{a};)
+(*\\*)
+ f      :: Int ->   Int -> [Int]
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \begin{code}
+ f      :: Int -> ( Int -> [Int] )
+ f      :: Int ->   Int -> [Int]
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}
+ f      :: Int -> ( Int -> [Int] )
+ f      :: Int ->   Int -> [Int]
+ f 1    ::          Int -> [Int]
+(*\\*)
+(*\\*)
     \end{code}
   \end{onlyenv}
   \begin{onlyenv}<4>
     \begin{code}
-      -- a bit more interesting
-      data ;\type{Minutes}; = ;\cons{Minutes}; ;\type{Int};
-      data ;\type{Maybe}; ;\tvar{a}; = ;\cons{Nothing}; | ;\cons{Just}; ;\tvar{a};
-      data [;\tvar{a};]     = [] | (;\tvar{a};:[;\tvar{a};])
+ f      :: Int -> ( Int -> [Int] )
+ f      :: Int ->   Int -> [Int]
+ f 1    ::          Int -> [Int]
+(*\\*)
+(f 1) 2 ::                 [Int]
     \end{code}
   \end{onlyenv}
-\end{uncoverenv}
-\end{center}
+  \begin{onlyenv}<5>
+    \begin{code}
+ f      :: Int -> ( Int -> [Int] )
+ f      :: Int ->   Int -> [Int]
+ f 1    ::          Int -> [Int]
+ f 1  2 ::                 [Int]
+(f 1) 2 ::                 [Int]
+    \end{code}
+  \end{onlyenv}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{"Deconstructors" and pattern matching}
-\begin{center}
-\begin{uncoverenv}<1->
-  \begin{code}
-      not :: ;\type{Bool}; -> ;\type{Bool};
-      not ;\cons{True};  = ;\cons{False};
-      not ;\cons{False}; = ;\cons{True};
-  \end{code}
-\end{uncoverenv}
-\begin{uncoverenv}<2->
-  \begin{code}
-      magnitude :: ;\type{Point}; -> ;\type{Double};
-      magnitude (;\cons{Point}; x y) = sqrt $ x^2 + y^2
-  \end{code}%$
-\end{uncoverenv}
-\begin{uncoverenv}<3->
-  \begin{code}
-      length :: [;\tvar{a};] -> ;\type{Int};
-      length []     = 0
-      length (_:xs) = 1 + length xs
-  \end{code}
-\end{uncoverenv}
-\end{center}
+  \frametitle{Type constructors}
+  \begin{center}
+    \begin{uncoverenv}<1->
+      \begin{code}
+-- enum
+data (*\type{Bool}*)  = (*\cons{False}*) | (*\cons{True}*)
+data (*\type{Color}*) = (*\cons{Red}*) | (*\cons{Green}*) | (*\cons{Blue}*)
+      \end{code}
+    \end{uncoverenv}
+    \begin{uncoverenv}<2->
+      \begin{code}
+-- struct
+data (*\type{Point}*) = (*\cons{Point}*) { x :: (*\type{Double}*), y :: (*\type{Double}*) }
+      \end{code}
+    \end{uncoverenv}
+    \begin{uncoverenv}<3->
+      \begin{onlyenv}<-3>
+        \begin{code}
+-- a bit more interesting
+data (*\type{Minutes}*) = (*\cons{Minutes}*) (*\type{Int}*)
+data (*\type{Maybe}*) (*\tvar{a}*) = (*\cons{Nothing}*) | (*\cons{Just}*) (*\tvar{a}*)
+data (*\type{List}*) (*\tvar{a}*)  = (*\cons{Nil}*) | (*\cons{Cell}*) (*\tvar{a}*) ((*\cons{List}*) (*\tvar{a}*))
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<4>
+        \begin{code}
+-- a bit more interesting
+data (*\type{Minutes}*) = (*\cons{Minutes}*) (*\type{Int}*)
+data (*\type{Maybe}*) (*\tvar{a}*) = (*\cons{Nothing}*) | (*\cons{Just}*) (*\tvar{a}*)
+data [(*\tvar{a}*)]     = [] | ((*\tvar{a}*):[(*\tvar{a}*)])
+        \end{code}
+      \end{onlyenv}
+    \end{uncoverenv}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{"Deconstructors" and pattern matching}
+  \begin{center}
+    \begin{uncoverenv}<1->
+      \begin{code}
+not :: (*\type{Bool}*) -> (*\type{Bool}*)
+not (*\cons{True}*)  = (*\cons{False}*)
+not (*\cons{False}*) = (*\cons{True}*)
+      \end{code}
+    \end{uncoverenv}
+    \begin{uncoverenv}<2->
+      \begin{code}
+magnitude :: (*\type{Point}*) -> (*\type{Double}*)
+magnitude ((*\cons{Point}*) x y) = sqrt $ x^2 + y^2
+    \end{code}%$
+    \end{uncoverenv}
+    \begin{uncoverenv}<3->
+      \begin{code}
+length :: [(*\tvar{a}*)] -> (*\type{Int}*)
+length []     = 0
+length (_:xs) = 1 + length xs
+      \end{code}
+    \end{uncoverenv}
+  \end{center}
 \end{frame}
 
 \begin{frame}
-\frametitle{We know}
-\begin{center}
-\begin{minipage}[c]{.8\linewidth}
-\begin{itemize}
-  \item how to read function types
-  \item how to declare new types
-  \item how to do pattern matching
-\end{itemize}
-\end{minipage}
-\end{center}
+  \frametitle{We know}
+  \begin{center}
+    \begin{minipage}[c]{.8\linewidth}
+      \begin{itemize}
+        \item how to read function types
+        \item how to declare new types
+        \item how to do pattern matching
+      \end{itemize}
+    \end{minipage}
+  \end{center}
 \end{frame}
 
-
-
-%% Shortcomings
 
 \section{Obstacles}
 
 \begin{frame}[fragile]
-\frametitle{Our types are limited}
-\begin{TopAlign}{.5}
-\begin{flushleft}
-               \footnotesize\texttt{\$ ghci}                                                ~\\
-\uncover<1->  {\footnotesize\texttt{> \uncover<2-> {\ic{data\ }\ict{Color}\ic{\ =\ }\icc{Red}\ic{\ |\ }\icc{Green}\ic{\ |\ }\icc{Blue}}}} ~\\
-\uncover<3->  {\footnotesize\texttt{> \uncover<4-> {\ic{let mycolor =\ }\icc{Red}}}}        ~\\
-\begin{onlyenv}<5-7>
-\uncover<5-7> {\footnotesize\texttt{> \uncover<6-7>{\ic{mycolor}}}}                         ~\\
-\uncover<7>   {\footnotesize\texttt{~~~~No instance for (\ict{Show Color})}}                ~\\
-\uncover<7>   {\footnotesize\texttt{~~~~arising from a use of `print'}}                     ~\\
-\end{onlyenv}
-\begin{onlyenv}<8-10>
-\uncover<8-10>{\footnotesize\texttt{> \uncover<9-10>{\ic{mycolor ==\ }\icc{Red}}}}          ~\\
-\uncover<10>  {\footnotesize\texttt{~~~~No instance for (\ict{Eq Color})}}                  ~\\
-\uncover<10>  {\footnotesize\texttt{~~~~arising from a use of `(==)'}}                      ~\\
-\end{onlyenv}
-\end{flushleft}
-\end{TopAlign}
+  \frametitle{Our types are limited}
+  \begin{TopAlign}{.5}
+    \begin{flushleft}
+      \footnotesize\texttt{\$ ghci}                                                ~\\
+      \uncover<1->  {\footnotesize\texttt{> \uncover<2-> {\ic{data\ }\ict{Color}\ic{\ =\ }\icc{Red}\ic{\ |\ }\icc{Green}\ic{\ |\ }\icc{Blue}}}} ~\\
+      \uncover<3->  {\footnotesize\texttt{> \uncover<4-> {\ic{let mycolor =\ }\icc{Red}}}}        ~\\
+      \begin{onlyenv}<5-7>
+        \uncover<5-7> {\footnotesize\texttt{> \uncover<6-7>{\ic{mycolor}}}}                         ~\\
+        \uncover<7>   {\footnotesize\texttt{~~~~No instance for (\ict{Show Color})}}                ~\\
+        \uncover<7>   {\footnotesize\texttt{~~~~arising from a use of `print'}}                     ~\\
+      \end{onlyenv}
+      \begin{onlyenv}<8-10>
+        \uncover<8-10>{\footnotesize\texttt{> \uncover<9-10>{\ic{mycolor ==\ }\icc{Red}}}}          ~\\
+        \uncover<10>  {\footnotesize\texttt{~~~~No instance for (\ict{Eq Color})}}                  ~\\
+        \uncover<10>  {\footnotesize\texttt{~~~~arising from a use of `(==)'}}                      ~\\
+      \end{onlyenv}
+    \end{flushleft}
+  \end{TopAlign}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Type parameters constraints?}
-~\\
-\begin{code}
-  sumI :: [;\type{Int};] -> ;\type{Int};        sumD :: [;\type{Double};] -> ;\type{Double};
-  sumI = foldl (+) 0          sumD = foldl (+) 0
-\end{code}
-\pause~\\
-\begin{code}
-                  sum :: [;\tvar{a};] -> ;\tvar{a};
-                  sum = foldl (+) 0
-\end{code}
-\pause
-\begin{flushleft}
-\footnotesize
-\texttt{~~No instance for (\ict{Num} \icv{a})}\\
-\texttt{~~arising from a use of `(+)'}
-\end{flushleft}
+  \frametitle{Type parameters constraints?}
+  \begin{code}
+sumI :: [(*\type{Int}*)] -> (*\type{Int}*)
+sumI = foldl (+) 0
+(*\\*)
+sumD :: [(*\type{Double}*)] -> (*\type{Double}*)
+sumD = foldl (+) 0
+  \end{code}
+  \pause~\\
+  \begin{code}
+sum :: [(*\tvar{a}*)] -> (*\tvar{a}*)
+sum = foldl (+) 0
+  \end{code}
+  \pause
+  \begin{flushleft}
+    \footnotesize
+    \texttt{~~No instance for (\ict{Num} \icv{a})}\\
+    \texttt{~~arising from a use of `(+)'}
+  \end{flushleft}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Cascading context}
-  \begin{TopAlign}{1.0}
   \begin{code}
-getUser        :: ;\type{Id};   -> ;\type{Maybe}; ;\type{User};
-getNextOfKin   :: ;\type{User}; -> ;\type{Maybe}; ;\type{Id};
-getPhoneNumber :: ;\type{User}; -> ;\type{Maybe}; ;\type{PhoneNumber};
+getUser        :: (*\type{Id}*)   -> (*\type{Maybe}*) (*\type{User}*)
+getNextOfKin   :: (*\type{User}*) -> (*\type{Maybe}*) (*\type{Id}*)
+getPhoneNumber :: (*\type{User}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
   \end{code}
-  \begin{uncoverenv}<2->
-  \begin{code}
-getNextOfKinPhoneNumber :: ;\type{Id}; -> ;\type{Maybe}; ;\type{PhoneNumber};
-  \end{code}
-  \end{uncoverenv}
+  \begin{onlyenv}<2>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
   \begin{onlyenv}<3>
-  \vspace{-12pt}
-  \begin{code}
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
 getNextOfKinPhoneNumber userId =
-  \end{code}
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
   \end{onlyenv}
-  \begin{uncoverenv}<4->
-  \vspace{-12pt}
-  \begin{code}
+  \begin{onlyenv}<4>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
 getNextOfKinPhoneNumber userId = case getUser userId of
-  \end{code}
-  \end{uncoverenv}
-  \begin{uncoverenv}<5->
-  \vspace{-12pt}
-  \begin{code}
-    Nothing   -> Nothing
-  \end{code}
-  \end{uncoverenv}
+  Nothing   -> Nothing
+  Just user ->
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<5>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber userId = case getUser userId of
+  Nothing   -> Nothing
+  Just user -> case getNextOfKin user of
+    Nothing          -> Nothing
+    Just nextOfKinId ->
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
   \begin{onlyenv}<6>
-  \vspace{-12pt}
-  \begin{code}
-    Just user ->
-  \end{code}
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber userId = case getUser userId of
+  Nothing   -> Nothing
+  Just user -> case getNextOfKin user of
+    Nothing          -> Nothing
+    Just nextOfKinId -> case getUser nextOfKinId of
+      Nothing        -> Nothing
+      Just nextOfKin ->
+    \end{code}
   \end{onlyenv}
-  \begin{uncoverenv}<7->
-  \vspace{-12pt}
-  \begin{code}
-    Just user -> case getNextOfKin user of
-  \end{code}
-  \end{uncoverenv}
-  \begin{uncoverenv}<8->
-  \vspace{-12pt}
-  \begin{code}
-        Nothing          -> Nothing
-  \end{code}
-  \end{uncoverenv}
-  \begin{onlyenv}<9>
-  \vspace{-12pt}
-  \begin{code}
-        Just nextOfKinId ->
-  \end{code}
+  \begin{onlyenv}<7>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber userId = case getUser userId of
+  Nothing   -> Nothing
+  Just user -> case getNextOfKin user of
+    Nothing          -> Nothing
+    Just nextOfKinId -> case getUser nextOfKinId of
+      Nothing        -> Nothing
+      Just nextOfKin -> getPhoneNumber nextOfKin
+    \end{code}
   \end{onlyenv}
-  \begin{uncoverenv}<10->
-  \vspace{-12pt}
-  \begin{code}
-        Just nextOfKinId -> case getUser nextOfKinId of
-  \end{code}
-  \end{uncoverenv}
-  \begin{uncoverenv}<11->
-  \vspace{-12pt}
-  \begin{code}
-            Nothing        -> Nothing
-  \end{code}
-  \end{uncoverenv}
-  \begin{onlyenv}<12>
-  \vspace{-12pt}
-  \begin{code}
-            Just nextOfKin ->
-  \end{code}
-  \end{onlyenv}
-  \begin{uncoverenv}<13->
-  \vspace{-12pt}
-  \begin{code}
-            Just nextOfKin -> getPhoneNumber nextOfKin
-  \end{code}
-  \end{uncoverenv}
-  \end{TopAlign}
 \end{frame}
 
 \begin{frame}
-\frametitle{IO}
-\begin{TopAlign}{.1}
-  \begin{minipage}[c][.3\textheight]{\linewidth}%
-    \begin{center}
-      \begin{itemize}
-      \item<1-> Can't apply regular functions to IO values
-      \item<7-> Can't get values out of IO
-      \item<8-> Can't pattern match on IO
-      \end{itemize}
-    \end{center}
-  \end{minipage}
-\end{TopAlign}
+  \frametitle{IO}
+  \begin{TopAlign}{.1}
+    \begin{minipage}[c][.3\textheight]{\linewidth}%
+      \begin{center}
+        \begin{itemize}
+          \item<1-> Can't apply regular functions to IO values
+          \item<6-> Can't get values out of IO
+          \item<7-> Can't pattern match on IO
+        \end{itemize}
+      \end{center}
+    \end{minipage}
+  \end{TopAlign}
   \begin{minipage}[c][.5\textheight]{\linewidth}%
     \begin{center}
-      \begin{onlyenv}<2-6>
+      \begin{onlyenv}<2-5>
         \begin{flushleft}
-          \footnotesize\texttt{\$ ghci}                                                  ~\\
+          \footnotesize\texttt{\$ ghci}                                                      ~\\
           \uncover<2->{\footnotesize\texttt{> \uncover<3-> {\ic{let name = getLine --}\ict{\ IO String}}}} ~\\
-          \uncover<4->{\footnotesize\texttt{> \uncover<5-> {\ic{putStr \$ "Hello " ++ name ++ "!"}}}} ~\\
-          \uncover<6->{\footnotesize\texttt{~~~~Expected type: `\ict{String}'}}          ~\\
-          \uncover<6->{\footnotesize\texttt{~~~~~~Actual type: `\ict{IO String}'}}       ~\\
-          \uncover<6->{\footnotesize\texttt{~~~~In second argument of (++)}}             ~\\
+          \uncover<3->{\footnotesize\texttt{> \uncover<4-> {\ic{putStr \$ "Hello " ++ name ++ "!"}}}} ~\\
+          \uncover<5->{\footnotesize\texttt{~~~~Expected type: `\ict{String}'}}          ~\\
+          \uncover<5->{\footnotesize\texttt{~~~~~~Actual type: `\ict{IO String}'}}       ~\\
+          \uncover<5->{\footnotesize\texttt{~~~~In second argument of (++)}}             ~\\
         \end{flushleft}
       \end{onlyenv}
       \begin{center}
-        \only<9>{IO's implementation\\details are hidden}
+        \only<8>{IO's implementation\\details are hidden}
       \end{center}
     \end{center}
   \end{minipage}
 \end{frame}
 
 \begin{frame}
-\frametitle{We don't know}
-\begin{center}
-\begin{minipage}[c]{.8\linewidth}
-\begin{itemize}
-  \item how to extend our data types
-  \item how to express type constraints
-  \item how to chain contextual functions
-  \item how to use IO
-\end{itemize}
-\end{minipage}
-\end{center}
+  \frametitle{We don't know}
+  \begin{center}
+    \begin{minipage}[c]{.8\linewidth}
+      \begin{itemize}
+        \item how to extend our data types
+        \item how to express type constraints
+        \item how to chain contextual functions
+        \item how to use IO
+      \end{itemize}
+    \end{minipage}
+  \end{center}
 \end{frame}
+
 
 \section{Typeclasses}
 
 \begin{frame}[fragile]
-\frametitle{Typeclasses}
-\begin{code}
-    class ;\type{Show}; ;\tvar{a}; where
-        show :: ;\tvar{a}; -> ;\type{String};
-\end{code}
-\begin{uncoverenv}<2->
-\begin{code}
-    data ;\type{Color}; = ;\cons{Red}; | ;\cons{Green}; | ;\cons{Blue};
-\end{code}
-\end{uncoverenv}
-\begin{uncoverenv}<3->
-\begin{code}
-    instance ;\type{Show}; ;\type{Color}; where
-        show ;\cons{Red};   = "Red"
-        show ;\cons{Green}; = "Green"
-        show ;\cons{Blue};  = "Blue"
-\end{code}
-\end{uncoverenv}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Constraints}
-\begin{code}
-  show :: ;\type{Show}; ;\tvar{a}; => ;\tvar{a}; -> ;\type{String};
-\end{code}
-\vspace{-12pt}
-\begin{uncoverenv}<2->
-\begin{code}
-  sum  :: ;\type{Num}; ;\tvar{a};  => [;\tvar{a};] -> ;\tvar{a};
-\end{code}
-\end{uncoverenv}
-\begin{uncoverenv}<3->
-\vspace{-12pt}
-\begin{code}
-  (==) :: ;\type{Eq}; ;\tvar{a};   => ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-\end{code}
-\end{uncoverenv}
-\begin{onlyenv}<4-6>
-\begin{code}
-  instance ;\type{Show}; (;\type{Maybe}; ;\tvar{a};) where
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<7->
-\begin{code}
-  instance ;\type{Show}; ;\tvar{a}; => ;\type{Show}; (;\type{Maybe}; ;\tvar{a};) where
-\end{code}
-\end{onlyenv}
-\begin{uncoverenv}<5->
-\vspace{-12pt}
-\begin{code}
-      show ;\cons{Nothing};  = "Nothing"
-\end{code}
-\end{uncoverenv}
-\begin{uncoverenv}<6->
-\vspace{-12pt}
-\begin{code}
-      show (;\cons{Just}; x) = "Just " ++ show x
-\end{code}
-\end{uncoverenv}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Quick tour}
-\frametitle<9->{Quick boring tour...}
-\begin{center}
-\begin{minipage}[t][.2\textheight]{.8\linewidth}
-\begin{center}
-\begin{tabular}{ c c c c c c }
-\alt<2-5>{Show}{\color{lightgray}Show}&
-\alt<4-5>{Read}{\color{lightgray}Read}&
-\alt<6-9>{Eq}{\color{lightgray}Eq}&
-\alt<10-11>{Ord}{\color{lightgray}Ord}&
-\alt<12>{Bounded}{\color{lightgray}Bounded}&
-\alt<13>{Enum}{\color{lightgray}Enum}
-\end{tabular}
-\hrule
-\end{center}
-\end{minipage}
-~\\
-\begin{minipage}[t][.6\textheight]{.8\linewidth}
-  \begin{code}
-    data ;\type{Color}; = ;\cons{Red}; | ;\cons{Green}; | ;\cons{Blue};
+  \frametitle{Typeclasses}
+  \begin{code}[typeclass]
+class (*\type{Show}*) (*\tvar{a}*) where
+  show :: (*\tvar{a}*) -> (*\type{String}*)
   \end{code}
-  \begin{onlyenv}<2-5>
-    \begin{flushleft}\footnotesize
-~\\\uncover<2->{\texttt{> show \cons{Blue}}}
-~\\\uncover<3->{\texttt{\str{"Blue"}}}
-~\\\uncover<4->{\texttt{> read \str{"Green"} :: \type{Color}}}
-~\\\uncover<5->{\texttt{\cons{Green}}}
+  \begin{uncoverenv}<2->
+    \begin{code}[type]
+data (*\type{Color}*) = (*\cons{Red}*) | (*\cons{Green}*) | (*\cons{Blue}*)
+    \end{code}
+  \end{uncoverenv}
+  \begin{uncoverenv}<3->
+    \begin{code}[instance]
+instance (*\type{Show}*) (*\type{Color}*) where
+  show (*\cons{Red}*)   = "Red"
+  show (*\cons{Green}*) = "Green"
+  show (*\cons{Blue}*)  = "Blue"
+    \end{code}
+  \end{uncoverenv}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Constraints}
+  \begin{code}[Show]
+show :: (*\type{Show}*) (*\tvar{a}*) => (*\tvar{a}*) -> (*\type{String}*)
+  \end{code}
+  \begin{uncoverenv}<2->
+    \begin{code}[Num]
+sum  :: (*\type{Num}*) (*\tvar{a}*)  => [(*\tvar{a}*)] -> (*\tvar{a}*)
+    \end{code}
+  \end{uncoverenv}
+  \begin{uncoverenv}<3->
+    \begin{code}[Eq]
+(==) :: (*\type{Eq}*) (*\tvar{a}*)   => (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+    \end{code}
+  \end{uncoverenv}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Constraints in instance declarations}
+  \begin{onlyenv}<1>
+    \begin{code}
+instance (*\type{Show}*) ((*\type{Maybe}*) (*\tvar{a}*)) where
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \begin{code}
+instance (*\type{Show}*) ((*\type{Maybe}*) (*\tvar{a}*)) where
+  show (*\cons{Nothing}*)  = "Nothing"
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}
+instance (*\type{Show}*) ((*\type{Maybe}*) (*\tvar{a}*)) where
+  show (*\cons{Nothing}*)  = "Nothing"
+  show ((*\cons{Just}*) x) = "Just " ++ show x
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \begin{code}
+instance (*\type{Show}*) (*\tvar{a}*) => (*\type{Show}*) ((*\type{Maybe}*) (*\tvar{a}*)) where
+  show (*\cons{Nothing}*)  = "Nothing"
+  show ((*\cons{Just}*) x) = "Just " ++ show x
+    \end{code}
+  \end{onlyenv}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Quick tour}
+  \frametitle<9->{Quick boring tour...}
+  \begin{center}
+    \begin{minipage}[t][.2\textheight]{.8\linewidth}
+      \begin{center}
+        \begin{tabular}{ c c c c c c }
+          \alt<2-5>{Show}{\color{lightgray}Show}&
+          \alt<4-5>{Read}{\color{lightgray}Read}&
+          \alt<6-9>{Eq}{\color{lightgray}Eq}&
+          \alt<10-11>{Ord}{\color{lightgray}Ord}&
+          \alt<12>{Bounded}{\color{lightgray}Bounded}&
+          \alt<13>{Enum}{\color{lightgray}Enum}
+        \end{tabular}
+        \hrule
+      \end{center}
+    \end{minipage}
+    \begin{minipage}[t][.6\textheight]{.8\linewidth}
+      \begin{onlyenv}<2-9>
+        \begin{code}[def]
+data (*\type{Color}*) = (*\cons{Red}*) | (*\cons{Green}*) | (*\cons{Blue}*)
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<2-5>
+        \begin{flushleft}\footnotesize
+          ~\\\uncover<2->{\texttt{> show \cons{Blue}}}
+          ~\\\uncover<3->{\texttt{\str{"Blue"}}}
+          ~\\\uncover<4->{\texttt{> read \str{"Green"} :: \type{Color}}}
+          ~\\\uncover<5->{\texttt{\cons{Green}}}
+        \end{flushleft}
+      \end{onlyenv}
+      \begin{onlyenv}<6>
+        \begin{code}
+class (*\type{Eq}*) (*\tvar{a}*) where
+  (==) :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  (*\\*)
+  (/=) :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  (*\\*)
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<7>
+        \begin{code}
+class (*\type{Eq}*) (*\tvar{a}*) where
+  (==) :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  (==) a b = not $ a /= b
+  (/=) :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  (/=) a b = not $ a == b
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<8>
+        \begin{code}
+class (*\type{Eq}*) (*\tvar{a}*) where
+  (==) :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  a == b = not $ a /= b
+  (/=) :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  a /= b = not $ a == b
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<9>
+        \begin{code}
+instance (*\type{Eq}*) (*\type{Color}*) where
+  (*\cons{Red}*)   == (*\cons{Red}*)   = (*\cons{True}*)
+  (*\cons{Green}*) == (*\cons{Green}*) = (*\cons{True}*)
+  (*\cons{Blue}*)  == (*\cons{Blue}*)  = (*\cons{True}*)
+  _     == _     = (*\cons{False}*)
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<10>
+        \begin{code}
+class (*\type{Eq}*) (*\tvar{a}*) => (*\type{Ord}*) (*\tvar{a}*) where
+  compare :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Ordering}*)
+  (<=)    :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  (>=)    :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  (<)     :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  (>)     :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+  max     :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\tvar{a}*)
+  min     :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\tvar{a}*)
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<11>
+        \begin{code}
+class (*\type{Eq}*) (*\tvar{a}*) => (*\type{Ord}*) (*\tvar{a}*) where
+  compare :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Ordering}*)
+  (<=)    :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\type{Bool}*)
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<12>
+        \begin{code}
+class (*\type{Bounded}*) (*\tvar{a}*) where
+  minBound :: (*\tvar{a}*)
+  maxBound :: (*\tvar{a}*)
+        \end{code}
+      \end{onlyenv}
+      \begin{onlyenv}<13>
+        \begin{code}
+class (*\type{Enum}*) (*\tvar{a}*) where
+  succ           :: (*\tvar{a}*) -> (*\tvar{a}*)
+  pred           :: (*\tvar{a}*) -> (*\tvar{a}*)
+  toEnum         :: (*\type{Int}*) -> (*\tvar{a}*)
+  fromEnum       :: (*\tvar{a}*) -> (*\type{Int}*)
+  enumFrom       :: (*\tvar{a}*) -> [(*\tvar{a}*)]
+  enumFromThen   :: (*\tvar{a}*) -> (*\tvar{a}*) -> [(*\tvar{a}*)]
+  enumFromTo     :: (*\tvar{a}*) -> (*\tvar{a}*) -> [(*\tvar{a}*)]
+  enumFromThenTo :: (*\tvar{a}*) -> (*\tvar{a}*) -> (*\tvar{a}*) -> [(*\tvar{a}*)]
+        \end{code}
+      \end{onlyenv}
+    \end{minipage}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Deriving}
+  \begin{center}%
+    \begin{onlyenv}<1>
+      \begin{code}
+data (*\type{Color}*) = (*\cons{Red}*) | (*\cons{Green}*) | (*\cons{Blue}*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+      \begin{code}
+data (*\type{Color}*) = (*\cons{Red}*) | (*\cons{Green}*) | (*\cons{Blue}*)
+  deriving ( (*\type{Show}*)
+           , (*\type{Read}*)
+           , (*\type{Eq}*)
+           , (*\type{Ord}*)
+           , (*\type{Bounded}*)
+           , (*\type{Enum}*)
+           )
+      \end{code}
+    \end{onlyenv}
+  \end{center}
+\end{frame}
+
+
+\section{Codelab - part 1}
+
+\begin{frame}
+  \frametitle{Codelab :: Section 1}
+  \begin{description}
+    \item[directory]: \ic{01_mastermind/}
+    \item[change]: \ic{src/Color.hs} \\
+      (replace \ic{codelab} with implementation)
+    \item[check with]: \ic{make ARGS="check 1"}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Codelab :: Section 2}
+  \begin{description}
+    \item[directory]: \ic{01_mastermind/}
+    \item[change]: \ic{src/ColorMap.hs} \\
+      (replace \ic{codelab} with implementation)
+    \item[check with]: \ic{make ARGS="check 2"}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Contexts / wrappers}
+  \begin{minipage}[c]{\linewidth}
+    \begin{center}
+      \begin{tabular}{ r c r }
+        \uncover<1->{A          &~~~~~$\rightarrow$~~~~~& value} \\\\
+        \uncover<2->{Maybe A    &~~~~~$\rightarrow$~~~~~& optional value} \\
+        \uncover<3->{List A     &~~~~~$\rightarrow$~~~~~& repeated value} \\
+        \uncover<4->{IO A       &~~~~~$\rightarrow$~~~~~& impure value}   \\\\
+        \uncover<5->{C~~A       &~~~~~$\rightarrow$~~~~~& "contextual" value}   \\
+      \end{tabular}
+    \end{center}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Similarities}
+  \begin{itemize}
+    \uncover<1->{\item Wrapping is trivial}
+    \uncover<5->{\item Unwrapping is non-trivial / destructive / impossible}
+    \uncover<9->{\item What we want: to apply functions \textbf{in the context}}
+  \end{itemize}
+  \begin{flushleft}
+    \begin{onlyenv}<2-4>
+      \uncover<2-4>{\footnotesize\texttt{~~~~\ic{wrap x = [x]}}\\}
+      \uncover<3-4>{\footnotesize\texttt{~~~~\ic{wrap x = Just x}}\\}
+      \uncover<4>{\footnotesize\texttt{~~~~\ic{wrap x = pure x}}\\}
+    \end{onlyenv}
+    \begin{onlyenv}<6-8>
+      \uncover<6->{\footnotesize\texttt{~~~~\ic{unwrap Nothing = ???}}\\}
+      \uncover<7->{\footnotesize\texttt{~~~~\ic{unwrap [1,2,3] = ???}}\\}
+      \uncover<8->{\footnotesize\texttt{~~~~\ic{unwrap getLine =} {\color{red}NOPE}}}\\
+    \end{onlyenv}
+  \end{flushleft}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Context functions}
+  \begin{minipage}[c][.2\textheight]{\linewidth}%
+    \begin{center}
+      Three standard functions to deal with contexts
+    \end{center}
+  \end{minipage}
+  \begin{minipage}[t][.5\textheight]{\linewidth}%
+    \begin{flushleft}
+      \upc<2->{~\\~~fmap :: ~~\icwtv{(a -> b) -> c a -> c b}\\}
+      \upc<3->{~\\~~ap~~ :: \icwtv{c (a -> b) -> c a -> c b}\\}
+      \upc<4->{~\\~~bind :: \icwtv{(a -> c b) -> c a -> c b}\\}
     \end{flushleft}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{fmap}
+  \begin{itemize}
+    \uncover<1->{\item fmap is like map\ldots}
+    \uncover<3->{\item but generalised to all contexts}
+    \uncover<13->{\item and it also has an operator version}
+  \end{itemize}
+  \begin{minipage}[t][.4\textheight]{\linewidth}
+    \begin{onlyenv}<2>
+      \begin{code}
+ map :: (a -> b) ->   [a] ->   [b]
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+      \begin{code}
+ map :: (a -> b) ->   [a] ->   [b]
+fmap :: (a -> b) -> c  a  -> c  b
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<4>
+      \begin{code}
+fmap  show  [1, 2, 3] =
+(*\\*)
+(*\\*)
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<5>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+(*\\*)
+(*\\*)
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<6>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+fmap  show  (Just 42) =
+(*\\*)
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<7>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+fmap  show  (Just 42) = Just "42"
+(*\\*)
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<8>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+fmap  show  (Just 42) = Just "42"
+fmap  show   Nothing  =
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<9>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+fmap  show  (Just 42) = Just "42"
+fmap  show   Nothing  = Nothing
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<10>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+fmap  show  (Just 42) = Just "42"
+fmap  show   Nothing  = Nothing
+fmap length  getLine  =
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<11>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+fmap  show  (Just 42) = Just "42"
+fmap  show   Nothing  = Nothing
+fmap length  getLine  = (*\shruggie*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<12>
+      \begin{code}
+fmap  show  [1, 2, 3] = ["1", "2", "3"]
+fmap  show  (Just 42) = Just "42"
+fmap  show   Nothing  = Nothing
+fmap length  getLine  = (*\shruggie*)   --  (*\type{IO Int}*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<13>
+      \begin{code}
+show    <$> [1, 2, 3] = ["1", "2", "3"]
+show    <$> (Just 42) = Just "42"
+show    <$>  Nothing  = Nothing
+length  <$>  getLine  = (*\shruggie*)   --  (*\type{IO Int}*)
+      \end{code}
+    \end{onlyenv}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{When to use fmap}
+  \begin{itemize}
+    \item We have one or more \textbf{``wrapped''} values
+    \item Want to apply a function \textbf{uniformly} for all values
+  \end{itemize}
+  \begin{minipage}[t][.4\textheight]{\linewidth}
+    \begin{center}
+      \begin{tabular}{ r c r }
+        \uncover<1->{                   & \icwtv{f :: a -> b} &                   } \\
+        \uncover<1->{\icwtv{Maybe a}    &  $\longrightarrow$  & \icwtv{Maybe b}   } \\
+        \uncover<2->{\icwtv{Minutes a}  &  $\longrightarrow$  & \icwtv{Minutes b} } \\
+        \uncover<1->{\icwtv{[a]}        &  $\longrightarrow$  & \icwtv{[b]}       } \\
+        \uncover<2->{\icwtv{BinTree a}  &  $\longrightarrow$  & \icwtv{BinTree b} } \\
+        \uncover<3->{\icwtv{Either c a} &  $\longrightarrow$  & \icwtv{Either c b}} \\
+      \end{tabular}
+    \end{center}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{``Lifting'' a function}
+  \begin{code}
+fmap :: (a -> b) ->  f a -> f b
+fmap :: (a -> b) -> (f a -> f b)
+  \end{code}
+  \begin{minipage}[t][.4\textheight]{\linewidth}
+  \begin{center}
+  \tikzstyle{sqr} = [draw=black,
+    minimum width=0.5cm,
+    minimum height=0.5cm,
+    node distance=1.3cm]
+  \begin{tikzpicture}
+    \node (f) {\icwtv{g :: a -> b}};
+    \node[below of=f, node distance=1cm] (ff) {};
+    \node[below of=ff, node distance=1cm] (fff) {};
+    \node[left of=fff, node distance=1cm] (fffl) {};
+    \node[right of=fff, node distance=1cm] (fffr) {};
+    \path[draw, -latex] (fffl.west) -- node[above] {\icwtv{fmap g}} (fffr.east);
+    \node[sqr, left of=ff, node distance=3cm] (a1) {\icv{a}};
+    \node[sqr, below left of=a1] (a2) {\icv{a}};
+    \node[sqr, below right of=a1] (a3) {\icv{a}};
+    \node[sqr, below left of=a2] (a4) {\icv{a}};
+    \node[sqr, below right of=a2] (a5) {\icv{a}};
+    \path[draw] (a1.south) -- (a2.north);
+    \path[draw] (a1.south) -- (a3.north);
+    \path[draw] (a2.south) -- (a4.north);
+    \path[draw] (a2.south) -- (a5.north);
+    \node[sqr, right of=ff, node distance=3cm] (b1) {\icv{b}};
+    \node[sqr, below left of=b1] (b2) {\icv{b}};
+    \node[sqr, below right of=b1] (b3) {\icv{b}};
+    \node[sqr, below left of=b2] (b4) {\icv{b}};
+    \node[sqr, below right of=b2] (b5) {\icv{b}};
+    \path[draw] (b1.south) -- (b2.north);
+    \path[draw] (b1.south) -- (b3.north);
+    \path[draw] (b2.south) -- (b4.north);
+    \path[draw] (b2.south) -- (b5.north);
+  \end{tikzpicture}
+  \end{center}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{``Lifting'' a function}
+  \begin{code}
+foo :: Int -> String
+foo x
+  | odd x = show $ (3 * x + 1) `div` 2
+  | otherwise = show $ x `div` 2
+  \end{code}
+  \begin{minipage}[t][.4\textheight]{\linewidth}
+  \begin{center}
+  \tikzstyle{sqr} = [draw=black,
+    minimum width=0.5cm,
+    minimum height=0.5cm,
+    node distance=1.3cm]
+  \begin{tikzpicture}
+    \node (f) {};
+    \node[below of=f, node distance=1cm] (ff) {};
+    \node[below of=ff, node distance=1cm] (fff) {};
+    \node[left of=fff, node distance=1cm] (fffl) {};
+    \node[right of=fff, node distance=1cm] (fffr) {};
+    \path[draw, -latex] (fffl.west) -- node[above] {\icwtv{fmap foo}} (fffr.east);
+    \node[sqr, left of=ff, node distance=3cm] (a1) {\icv{1}};
+    \node[sqr, below left of=a1] (a2) {\icv{2}};
+    \node[sqr, below right of=a1] (a3) {\icv{3}};
+    \node[sqr, below left of=a2] (a4) {\icv{4}};
+    \node[sqr, below right of=a2] (a5) {\icv{5}};
+    \path[draw] (a1.south) -- (a2.north);
+    \path[draw] (a1.south) -- (a3.north);
+    \path[draw] (a2.south) -- (a4.north);
+    \path[draw] (a2.south) -- (a5.north);
+    \node[sqr, right of=ff, node distance=3cm] (b1) {\icv{"2"}};
+    \node[sqr, below left of=b1] (b2) {\icv{"1"}};
+    \node[sqr, below right of=b1] (b3) {\icv{"5"}};
+    \node[sqr, below left of=b2] (b4) {\icv{"2"}};
+    \node[sqr, below right of=b2] (b5) {\icv{"8"}};
+    \path[draw] (b1.south) -- (b2.north);
+    \path[draw] (b1.south) -- (b3.north);
+    \path[draw] (b2.south) -- (b4.north);
+    \path[draw] (b2.south) -- (b5.north);
+  \end{tikzpicture}
+  \end{center}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{ap(ply)}
+  \begin{itemize}
+    \uncover<1->{\item what about functions with several arguments?}
+    \uncover<5->{\item apply to the rescue!}
+    \uncover<7->{\item also defined as an operator}
+  \end{itemize}
+  \begin{minipage}[t][.4\textheight]{\linewidth}
+    \begin{onlyenv}<2>
+      \begin{code}
+(*\\*)
+(*\\*)
+fmap (+)        (Just 3) =
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+      \begin{code}
+(*\\*)
+(*\\*)
+fmap (+)        (Just 3) = Just (3+)
+(*\\*)
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<4>
+      \begin{code}
+(*\\*)
+(*\\*)
+fmap (+)        (Just 3) = Just (3+)
+-- (*\cons{Just}*) (3+) :: (*\type{Maybe}*) ((*\type{Int}*) -> (*\type{Int}*))
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<5>
+      \begin{code}
+ap :: c (a -> b) -> c a -> c b
+(*\\*)
+fmap (+)        (Just 3) = Just (3+)
+ap (Just (3+)) (Just 39) =
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<6>
+      \begin{code}
+ap :: c (a -> b) -> c a -> c b
+(*\\*)
+fmap (+)        (Just 3) = Just (3+)
+ap (Just (3+)) (Just 39) = Just 42
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<7>
+      \begin{code}
+(<*>) :: c (a -> b) -> c a -> c b
+(*\\*)
+fmap (+)        (Just 3) = Just (3+)
+Just (3+)  <*>   Just 39 = Just 42
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<8>
+      \begin{code}
+(<*>) :: c (a -> b) -> c a -> c b
+(*\\*)
+  (+)      <$>   Just 3  = Just (3+)
+Just (3+)  <*>   Just 39 = Just 42
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<9>
+      \begin{code}
+     (+)       <$> Just 3  = Just (3+)
+   Just (3+)   <*> Just 39 = Just 42
+(*\\*)
+(+) <$> Just 3 <*> Just 39 = Just 42
+      \end{code}
+    \end{onlyenv}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{When to use ap}
+  \begin{itemize}
+    \item ``Wrapped'' values \textbf{and} functions
+    \item Want to apply functions to values
+  \end{itemize}
+  \begin{minipage}[t][.3\textheight]{\linewidth}
+  \begin{center}
+  \begin{onlyenv}<1>
+    \tikzstyle{sqr} = [draw=black,
+      minimum width=0.5cm,
+      minimum height=0.5cm,
+      node distance=1.3cm]
+    \begin{tikzpicture}
+      \node (root) {};
+      \node[sqr, below of=root, node distance=1cm] (a1) {\icv{a}};
+      \node[sqr, below left of=a1] (a2) {\icv{a}};
+      \node[sqr, below right of=a1] (a3) {\icv{a}};
+      \path[draw] (a1.south) -- (a2.north);
+      \path[draw] (a1.south) -- (a3.north);
+      \node[sqr, right of=a1, node distance=3cm] (b1) {\icv{b}};
+      \node[sqr, below left of=b1] (b2) {\icv{b}};
+      \node[sqr, below right of=b1] (b3) {\icv{b}};
+      \path[draw] (b1.south) -- (b2.north);
+      \path[draw] (b1.south) -- (b3.north);
+      \node[sqr, left of=a1, node distance=4cm] (f1) {\icwtv{a -> b}};
+      \node[sqr, below left of=f1] (f2) {\icwtv{a -> b}};
+      \node[sqr, below right of=f1] (f3) {\icwtv{a -> b}};
+      \path[draw] (f1.south) -- (f2.north);
+      \path[draw] (f1.south) -- (f3.north);
+      \node[below of=a1, node distance=2cm] {\icwtv{Tree a}};
+      \node[below of=b1, node distance=2cm] {\icwtv{Tree b}};
+      \node[below of=f1, node distance=2cm] {\icwtv{Tree (a -> b)}};
+      \node[right of=a1, node distance=1.5cm] (eq) {};
+      \node[below of=eq, node distance=0.5cm] {\icwtv{=}};
+      \node[left of=a1, node distance=1.8cm] (op) {};
+      \node[below of=op, node distance=0.5cm] {\icwtv{<*>}};
+    \end{tikzpicture}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \tikzstyle{sqr} = [draw=black,
+      minimum width=0.5cm,
+      minimum height=0.5cm,
+      node distance=1.3cm]
+    \begin{tikzpicture}
+      \node (root) {};
+      \node[sqr, below of=root, node distance=1cm] (a1) {\icwtv{1}};
+      \node[sqr, below left of=a1] (a2) {\icwtv{2}};
+      \node[sqr, below right of=a1] (a3) {\icwtv{3}};
+      \path[draw] (a1.south) -- (a2.north);
+      \path[draw] (a1.south) -- (a3.north);
+      \node[sqr, right of=a1, node distance=3cm] (b1) {\icwtv{4}};
+      \node[sqr, below left of=b1] (b2) {\icwtv{4}};
+      \node[sqr, below right of=b1] (b3) {\icwtv{0}};
+      \path[draw] (b1.south) -- (b2.north);
+      \path[draw] (b1.south) -- (b3.north);
+      \node[sqr, left of=a1, node distance=4cm] (f1) {\icwtv{(*4)}};
+      \node[sqr, below left of=f1] (f2) {\icwtv{(+2)}};
+      \node[sqr, below right of=f1] (f3) {\icwtv{(-3)}};
+      \path[draw] (f1.south) -- (f2.north);
+      \path[draw] (f1.south) -- (f3.north);
+      \node[below of=a1, node distance=2cm] {\icwtv{Tree Int}};
+      \node[below of=b1, node distance=2cm] {\icwtv{Tree Int}};
+      \node[below of=f1, node distance=2cm] {\icwtv{Tree (Int -> Int)}};
+      \node[right of=a1, node distance=1.5cm] (eq) {};
+      \node[below of=eq, node distance=0.5cm] {\icwtv{=}};
+      \node[left of=a1, node distance=1.8cm] (op) {};
+      \node[below of=op, node distance=0.5cm] {\icwtv{<*>}};
+    \end{tikzpicture}
+  \end{onlyenv}
+  \end{center}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Using ap on lists}
+  \begin{onlyenv}<1-2>
+  \begin{code}
+data ZipList a = ZipList [a]
+funs = ZipList [(+1), (-1)]
+vals = ZipList [2, 3, 4]
+funs <*> vals = ZipList [3, 2]
+  \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+  \begin{code}
+data AllList a = AllList [a]
+funs = AllList [(+1), (-1)]
+vals = AllList [2, 3, 4]
+funs <*> vals = AllList [3, 4, 5, 1, 2, 3]
+  \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+  \begin{code}
+newtype ZipList a = ZipList [a] -- newtype vs data
+funs = ZipList [(+1), (-1)]
+vals = ZipList [2, 3, 4]
+funs <*> vals = ZipList [3, 2]
+  \end{code}
+  \begin{code}
+-- [(*\tvar{a}*)] for cartesian product
+funs = [(+1), (-1)]
+vals = [2, 3, 4]
+funs <*> vals = [3, 4, 5, 1, 2, 3]
+  \end{code}
+  \end{onlyenv}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Applicative style}
+  \begin{itemize}
+    \item<1-> If we have a \icwtv{f :: a -> b -> c}, how do we get a \icwtv{c}?
+    \item<2-> We need \icwtv{x :: a} and \icwtv{y :: b}
+    \item<3-> What if we have \icwtv{wx :: W a} and \icwtv{wy :: W b}?\\(for some ``wrapper'' \icwtv{W})
+    \item<4-> \icwtv{fmap} and \icwtv{ap} give us \icwtv{W c}!
+  \end{itemize}
+  \begin{minipage}[t][.3\textheight]{\linewidth}
+  \begin{onlyenv}<2-3>
+  \begin{code}
+f      x      y -- result :: (*\tvar{c}*)
+(*\\*)
+  \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+  \begin{code}
+f      x      y -- result ::   (*\tvar{c}*)
+f <$> wx <*> wy -- result :: W (*\tvar{c}*)
+  \end{code}
+  \end{onlyenv}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{bind}
+  \begin{itemize}
+    \uncover<1->{\item what about chaining functions?}
+    \uncover<8->{\item bind to the rescue!}
+    \uncover<11->{\item of course, also has an operator}
+  \end{itemize}
+  \begin{onlyenv}<2>
+    \begin{code}
+div2 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}
+div2 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div2 42 = (*\cons{Just}*) 21
+div2 21 = (*\cons{Nothing}*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4-7>
+    \begin{code}[given]
+div2 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \begin{code}
+div4 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x =
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<5>
+    \begin{code}
+div4 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x = let y = div2 x
+         in
+(*\\*)
+    \end{code}
   \end{onlyenv}
   \begin{onlyenv}<6>
     \begin{code}
-class ;\type{Eq}; ;\tvar{a}; where
-    (==) :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-
-    (/=) :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
+div4 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x = let y = div2 x
+         in fmap div2 y
+(*\\*)
     \end{code}
   \end{onlyenv}
   \begin{onlyenv}<7>
     \begin{code}
-class ;\type{Eq}; ;\tvar{a}; where
-    (==) :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    (==) a b = not $ a /= b
-    (/=) :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    (/=) a b = not $ a == b
+div4 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x = let y = div2 x -- (*\type{Maybe}*) (*\type{Int}*)
+         in fmap div2 y -- (*\type{Maybe}*) ((*\type{Maybe}*) (*\type{Int}*))
+(*\\*)
     \end{code}
   \end{onlyenv}
-  \begin{onlyenv}<8>
-    \begin{code}
-class ;\type{Eq}; ;\tvar{a}; where
-    (==) :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    a == b = not $ a /= b
-    (/=) :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    a /= b = not $ a == b
+  \begin{onlyenv}<8-10>
+    \begin{code}[bind]
+bind :: (a -> c b) -> c a -> c b
     \end{code}
   \end{onlyenv}
   \begin{onlyenv}<9>
     \begin{code}
-instance ;\type{Eq}; ;\type{Color}; where
-    ;\cons{Red};   == ;\cons{Red};   = ;\cons{True};
-    ;\cons{Green}; == ;\cons{Green}; = ;\cons{True};
-    ;\cons{Blue};  == ;\cons{Blue};  = ;\cons{True};
-    _     == _     = ;\cons{False};
+div2, div4 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x = let y = div2 x -- (*\type{Maybe}*) (*\type{Int}*)
+         in bind div2 y -- (*\type{Maybe}*) (*\type{Int}*)
+// a = b = Int, c = Maybe
     \end{code}
   \end{onlyenv}
   \begin{onlyenv}<10>
     \begin{code}
-class ;\type{Eq}; ;\tvar{a}; => ;\type{Ord}; ;\tvar{a}; where
-    compare :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Ordering};
-    (<=)    :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    (>=)    :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    (<)     :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    (>)     :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
-    max     :: ;\tvar{a}; -> ;\tvar{a}; -> ;\tvar{a};
-    min     :: ;\tvar{a}; -> ;\tvar{a}; -> ;\tvar{a};
+div2, div4 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x = bind div2 $ div2 x
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<11->
+    \begin{code}[bind operator]
+(>>=) :: c a -> (a -> c b) -> c b
     \end{code}
   \end{onlyenv}
   \begin{onlyenv}<11>
     \begin{code}
-class ;\type{Eq}; ;\tvar{a}; => ;\type{Ord}; ;\tvar{a}; where
-    compare :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Ordering};
-    (<=)    :: ;\tvar{a}; -> ;\tvar{a}; -> ;\type{Bool};
+div2, div4 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x = div2 x >>= div2
+(*\\*)
+(*\\*)
     \end{code}
   \end{onlyenv}
   \begin{onlyenv}<12>
     \begin{code}
-class ;\type{Bounded}; ;\tvar{a}; where
-    minBound :: ;\tvar{a};
-    maxBound :: ;\tvar{a};
+div2, div4, div8 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4 x = div2 x >>= div2
+div8 x = div2 x >>= div2 >>= div2
+(*\\*)
     \end{code}
   \end{onlyenv}
   \begin{onlyenv}<13>
     \begin{code}
-class ;\type{Enum}; ;\tvar{a}; where
-    succ           :: ;\tvar{a}; -> ;\tvar{a};
-    pred           :: ;\tvar{a}; -> ;\tvar{a};
-    toEnum         :: ;\type{Int}; -> ;\tvar{a};
-    fromEnum       :: ;\tvar{a}; -> ;\type{Int};
-    enumFrom       :: ;\tvar{a}; -> [;\tvar{a};]
-    enumFromThen   :: ;\tvar{a}; -> ;\tvar{a}; -> [;\tvar{a};]
-    enumFromTo     :: ;\tvar{a}; -> ;\tvar{a}; -> [;\tvar{a};]
-    enumFromThenTo :: ;\tvar{a}; -> ;\tvar{a}; -> ;\tvar{a}; -> [;\tvar{a};]
+div2, div4, div8, div16 :: (*\type{Int}*) -> (*\type{Maybe}*) (*\type{Int}*)
+div4  x = div2 x >>= div2
+div8  x = div2 x >>= div2 >>= div2
+div16 x = div2 x >>= div2 >>= div2 >>= div2
     \end{code}
   \end{onlyenv}
-\end{minipage}
-\end{center}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Deriving}
-\begin{center}%
-  \begin{code}
-data ;\type{Color}; = ;\cons{Red}; | ;\cons{Green}; | ;\cons{Blue};
-  \end{code}
-  \begin{uncoverenv}<2>
-    \vspace{-12pt}
-    \begin{code}
-     deriving (;\type{Show};,
-               ;\type{Read};,
-               ;\type{Eq};,
-               ;\type{Ord};,
-               ;\type{Bounded};,
-               ;\type{Enum};)
-    \end{code}
-  \end{uncoverenv}
-\end{center}
-\end{frame}
-
-
-\section{Codelab - Sections 1 and 2}
-
-\begin{frame}
-  \frametitle{Codelab - Sections 1 and 2}
-  \begin{itemize}
-  \item Codelab - Sections 1 and 2
-  \item Compiler
-    \begin{itemize}
-    \item apt-get install haskell-platform
-    \end{itemize}
-  \item Source
-    \begin{itemize}
-    \item
-      {\scriptsize\texttt{git clone \textbackslash \\
-          ~~https://github.com/google/haskell-trainings.git \\
-          cd haskell-trainings/haskell\_102/codelab}}
-    \item
-      \href{https://github.com/google/haskell-trainings/releases/download/v1.1/haskell_102_codelab.zip}
-      {https://github.com/google/haskell-trainings/releases/download/v1.1/haskell\_102\_codelab.zip}
-    \end{itemize}
-  \end{itemize}
-\end{frame}
-
-
-\section{Still left...}
-
-\begin{frame}
-\frametitle{We still don't know}
-\begin{center}
-\begin{minipage}[c]{.8\linewidth}
-\begin{itemize}
-  \item \st{how to extend our data types}
-  \item \st{how to express type constraints}
-  \item how to chain contextual functions
-  \item how to use IO
-\end{itemize}
-\end{minipage}
-\end{center}
-\end{frame}
-
-
-%% Links
-
-\section{Monads}
-
-\begin{frame}
-\frametitle{Contexts / wrappers}
-\begin{minipage}[c]{\linewidth}
-  \begin{center}
-    \begin{tabular}{ r c r }
-      \uncover<1->{A          &~~~~~$\rightarrow$~~~~~& value} \\\\
-      \uncover<2->{Maybe A    &~~~~~$\rightarrow$~~~~~& optional value} \\
-      \uncover<3->{List A     &~~~~~$\rightarrow$~~~~~& repeated value} \\
-      \uncover<4->{IO A       &~~~~~$\rightarrow$~~~~~& impure value}   \\\\
-      \uncover<5->{C~~A       &~~~~~$\rightarrow$~~~~~& "contextual" value}   \\
-    \end{tabular}
-  \end{center}
-\end{minipage}
-\end{frame}
-
-\begin{frame}
-\frametitle{Similarities}
-\begin{itemize}
-  \uncover<1->{\item Wrapping is trivial}
-  \uncover<5->{\item Unwrapping is non-trivial / destructive / impossible}
-  \uncover<9->{\item What we want: to apply functions \textbf{in the context}}
-\end{itemize}
-\begin{flushleft}
-\begin{onlyenv}<2-4>
-\uncover<2-4>{\footnotesize\texttt{~~~~\ic{wrap x = [x]}}\\}
-\uncover<3-4>{\footnotesize\texttt{~~~~\ic{wrap x = Just x}}\\}
-\uncover<4>{\footnotesize\texttt{~~~~\ic{wrap x = return x}}\\}
-\end{onlyenv}
-\begin{onlyenv}<6-8>
-\uncover<6->{\footnotesize\texttt{~~~~\ic{unwrap Nothing = ???}}\\}
-\uncover<7->{\footnotesize\texttt{~~~~\ic{unwrap [1,2,3] = ???}}\\}
-\uncover<8->{\footnotesize\texttt{~~~~\ic{unwrap getLine =} {\color{red}NOPE}}}\\
-\end{onlyenv}
-\end{flushleft}
-\end{frame}
-
-\begin{frame}
-\frametitle{Context functions}
-\begin{minipage}[c][.3\textheight]{\linewidth}%
-\begin{center}
-  Three standard functions to deal with contexts
-\end{center}
-\end{minipage}
-\begin{minipage}[t][.7\textheight]{\linewidth}%
-\begin{flushleft}
-\vspace{1cm}
-\upc<2->{~\\~~fmap :: ~~\icwtv{(a -> b) -> c a -> c b}\\}
-\upc<3->{~\\~~ap~~ :: \icwtv{c (a -> b) -> c a -> c b}\\}
-\upc<4->{~\\~~bind :: \icwtv{(a -> c b) -> c a -> c b}\\}
-\end{flushleft}
-\end{minipage}
-\end{frame}
-
-\begin{frame}
-\frametitle{fmap}
-\begin{TopAlign}{.4}
-\begin{itemize}
-  \uncover<1->{\item fmap is like map\ldots}
-  \uncover<3->{\item but generalised to all contexts}
-  \uncover<13->{\item and it also has an operator version}
-\end{itemize}
-\end{TopAlign}
-\begin{center}%
-\begin{minipage}[t][.6\textheight]{.72\linewidth}%
-\begin{center}%
-\opc<2>{~\icwtv{map :: (a -> b) -> [a] -> [b]}}%
-\opc<3>{\icwtv{fmap :: (a -> b) -> c a -> c b}}%
-\begin{onlyenv}<4-13>
-\begin{minipage}[t]{\linewidth}%
-\begin{flushleft}
-  \upc<4-> {\ic{fmap show [1, 2, 3] =} \uic<5->{["1", "2", "3"]}\\}
-  \upc<6-> {\ic{fmap show (}\icc{Just}\ic{\ 42) =} \uncover<7->{\icc{Just}\ic{\ "42"}}\\}
-  \upc<8-> {\ic{fmap show }\icc{Nothing} \uncover<9->{\ic{  = }\icc{Nothing}}\\}
-  \upc<10->{\ic{fmap length getLine =} \upc<11->{\shruggie} \uncover<12->{\ic{--} \ict{IO Int}}\\}
-\end{flushleft}
-\end{minipage}
-\end{onlyenv}
-\begin{onlyenv}<14>
-\begin{minipage}[t]{\linewidth}%
-\begin{flushleft}
-  \pc{\ic{show  <$> [1, 2, 3] =} \ic{["1", "2", "3"]}\\}
-  \pc{\ic{show  <$> (}\icc{Just}\ic{\ 42) =} \icc{Just}\ic{\ "42"}\\}
-  \pc{\ic{show  <$> }\icc{Nothing}\ic{   = }\icc{Nothing}\\}
-  \pc{\ic{length <$>  getLine =} \pc{\shruggie} \ic{--} \ict{IO Int}\\}
-\end{flushleft}
-\end{minipage}
-\end{onlyenv}
-\end{center}
-\end{minipage}%
-\end{center}
-\end{frame}
-
-
-\begin{frame}
-\frametitle{ap(ply)}
-\begin{TopAlign}{.4}
-\begin{itemize}
-  \uncover<1->{\item what about functions with several arguments?}
-  \uncover<5->{\item apply to the rescue!}
-  \uncover<8->{\item also defined as an operator}
-\end{itemize}
-\end{TopAlign}
-\begin{center}%
-\begin{minipage}[t][.6\textheight]{.72\linewidth}%
-\begin{onlyenv}<1->
-\begin{flushleft}
-  \upc<5->  {\icwtv{ap :: c (a -> b) -> c a -> c b}\\}
-  \opc<2-9> {\\\ic{fmap (+) (Just 3) =} \uic<3->{Just (3+)}\\}
-  \opc<10>  {\\\ic{(+) <$> Just 3 =} \uic<3->{Just (3+)}\\}
-  \opc<4-5> {\ic{Just (3+) :: Maybe (Int -> Int)}\\}
-  \opc<6-8> {\ic{ap (Just (3+)) (Just 39) =} \uic<7->{Just 42}\\}
-  \opc<9-10>{\ic{Just (3+) <*> Just 39 = Just 42}\\}
-  \opc<11-> {\\\ic{(+)} \uic<12->{<$> Just 3} \uic<13->{<*> Just 39} \uic<14->{= Just 42}\\}%$
-\end{flushleft}
-\end{onlyenv}
-\end{minipage}%
-\end{center}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{bind}
-\begin{TopAlign}{.32}
-\begin{itemize}
-  \uncover<1->{\item what about chaining functions?}
-  \uncover<10->{\item bind to the rescue!}
-  \uncover<13->{\item of course, also has an operator}
-\end{itemize}
-\end{TopAlign}
-\begin{center}%
-  \begin{minipage}[t][.6\textheight]{\linewidth}%
-    \begin{uncoverenv}<2->
-      \begin{code}
-          div2 :: ;\type{Int}; -> ;\type{Maybe}; ;\type{Int};
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<10->
-      \vspace{-12pt}
-      \begin{code}
-          ;\alt<13->%
-          {(>>=) :: \tvar{c} \tvar{a} -> (\tvar{a} -> \tvar{c} \tvar{b}) -> \tvar{c} \tvar{b}}%
-          {bind :: (\tvar{a} -> \tvar{c} \tvar{b}) -> \tvar{c} \tvar{a} -> \tvar{c} \tvar{b}};
-      \end{code}
-    \end{uncoverenv}
-    \begin{onlyenv}<3-4>
-      \begin{code}
-          div2 42 = ;\cons{Just}; 21
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<4>
-      \vspace{-12pt}
-      \begin{code}
-          div2 21 = ;\cons{Nothing};
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<5-14>
-      \begin{code}
-          div4 :: ;\type{Int}; -> ;\type{Maybe}; ;\type{Int};
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<6>
-      \vspace{-12pt}
-      \begin{code}
-          div4 x =
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<7>
-      \vspace{-12pt}
-      \begin{code}
-          div4 x = let y = div2 x
-                   in
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<8>
-      \vspace{-12pt}
-      \begin{code}
-          div4 x = let y = div2 x
-                   in fmap div2 y
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<9-10>
-      \vspace{-12pt}
-      \begin{code}
-          div4 x = let y = div2 x -- ;\type{Maybe}; ;\type{Int};
-                   in fmap div2 y -- ;\type{Maybe}; (;\type{Maybe}; ;\type{Int};)
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<11>
-      \vspace{-12pt}
-      \begin{code}
-          div4 x = let y = div2 x -- ;\type{Maybe}; ;\type{Int};
-                   in bind div2 y -- ;\type{Maybe}; ;\type{Int};
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<12-13>
-      \vspace{-12pt}
-      \begin{code}
-          div4 x = bind div2 $ div2 x
-      \end{code}%$
-    \end{onlyenv}
-    \begin{onlyenv}<14>
-      \vspace{-12pt}
-      \begin{code}
-          div4 x = div2 x >>= div2
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<15>
-      \begin{code}
-          div8 :: ;\type{Int}; -> ;\type{Maybe}; ;\type{Int};
-          div8 x = div2 x >>= div2 >>= div2
-      \end{code}
-    \end{onlyenv}
-    \begin{onlyenv}<16>
-      \begin{code}
-          div16 :: ;\type{Int}; -> ;\type{Maybe}; ;\type{Int};
-          div16 x = div2 x >>= div2 >>= div2 >>= div2
-      \end{code}
-    \end{onlyenv}
-  \end{minipage}%
-\end{center}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{bind - continued}
-  \begin{minipage}[t][.8\textheight]{\linewidth}
-    \vspace{-0.8cm}
+  \begin{code}
+getUser        :: (*\type{Id}*)   -> (*\type{Maybe}*) (*\type{User}*)
+getNextOfKin   :: (*\type{User}*) -> (*\type{Maybe}*) (*\type{Id}*)
+getPhoneNumber :: (*\type{User}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+(>>=) :: c a -> (a -> c b) -> c b -- c == Maybe
+  \end{code}
+  \begin{onlyenv}<1>
     \begin{code}
-getUser        :: ;\type{Id};   -> ;\type{Maybe}; ;\type{User};
-getNextOfKin   :: ;\type{User}; -> ;\type{Maybe}; ;\type{Id};
-getPhoneNumber :: ;\type{User}; -> ;\type{Maybe}; ;\type{PhoneNumber};
-    \end{code}
-    \begin{uncoverenv}<3->
-      \vspace{-12pt}
-      \begin{code}
-;\alt<4->%
-{(>>=) :: \tvar{c} \tvar{a} -> (\tvar{a} -> \tvar{c} \tvar{b}) -> \tvar{c} \tvar{b}}%
-{bind :: (\tvar{a} -> \tvar{c} \tvar{b}) -> \tvar{c} \tvar{a} -> \tvar{c} \tvar{b}};
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<2->
-      \begin{code}
-getNextOfKinPhoneNumber :: ;\type{Id}; -> ;\type{Maybe}; ;\type{PhoneNumber};
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<5->
-      \vspace{-12pt}
-      \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
 getNextOfKinPhoneNumber uid =
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<6->
-      \vspace{-12pt}
-      \begin{code}
-      getUser uid    -- ;\type{Maybe}; ;\type{User};
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<7->
-      \vspace{-12pt}
-      \begin{code}
-  >>= getNextOfKin   -- ;\type{Maybe}; ;\type{Id};
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<8->
-      \vspace{-12pt}
-      \begin{code}
-  >>= getUser        -- ;\type{Maybe}; ;\type{User};
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<9->
-      \vspace{-12pt}
-      \begin{code}
-  >>= getPhoneNumber
-      \end{code}
-    \end{uncoverenv}
-  \end{minipage}
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid =
+      getUser uid     -- (*\type{Maybe}*) (*\type{User}*)
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid =
+      getUser uid     -- (*\type{Maybe}*) (*\type{User}*)
+  >>= getNextOfKin    -- (*\type{Maybe}*) (*\type{Id}*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid =
+      getUser uid     -- (*\type{Maybe}*) (*\type{User}*)
+  >>= getNextOfKin    -- (*\type{Maybe}*) (*\type{Id}*)
+  >>= getUser         -- (*\type{Maybe}*) (*\type{User}*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<5>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid =
+      getUser uid     -- (*\type{Maybe}*) (*\type{User}*)
+  >>= getNextOfKin    -- (*\type{Maybe}*) (*\type{Id}*)
+  >>= getUser         -- (*\type{Maybe}*) (*\type{User}*)
+  >>= getPhoneNumber  -- (*\type{Maybe}*) (*\type{User}*)
+    \end{code}
+  \end{onlyenv}
+\end{frame}
+
+\begin{frame}
+  \frametitle{When to use bind}
+  \begin{itemize}
+    \item<1-> ``Collapse'' the ``wrapping''
+    \item<2-> ``Decide'' on ``wrapping''
+    \item<3-> Parsers for context free languages vs context sensitive ones
+  \end{itemize}
 \end{frame}
 
 \def\Sep{~~~~~&~~~~~}
 \begin{frame}
-\frametitle{The typeclasses}
-\begin{onlyenv}<1-2>
-  \begin{center}
-    \pc{fmap :: ~~\icwtv{(a -> b) -> c a -> c b}\\}
-    \pc{ap~~ :: \icwtv{c (a -> b) -> c a -> c b}\\}
-    \pc{bind :: \icwtv{(a -> c b) -> c a -> c b}\\}
-
-    \uncover<2>{~\\But what about the typeclasses?}
-  \end{center}
-\end{onlyenv}
-\begin{onlyenv}<3-7,9->
-  \begin{center}
-    ~\\
-    \begin{tabular}{ c l c l c }
-\uncover<3->{                  \Sep\pc{fmap}\Sep$\rightarrow$\Sep\upc<4->{Functor    }\Sep                  \\}
-\uncover<5->{$^\downrcurvearrow$\Sep\pc{ap}  \Sep$\rightarrow$\Sep\upc<6->{Applicative}\Sep$^\downlcurvearrow$\\}
-\uncover<7->{$^\downrcurvearrow$\Sep\pc{bind}\Sep$\rightarrow$\Sep\upc<8->{Monad}      \Sep$^\downlcurvearrow$\\}
-    \end{tabular}
-  \end{center}
-\end{onlyenv}
-\begin{onlyenv}<8>
-\begin{minipage}[c][.8\textheight]{\linewidth}
-\begin{center}
-{\fontsize{150}{60}\selectfont MONAD}\\
-\end{center}
-\end{minipage}
-\end{onlyenv}
+  \frametitle{The typeclasses}
+  \begin{onlyenv}<1-2>
+    \begin{center}
+      \pc{fmap :: ~~\icwtv{(a -> b) -> c a -> c b}\\}
+      \pc{ap~~ :: \icwtv{c (a -> b) -> c a -> c b}\\}
+      \pc{bind :: \icwtv{(a -> c b) -> c a -> c b}\\}
+      \uncover<2>{~\\But what about the typeclasses?}
+    \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<3-7,9->
+    \begin{center}
+      ~\\
+      \begin{tabular}{ c l c l c }
+        \uncover<3->{                  \Sep\pc{fmap}\Sep$\rightarrow$\Sep\upc<4->{Functor    }\Sep                  \\}
+        \uncover<5->{$^\downrcurvearrow$\Sep\pc{ap}  \Sep$\rightarrow$\Sep\upc<6->{Applicative}\Sep$^\downlcurvearrow$\\}
+        \uncover<7->{$^\downrcurvearrow$\Sep\pc{bind}\Sep$\rightarrow$\Sep\upc<8->{Monad}      \Sep$^\downlcurvearrow$\\}
+      \end{tabular}
+    \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<8>
+    \begin{minipage}[c][.8\textheight]{\linewidth}
+      \begin{center}
+        {\fontsize{150}{60}\selectfont MONAD}\\
+      \end{center}
+    \end{minipage}
+  \end{onlyenv}
 \end{frame}
-
 
 \begin{frame}[fragile]
-\frametitle{Monad}
-\begin{minipage}[t][.5\textheight]{\linewidth}
-\begin{center}
-  \begin{codewithtvars}
-    class ;\type{Applicative}; m => ;\type{Monad}; m where
-        return :: a -> m a
-        (>>=)  :: m a -> (a -> m b) -> m b
-  \end{codewithtvars}
-\end{center}
-\end{minipage}
-\begin{minipage}[t][.3\textheight]{\linewidth}
-\begin{center}
-  The basic building block
-\end{center}
-\end{minipage}
+  \frametitle{Monad}
+  \begin{minipage}[t][.5\textheight]{\linewidth}
+    \begin{center}
+      \begin{code}
+class (*\type{Functor}*) f where
+  fmap   ::   (b -> a) -> f b -> f a
+class (*\type{Functor}*) f => (*\type{Applicative}*) f where
+  pure   ::                 a -> f a
+  (<*>)  :: f (b -> a) -> f b -> f a
+class (*\type{Applicative}*) m => (*\type{Monad}*) m where
+  return ::                 a -> m a
+  (>>=)  :: m b -> (b -> m a) -> m a
+      \end{code}
+    \end{center}
+  \end{minipage}
+  \begin{minipage}[t][.3\textheight]{\linewidth}
+    \begin{center}
+      The basic building blocks
+    \end{center}
+  \end{minipage}
 \end{frame}
 
+
+\section{Codelab - part 2}
 
 \begin{frame}
-\frametitle{We still don't know}
-\begin{center}
-\begin{minipage}[c]{.8\linewidth}
-\begin{itemize}
-  \item \st{how to extend our data types}
-  \item \st{how to express type constraints}
-  \item \st{how to chain contextual functions}
-  \item how to use IO
-\end{itemize}
-\end{minipage}
-\end{center}
+  \frametitle{Codelab :: Section 3}
+  \begin{description}
+    \item[directory]: \ic{01_mastermind/}
+    \item[change]: \ic{src/ErrorOr.hs} \\
+      (replace \ic{codelab} with implementation)
+    \item[check with]: \ic{make ARGS="check 3"}
+  \end{description}
 \end{frame}
+
+
+\section{IO}
+
+\begin{frame}
+  \frametitle{We still don't know}
+  \begin{center}
+    \begin{minipage}[c]{.8\linewidth}
+      \begin{itemize}
+        \item \st{how to extend our data types}
+        \item \st{how to express type constraints}
+        \item \st{how to chain contextual functions}
+        \item how to use IO
+      \end{itemize}
+    \end{minipage}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Using IO}
+  \begin{onlyenv}<1-4>
+    \begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<5->
+    \begin{code}
+getFirstName :: IO String
+getLastName  :: IO String
+greetUser    :: String -> String -> IO ()
+(>>=)        :: (*\tvar{c}*) (*\tvar{a}*) -> ((*\tvar{a}*) -> (*\tvar{c}*) (*\tvar{b}*)) -> (*\tvar{c}*) (*\tvar{b}*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \begin{code}
+main         :: IO ()
+(*\\*)
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}
+main         :: IO ()
+main =
+(*\\*)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<5>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName >>=
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<6>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName >>= (\firstname -> ...)
+(*\\*)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<7>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName >>= (\firstname ->
+    ...)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<8>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName >>= (\firstname ->
+    getLastName ...)
+(*\\*)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<9>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName >>= (\firstname ->
+    getLastName >>= (\lastname ->
+      ...))
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<10>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName >>= (\firstname ->
+    getLastName >>= (\lastname ->
+      greetUser firstname lastname))
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<11>
+    \begin{code}
+main         :: IO ()
+main =
+  getFirstName >>= \firstname ->
+    getLastName >>= \lastname ->
+      greetUser firstname lastname
+    \end{code}
+  \end{onlyenv}
+\end{frame}
+
 
 \section{Monadic syntax}
 
-
 \begin{frame}[fragile]
-  \frametitle{New syntax: Lambda functions}
-  \begin{minipage}[c][.1\textheight]{\textwidth}
-    \begin{itemize}
-    \item New syntax: Lambda functions
-    \end{itemize}
-  \end{minipage}
-  \begin{minipage}[c][.5\textheight]{\textwidth}
-    \begin{uncoverenv}<2->
-      \begin{code}[gobble=8]
-        ;{$\lambda$}; x . x + 1 ;\uncover<5->{~~: Z $\rightarrow$ Z};
-      \end{code}
-    \end{uncoverenv}
-    \begin{uncoverenv}<3->
-      \begin{code}[gobble=8]
-        \ x -> x + 1 ;\uncover<4->{:: ;\type{Int}; -> ;\type{Int};};
-      \end{code}
-    \end{uncoverenv}
-  \end{minipage}
+\frametitle{Do notation}
+  \begin{onlyenv}<1>
+    \begin{code}
+main :: IO ()
+main =
+  getFirstName >>= \firstname ->
+    getLastName >>= \lastname ->
+      greetUser firstname lastname
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \begin{code}[important parts]
+main :: IO ()
+main =
+  getFirstName      firstname
+    getLastName      lastname
+      greetUser firstname lastname
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}[what we want]
+main :: IO ()
+main =
+  getFirstName -> firstname
+    getLastName -> lastname
+      greetUser firstname lastname
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \begin{code}[align spaces]
+main :: IO ()
+main =
+  getFirstName -> firstname
+  getLastName -> lastname
+  greetUser firstname lastname
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<5->
+    \begin{code}
+main :: IO ()
+main = do
+  firstname <- getFirstName
+  lastname <- getLastName
+  greetUser firstname lastname
+    \end{code}
+  \end{onlyenv}
+  \uncover<6->{\begin{center}``Haskell is the best imperative language''\end{center}}
 \end{frame}
-
 
 \begin{frame}[fragile]
 \frametitle{Do notation}
-\begin{center}
-\begin{minipage}[t][\textheight]{.8\linewidth}
-\vspace{-0.8cm}
-\begin{onlyenv}<1>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
+  \begin{onlyenv}<1>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid =
+      getUser uid
+  >>= getNextOfKin
+  >>= getUser
+  >>= getPhoneNumber
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid =
+  getUser uid >>= \user ->
+    getNextOfKin user >>= \nextOfKinId ->
+      getUser nextOfKinId >>= \nextOfKinUser ->
+        getPhoneNumber nextOfKinUser
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}[important parts]
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid =
+  getUser uid      user
+    getNextOfKin user      nextOfKinId
+      getUser nextOfKinId      nextOfKinUser
+        getPhoneNumber nextOfKinUser
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid = do
+  user <- getUser
+  nextOfKinId <- getNextOfKin user
+  nextOfKinUser <- getUser nextOfKinId
+  getPhoneNumber nextOfKinUser
+    \end{code}
+  \end{onlyenv}
+\end{frame}
 
-
-main =
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<2>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-
-main =
-    getFirstName
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<3>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-
-main =
-    getFirstName >>=
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<4>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName >>=
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<5>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName >>= \ firstname ->
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<6>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<7>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>=
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<8>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>= \ lastname ->
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<9>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>= \ lastname ->
-            greetUser firstname lastname
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<10>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName       firstname
-        getLastName       lastname
-            greetUser firstname lastname
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<11>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-(>>=)        :: ;\tvar{c}; ;\tvar{a}; -> (;\tvar{a}; -> ;\tvar{c}; ;\tvar{b};) -> ;\tvar{c}; ;\tvar{b};
-
-main =
-    getFirstName ->    firstname
-        getLastName ->    lastname
-            greetUser firstname lastname
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<12>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-main =
-    getFirstName ->    firstname
-        getLastName ->    lastname
-            greetUser firstname lastname
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<13>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>= \ lastname ->
-            greetUser firstname lastname
-
-main =
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<14>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>= \ lastname ->
-            greetUser firstname lastname
-
+\begin{frame}[fragile]
+\frametitle{Do notation}
+  \begin{code}
+getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
+getNextOfKinPhoneNumber uid = do
+  user <- getUser
+  nextOfKinId <- getNextOfKin user
+  nextOfKinUser <- getUser nextOfKinId
+  getPhoneNumber nextOfKinUser
+  \end{code}
+  \begin{code}
+main :: IO ()
 main = do
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<15>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>= \ lastname ->
-            greetUser firstname lastname
-
-main = do
-    firstname <- getFirstName
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<16>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>= \ lastname ->
-            greetUser firstname lastname
-
-main = do
-    firstname <- getFirstName
-    lastname  <- getLastName
-\end{code}
-\end{onlyenv}
-\begin{onlyenv}<17>
-\begin{code}
-getFirstName :: IO String
-getLastName  :: IO String
-greetUser    :: String -> String -> IO ()
-main         :: IO ()
-
-main =
-    getFirstName >>= \ firstname ->
-        getLastName >>= \ lastname ->
-            greetUser firstname lastname
-
-main = do
-    firstname <- getFirstName
-    lastname  <- getLastName
-    greetUser firstname lastname
-\end{code}
-\end{onlyenv}
-\end{minipage}
-\end{center}
+  firstname <- getFirstName
+  lastname <- getLastName
+  greetUser firstname lastname
+  \end{code}
 \end{frame}
 
 \begin{frame}
-\frametitle{Recap}
-\begin{itemize}
-\item typeclasses to extend our data types
-\item typeclasses to express type constraints
-\item monadic operators to chain contextual functions
-\item do notation to use IO
-\end{itemize}
+  \frametitle{The power of monads}
+  \begin{itemize}[<+->]
+    \item Programmable semicolon
+    \item Welcome to Haskell. We have:
+      \begin{itemize}[<+->]
+        \item optional chaining     (using \ic{>>=}/monads)
+        \item input/output          (using \ic{>>=}/monads)
+        \item multithreading        (using \ic{>>=}/monads)
+        \item error handling        (using \ic{>>=}/monads)
+        \item mutable state         (using \ic{>>=}/monads)
+        \item list comprehension    (using \ic{>>=}/monads)
+        \item randomness            (using \ic{>>=}/monads)
+        \item async/await           (using \ic{>>=}/monads)
+      \end{itemize}
+  \end{itemize}
 \end{frame}
-
 
 \begin{frame}
   \frametitle{The end of the theoretical part!}
@@ -1282,29 +1660,49 @@ main = do
 \end{frame}
 
 
-%% Links
+% Links
 
 \begin{frame}
   \frametitle{Links}
   \begin{itemize}
-  \item \href{http://go/haskell-beginners-chat}{go/haskell-beginners-chat}
-  \item \href{http://go/haskell-102-slides-mtv}{go/haskell-102-slides-mtv}
-  \item \href{http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html}{adit.io} (functors, applicatives, and monads in pictures)
-  \item \href{http://dev.stephendiehl.com/hask/}{dev.stephendiehl.com/hask/} (what I wish I knew)
-  \item \href{https://www.forbes.com/sites/quora/2018/07/27/why-purely-functional-programming-is-a-great-idea-with-a-misleading-name/}{Forbes - Why Purely Functional Programming Is A Great Idea With A Misleading Name}
+    \item \href{http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html}{adit.io} (functors, applicatives, and monads in pictures)
+    \item \href{http://dev.stephendiehl.com/hask/}{dev.stephendiehl.com/hask/} (what I wish I knew)
+    \item \href{https://www.forbes.com/sites/quora/2018/07/27/why-purely-functional-programming-is-a-great-idea-with-a-misleading-name/}{Forbes - Why Purely Functional Programming Is A Great Idea With A Misleading Name}
   \end{itemize}
 \end{frame}
 
-%% Codelab
 
-\section{Codelab - Sections 3, 4, and 5}
+\section{Codelab - part 3}
 
 \begin{frame}
-  \frametitle{Codelab - Sections 3, 4, and 5}
-  \begin{itemize}
-    \item Codelab - Sections 3, 4, and 5
-  \end{itemize}
+  \frametitle{Codelab :: Section 4}
+  \begin{description}
+    \item[directory]: \ic{01_mastermind/}
+    \item[change]: \ic{src/Code.hs} \\
+      (replace \ic{codelab} with implementation)
+    \item[check with]: \ic{make ARGS="check 4"}
+  \end{description}
 \end{frame}
+
+\begin{frame}
+  \frametitle{Codelab :: Section 5}
+  \begin{description}
+    \item[directory]: \ic{01_mastermind/}
+    \item[change]: \ic{src/Do.hs} \\
+      (replace \ic{codelab} with implementation)
+    \item[check with]: \ic{make ARGS="check 5"}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Codelab :: The game}
+  \begin{description}
+    \item[directory]: \ic{01_mastermind/}
+    \item[play]: \ic{make ARGS=play}
+    \item[solve (AI)]: \ic{make ARGS=solve}
+  \end{description}
+\end{frame}
+
 
 \section{The end}
 
