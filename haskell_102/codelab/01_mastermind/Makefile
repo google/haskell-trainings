@@ -31,6 +31,6 @@ clean:
 #
 
 $(TOOL):
-	@([[ -e `which stack` ]] && echo stack > $(TOOL) || true)
-	@([[ -s $(TOOL) ]] || ([[ -e `which cabal` ]] && echo cabal > $(TOOL)) || true)
-	@([[ -s $(TOOL) ]] || (cat setup.md && false))
+	@(test -e `which stack` && echo stack > $(TOOL) || true)
+	@(test -s $(TOOL) || (test -e `which cabal` && echo cabal > $(TOOL)) || true)
+	@(test -s $(TOOL) || (cat setup.md && false))
