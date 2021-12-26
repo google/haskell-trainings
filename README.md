@@ -26,12 +26,23 @@ sudo apt-get install texlive-xetex texlive-fonts-extra fonts-yanone-kaffeesatz
 
 ### Exercises
 
-The codelabs only require ghc to be installed and in the path. Please read
-Codelab.hs and follow the instructions!
+The codelabs only require ghc to be installed and in the path as well as one of
+Stack or Cabal. Running `make` in each codelab directory will identify which of
+the tool is installed and use that to build the exercises as well as run the
+test.
+
+To solve an exercise, you need to replace `codelab` with the actual
+implementation. For the 101 course, each different codelab directory (except
+`00_setup` which is only used to test installation) has a `src/Codelab.hs` where
+you would need to do the exercises. For the 102 course, all the exercises are in
+the same directory in multiple files, given that we are building a full project.
+Consult the slides for instructions on how to run each codelab.
+
+We also provide solutions, in the same directory as the corresponding exercise.
 
 ### Recordings
 
-Public recordings of the training are available: [Haskell
+Public recordings of the training (in an old format) are available: [Haskell
 101](http://youtu.be/cTN1Qar4HSw), [Haskell
 102](http://youtu.be/Ug9yJnOYR4U).
 
