@@ -50,14 +50,14 @@ check x = case IntMap.lookup x testMap of
 -- results of all tests from there
 doCheck :: String -> Tests -> IO ()
 doCheck file tests = do
-  putStr "Checking code from " >> putStrLn file
+  putStr "\n\nChecking code from " >> putStrLn file
   Internal.check tests
 
 -- If user supplies invalid arguments, we should print the valid arguments and
 -- the files under test
 noSuchSection :: IO ()
 noSuchSection = do
-  putStrLn "Requested invalid section. Available sections are:"
+  putStrLn "\n\nRequested invalid section. Available sections are:"
   mapM_ displaySection $ IntMap.toAscList testMap
   where
     displaySection (k, (f, _)) = printf "\t%d -> %s\n" k f
