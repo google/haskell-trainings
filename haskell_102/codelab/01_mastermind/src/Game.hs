@@ -99,6 +99,7 @@ computerInput size _ hist = return $ naiveSolver size hist
 
 play :: Code -> Int -> Input -> IO ()
 play answer maxTurn input = do
+  putStrLn "\n"
   putStrLn $ "Valid colors: "       ++ show allColors
   putStrLn $ "Size of the answer: " ++ show (length answer)
   putStrLn $ "Number of tries: "    ++ show maxTurn
