@@ -1,26 +1,35 @@
 version: '3'
 services:
-  codelab_test:
+  setup:
     build: .
     image: haskell102:latest
-    command: "./test_codelab"
-  codelab_play:
+    command: make -C 00_setup
+  section_1:
     build: .
     image: haskell102:latest
-    command: "./codelab play"
-  codelab_solve:
+    command: make -C 01_mastermind ARGS="check 1"
+  section_2:
     build: .
     image: haskell102:latest
-    command: "./codelab solve"
-  solution_test:
+    command: make -C 01_mastermind ARGS="check 2"
+  section_3:
     build: .
     image: haskell102:latest
-    command: "./test_solution"
-  solution_play:
+    command: make -C 01_mastermind ARGS="check 3"
+  section_4:
     build: .
     image: haskell102:latest
-    command: "./solution play"
-  solution_solve:
+    command: make -C 01_mastermind ARGS="check 4"
+  section_5:
     build: .
     image: haskell102:latest
-    command: "./solution solve"
+    command: make -C 01_mastermind ARGS="check 5"
+  play:
+    build: .
+    image: haskell102:latest
+    command: make -C 01_mastermind ARGS=play
+    tty: true
+  solve:
+    build: .
+    image: haskell102:latest
+    command: make -C 01_mastermind ARGS=solve

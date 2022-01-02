@@ -1,6 +1,31 @@
 version: '3'
 services:
-  haskell101:
+  00_setup:
     build: .
     image: haskell101:latest
-    command: "./codelab"
+    command: make -C 00_setup
+  01_functions:
+    build: .
+    image: haskell101:latest
+    command: make -C 01_functions
+  02_datatypes:
+    build: .
+    image: haskell101:latest
+    command: make -C 02_datatypes
+  03_lists:
+    build: .
+    image: haskell101:latest
+    command: make -C 03_lists
+  04_abstractions:
+    build: .
+    image: haskell101:latest
+    command: make -C 04_abstractions
+  05_maybe:
+    build: .
+    image: haskell101:latest
+    command: make -C 05_maybe
+  06_rps:
+    build: .
+    image: haskell101:latest
+    command: make -C 06_rps
+    tty: true

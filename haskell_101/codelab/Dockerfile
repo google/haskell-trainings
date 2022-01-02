@@ -1,10 +1,7 @@
 # Using haskell:8 instead of latest due to deprecation warnings
 # on cabal
 FROM haskell:8
-WORKDIR /codelab
+WORKDIR .
 
 # Copy all source files into container
 COPY . .
-
-# Build codelab binary
-RUN make codelab
