@@ -27,9 +27,14 @@ sudo apt-get install texlive-xetex texlive-fonts-extra fonts-yanone-kaffeesatz
 ### Exercises
 
 The codelabs only require ghc to be installed and in the path as well as one of
-Stack or Cabal. Running `make` in each codelab directory will identify which of
-the tool is installed and use that to build the exercises as well as run the
-test.
+Stack or Cabal. Step-by-step instructions will be provided to guide you through
+the installation process, at the point where these tools will be necessary. 
+In case you already have them installed, running `make` in each codelab
+directory will identify which of the tool is installed and use that to build
+the exercises as well as run the test.
+
+There is also a possiblity to run the codelabs using Docker. See the instructions
+in the codelab directories.
 
 To solve an exercise, you need to replace `codelab` with the actual
 implementation. For the 101 course, each different codelab directory (except
