@@ -1,31 +1,44 @@
 version: '3'
+
+x-haskell-docker-setup: &generic-haskell-runtime
+  image: google/haskell-trainings
+  build: .
+
+# When setting the CLI mode, run the command docker-compose run SERVICE_NAME
+# https://stackoverflow.com/questions/36249744/interactive-shell-using-docker-compose/36265910#36265910 
+# Run with docker-compose run SERVICE
+# MUST ENABLE IT IN THE SERVICE BELOW
+x-docker-cli-mode: &docker-cli-mode
+  entrypoint: /bin/sh -c
+  command: bash
+
 services:
+
   00_setup:
-    build: .
-    image: haskell101:latest
+    <<: [ *generic-haskell-runtime ]
+    #<<: [ *docker-cli-mode ]
     command: make -C 00_setup
+
   01_functions:
-    build: .
-    image: haskell101:latest
+    <<: [ *generic-haskell-runtime ]
     command: make -C 01_functions
+
   02_datatypes:
-    build: .
-    image: haskell101:latest
+    <<: [ *generic-haskell-runtime ]
     command: make -C 02_datatypes
+
   03_lists:
-    build: .
-    image: haskell101:latest
+    <<: [ *generic-haskell-runtime ]
     command: make -C 03_lists
+
   04_abstractions:
-    build: .
-    image: haskell101:latest
+    <<: [ *generic-haskell-runtime ]
     command: make -C 04_abstractions
+
   05_maybe:
-    build: .
-    image: haskell101:latest
+    <<: [ *generic-haskell-runtime ]
     command: make -C 05_maybe
+
   06_rps:
-    build: .
-    image: haskell101:latest
+    <<: [ *generic-haskell-runtime ]
     command: make -C 06_rps
-    tty: true
