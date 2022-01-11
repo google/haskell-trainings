@@ -12,6 +12,11 @@ x-docker-cli-mode: &docker-cli-mode
   entrypoint: /bin/sh -c
   command: bash
 
+####
+#### you can execute the code as follows:
+#### 
+####      docker-compose up --build 0x_yyyyy 
+####
 services:
 
   00_setup:
@@ -25,6 +30,8 @@ services:
 
   02_datatypes:
     <<: [ *generic-haskell-runtime ]
+    # You can run in CLI mode with "docker-compose run 02_datatypes"
+    #<<: [ *docker-cli-mode ]
     command: make -C 02_datatypes
 
   03_lists:
