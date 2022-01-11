@@ -14,41 +14,62 @@ x-haskell-docker-setup: &generic-haskell-runtime
 x-docker-cli-mode: &docker-cli-mode
   entrypoint: /bin/sh -c
   command: bash
+  # When running within the container, make sure to mount the current dir. 
+  # This will allow persisting updates to any code of the dir from within the container.
+  volumes:
+    - .:/google/trainings/haskell-101
 
 ####
 #### you can execute the code as follows:
 #### 
 ####      docker-compose up --build 0x_yyyyy 
+#### 
+#### or execute a terminal by commenting out the "command" instruction and using the docker-cli-mode one. then:
+####
+####      docker-compose run 0x_yyyyy
+####
+####   NOTE: this execution is the same for any of the services defined
 ####
 services:
 
   00_setup:
     <<: [ *generic-haskell-runtime ]
+    # You can run in CLI mode with "docker-compose run 00_setup". Un-comment the following line and comment the "command" instruction below
     #<<: [ *docker-cli-mode ]
     command: make -C 00_setup
 
   01_functions:
     <<: [ *generic-haskell-runtime ]
+    # You can run in CLI mode with "docker-compose run 01_functions". Un-comment the following line and comment the "command" instruction below
+    #<<: [ *docker-cli-mode ]
     command: make -C 01_functions
 
   02_datatypes:
     <<: [ *generic-haskell-runtime ]
-    # You can run in CLI mode with "docker-compose run 02_datatypes"
+    # You can run in CLI mode with "docker-compose run 02_datatypes". Un-comment the following line and comment the "command" instruction below
     #<<: [ *docker-cli-mode ]
     command: make -C 02_datatypes
 
   03_lists:
     <<: [ *generic-haskell-runtime ]
+    # You can run in CLI mode with "docker-compose run 03_lists". Un-comment the following line and comment the "command" instruction below
+    #<<: [ *docker-cli-mode ]
     command: make -C 03_lists
 
   04_abstractions:
     <<: [ *generic-haskell-runtime ]
+    # You can run in CLI mode with "docker-compose run 04_abstractions". Un-comment the following line and comment the "command" instruction below
+    #<<: [ *docker-cli-mode ]
     command: make -C 04_abstractions
 
   05_maybe:
     <<: [ *generic-haskell-runtime ]
+    # You can run in CLI mode with "docker-compose run 05_maybe". Un-comment the following line and comment the "command" instruction below
+    #<<: [ *docker-cli-mode ]
     command: make -C 05_maybe
 
   06_rps:
     <<: [ *generic-haskell-runtime ]
+    # You can run in CLI mode with "docker-compose run 06_rps". Un-comment the following line and comment the "command" instruction below
+    #<<: [ *docker-cli-mode ]
     command: make -C 06_rps
