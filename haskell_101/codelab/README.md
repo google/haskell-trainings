@@ -8,8 +8,13 @@ To setup your machine please consult [the official haskell website](https://www.
 
 To run the tests just run `make` in each of the directories. The special `00_setup` directory is only used for testing the environment, but all others contain exercises to resolve.
 
+### From local haskell
+
+> **NOTE**: You must make sure your setup is working locally.
+
 For each of the exercises, replace `codelab` with your implementation. When complete, running `make` would result in an output similar to below:
-```
+
+```console
 add       1 2                             OK got: 3
 subtract  7 2                             OK got: 5
 double    3                               OK got: 6
@@ -21,45 +26,63 @@ gcd       12 4                            OK got: 4
 gcd       17 7                            OK got: 1
 ```
 
-If you are using the docker container, build and run the tests run with `docker-compose run <directory>` (without the trailing slash). For example, for `docker-compose run 01-functions`, you should see output similar to below:
-```
-Creating network "codelab_default" with the default driver
-Building 01_functions
-Step 1/3 : FROM haskell:8
-8: Pulling from library/haskell
-9b99af5931b3: Pull complete
-580a548160a1: Pull complete
-5d8e6deeb485: Pull complete
-70b0645032d3: Pull complete
-03b69c8eaa80: Pull complete
-Digest: sha256:d26c7a6853190096137361cfe65f5b7fc6e69ec4660ffb9583ec323e85b524e6
-Status: Downloaded newer image for haskell:8
- ---> 3baac1927856
-Step 2/3 : WORKDIR .
- ---> Running in 7b9c08684455
-Removing intermediate container 7b9c08684455
- ---> bd1bd24a236d
-Step 3/3 : COPY . .
- ---> 5012253dbb4f
+## Using a docker container
 
-Successfully built 5012253dbb4f
-Successfully tagged haskell101:latest
-Creating codelab_01_functions_run ... done
-make: Entering directory '/01_functions'
+If you are using the docker, build and run the tests run with `docker-compose up _EXERCISE_NAME_`. For example, for `docker-compose run 01-functions` runs the exercise `01-functions`, defined as a docker-compose service `01-functions` you should see output similar to below:
+
+> **NOTE**: the following output is longer the first time of the execution as the docker image is first created before docker-compose spawns a new docker container to execute the tests.
+
+```console
+$ docker-compose up 01_functions
+Starting codelab_01_functions_1 ... done
+Attaching to codelab_01_functions_1
+01_functions_1     | make: Entering directory '/google/trainings/haskell-101/01_functions'
+01_functions_1     | Completed 3 action(s).
+01_functions_1     | add       1 2                             OK got: 3
+01_functions_1     | subtract  7 2                             OK got: 5
+01_functions_1     | double    3                               OK got: 6
+01_functions_1     | multiply  3 11                            OK got: 33
+01_functions_1     | divide    9 2                             OK got: 4.5
+01_functions_1     | divide    8 4                             OK got: 2.0
+01_functions_1     | factorial 30                              OK got: 265252859812191058636308480000000
+01_functions_1     | gcd       12 4                            OK got: 4
+01_functions_1     | gcd       17 7                            OK got: 1
+01_functions_1     | make: Leaving directory '/google/trainings/haskell-101/01_functions'
+codelab_01_functions_1 exited with code 0
+```
+
+## From within a Docker Container
+
+* Running within a docker container means you have full access to haskell, stack, cabal, etc.
+
+> **NOTE**: this requires an update of docker-compose.yaml for the current version.
+
+```diff
+   03_lists:
+     <<: [ *generic-haskell-runtime ]
+-    #<<: [ *docker-cli-mode ]
+-    command: make -C 03_lists
++    <<: [ *docker-cli-mode ]
++    #command: make -C 03_lists
+```
+
+* Create a new container attached to the terminal
+
+> **NOTE**: The built docker image has `vim`, which will allows you to edit files 
+> from within the docker container and reflect when the container is terminated.
+
+```console
+$ docker-compose run 03_lists
+Creating codelab_03_lists_run ... done
+root@9bc17a3fe02a:/google/trainings/haskell-101# ghci --version
+The Glorious Glasgow Haskell Compilation System, version 8.10.7
+root@9bc17a3fe02a:/google/trainings/haskell-101# cd 03_lists/
+root@9bc17a3fe02a:/google/trainings/haskell-101/03_lists# vim src/
+Codelab.hs   Internal.hs  Main.hs      Solution.hs
+root@9bc17a3fe02a:/google/trainings/haskell-101/03_lists# vim src/Codelab.hs
+root@9bc17a3fe02a:/google/trainings/haskell-101/03_lists# stack run
+codelab> configure (exe)
+Configuring codelab-0.1.0.0...
 ...
-Completed 3 action(s).
-add       1 2                             OK got: 3
-subtract  7 2                             OK got: 5
-double    3                               OK got: 6
-multiply  3 11                            OK got: 33
-divide    9 2                             OK got: 4.5
-divide    8 4                             OK got: 2.0
-factorial 30                              OK got: 265252859812191058636308480000000
-gcd       12 4                            OK got: 4
-gcd       17 7                            OK got: 1
-make: Leaving directory '/01_functions'
+...
 ```
-
-Running the first time would result in downloading and compiling needed dependencies (omitted from the above screen output).
-
-When done, you can cleanup Docker services with `docker-compose down`.
