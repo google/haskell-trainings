@@ -13,9 +13,9 @@ RUN --mount=type=bind,target=/docker-context \
     find . -type f \( -iname \*.cabal -o -iname \*.yaml\* \) -mindepth 0 -maxdepth 2 \
          -exec cp --parents "{}" /google/trainings/haskell/cabal/ \;
 
-FROM registry.gitlab.com/supercash/core/haskell-stack-base:stack-2.7.3_haskell-8.10.7_13057207-master
+FROM haskell:8.10.7
 
-WORKDIR /google/trainings/haskell
+WORKDIR /google/trainings/haskell-101
 
 # Copy all cabal dependencies files only, fetched from docker-context
 COPY --from=dependencies /google/trainings/haskell/cabal .
