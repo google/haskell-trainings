@@ -15,6 +15,10 @@ RUN --mount=type=bind,target=/docker-context \
 
 FROM haskell:8.10.7
 
+# Add vim to enable users to edit files locally while running within a container
+RUN apt-get update && \
+     apt-get install -y vim
+
 WORKDIR /google/trainings/haskell-101
 
 # Copy all cabal dependencies files only, fetched from docker-context
