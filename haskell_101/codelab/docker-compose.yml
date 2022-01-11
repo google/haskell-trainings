@@ -3,6 +3,9 @@ version: '3'
 x-haskell-docker-setup: &generic-haskell-runtime
   image: google/haskell-trainings
   build: .
+  # Preserve terminal colors when running containers
+  # https://github.com/docker/compose/issues/2231#issuecomment-425135985
+  tty: yes
 
 # When setting the CLI mode, run the command docker-compose run SERVICE_NAME
 # https://stackoverflow.com/questions/36249744/interactive-shell-using-docker-compose/36265910#36265910 
