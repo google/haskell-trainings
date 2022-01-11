@@ -24,9 +24,6 @@ BUILD_GENERATED = dist dist-newstyle .stack-work stack.yaml.lock $(TOOL) $(REPL)
 repl: $(REPL)
 	@`cat $(REPL)` :$(TARGET)
 
-###
-### Just cache the dependencies when running the builds
-###
 deps: $(TOOL)
 	@`cat $(TOOL)` build --dependencies-only $(TARGET)
 
