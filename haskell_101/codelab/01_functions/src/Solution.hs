@@ -63,7 +63,7 @@ factorial n =
 
 -- Consider Euclid's algorithm:
 --
---   https://en.wikipedia.org/wiki/Greatest_common_divisor#Euclid's_algorithm
+--   https://en.wikipedia.org/wiki/Greatest_common_divisor#Using_Euclid's_algorithm
 gcd :: Int -> Int -> Int
 gcd a b
   | a == b = a
