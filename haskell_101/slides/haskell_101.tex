@@ -21,7 +21,7 @@
 % \usepackage[11-30]{pagesel}
 
 \title{Haskell 101}
-\author{mihaimaruseac@, ibobyr@, nicuveo@}
+\author{pravnar@, javran@, mihaimaruseac@, ibobyr@, nicuveo@}
 %\institute{Google}
 \date{\small\today}
 
@@ -134,7 +134,7 @@ cd 00_setup && make
   \frametitle{What is Haskell?}
   \({c}
   \<{.5\textwidth}
-  A programing language
+  A programming language
   \begin{center}
     \begin{itemize}[<+->]
     \item General purpose
@@ -310,7 +310,7 @@ in baseValue + offset
   \begin{itemize}
     \item<1-> Do we have variables?
     \item<4-> {\color{google-r}No}: Everything is immutable
-    \item<5-> No side effects\alt<6>{ \type{unless explicitly stated}}{!}
+    \item<6-> No side effects\alt<7>{ \type{unless explicitly stated}}{!}
   \end{itemize}
   \end{minipage}
   \begin{minipage}[c][.5\textheight]{\textwidth}
@@ -331,21 +331,30 @@ in  a = a + 1
 3 = 4 -- this is (*\color{google-r}{bad}*)
       \end{code}
     \end{onlyenv}
-    \begin{onlyenv}<4>
+    \begin{onlyenv}<4-5>
       \begin{code}
 let a = 3
 in  a = a + 1 -- compile error
       \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<4>
       \begin{code}[eval]
 3 = 4 -- compile error
       \end{code}
     \end{onlyenv}
     \begin{onlyenv}<5>
       \begin{code}
-numberToWords :: (*\type{Int}*) -> String
+let a = 3
+    b = a + 1
+in b -- this is ok
       \end{code}
     \end{onlyenv}
     \begin{onlyenv}<6>
+      \begin{code}
+numberToWords :: (*\type{Int}*) -> String
+      \end{code}
+    \end{onlyenv}
+    \begin{onlyenv}<7>
       \begin{code}
 numberToWords :: (*\type{Int}*) -> String
 readFile :: String -> IO String
@@ -537,7 +546,7 @@ if (obj != nullptr && obj->value > 0)
       \item<1-> Untyped
       \item<2-> Dynamically typed
       \item<3-> Statically typed
-      \item<4-> Haskell: strongly statically typed, typed inference
+      \item<4-> Haskell: strongly statically typed with type inference
     \end{itemize}
   \end{minipage}
   \begin{minipage}[c][.4\textheight]{\textwidth}
@@ -636,7 +645,7 @@ Prelude> :t (anInt, aDouble)
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Polimorphism}
+  \frametitle{Polymorphism}
   \begin{minipage}[t][.2\textheight]{\textwidth}
     \begin{itemize}
       \item<1-> What is the type of \ic{length} below?
