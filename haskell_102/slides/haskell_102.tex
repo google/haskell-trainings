@@ -21,7 +21,7 @@
 % \usepackage[163-180]{pagesel}
 
 \title{Haskell 102}
-\author{mihaimaruseac@, ibobyr@, nicuveo@}
+\author{pravnar@, javran@, mihaimaruseac@, ibobyr@, nicuveo@}
 %\institute{Google}
 \date{\small\today}
 
@@ -233,7 +233,7 @@ data [(*\tvar{a}*)]     = [] | ((*\tvar{a}*):[(*\tvar{a}*)])
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{"Deconstructors" and pattern matching}
+  \frametitle{``Deconstructors'' and pattern matching}
   \begin{center}
     \begin{uncoverenv}<1->
       \begin{code}
@@ -1067,12 +1067,12 @@ Just (3+)  <*>   Just 39 = Just 42
       \path[draw] (a1.south) -- (a3.north);
       \node[sqr, right of=a1, node distance=3cm] (b1) {\icwtv{4}};
       \node[sqr, below left of=b1] (b2) {\icwtv{4}};
-      \node[sqr, below right of=b1] (b3) {\icwtv{0}};
+      \node[sqr, below right of=b1] (b3) {\icwtv{9}};
       \path[draw] (b1.south) -- (b2.north);
       \path[draw] (b1.south) -- (b3.north);
       \node[sqr, left of=a1, node distance=4cm] (f1) {\icwtv{(*4)}};
       \node[sqr, below left of=f1] (f2) {\icwtv{(+2)}};
-      \node[sqr, below right of=f1] (f3) {\icwtv{(-3)}};
+      \node[sqr, below right of=f1] (f3) {\icwtv{(^2)}};
       \path[draw] (f1.south) -- (f2.north);
       \path[draw] (f1.south) -- (f3.north);
       \node[below of=a1, node distance=2cm] {\icwtv{Tree Int}};
@@ -1093,31 +1093,31 @@ Just (3+)  <*>   Just 39 = Just 42
   \begin{onlyenv}<1-2>
   \begin{code}
 data ZipList a = ZipList [a]
-funs = ZipList [(+1), (-1)]
+funs = ZipList [(+1), (^2)]
 vals = ZipList [2, 3, 4]
-funs <*> vals = ZipList [3, 2]
+funs <*> vals = ZipList [3, 9]
   \end{code}
   \end{onlyenv}
   \begin{onlyenv}<2>
   \begin{code}
 data AllList a = AllList [a]
-funs = AllList [(+1), (-1)]
+funs = AllList [(+1), (^2)]
 vals = AllList [2, 3, 4]
-funs <*> vals = AllList [3, 4, 5, 1, 2, 3]
+funs <*> vals = AllList [3, 4, 5, 4, 9, 16]
   \end{code}
   \end{onlyenv}
   \begin{onlyenv}<3>
   \begin{code}
 newtype ZipList a = ZipList [a] -- newtype vs data
-funs = ZipList [(+1), (-1)]
+funs = ZipList [(+1), (^2)]
 vals = ZipList [2, 3, 4]
-funs <*> vals = ZipList [3, 2]
+funs <*> vals = ZipList [3, 9]
   \end{code}
   \begin{code}
 -- [(*\tvar{a}*)] for cartesian product
-funs = [(+1), (-1)]
+funs = [(+1), (^2)]
 vals = [2, 3, 4]
-funs <*> vals = [3, 4, 5, 1, 2, 3]
+funs <*> vals = [3, 4, 5, 4, 9, 16]
   \end{code}
   \end{onlyenv}
 \end{frame}
@@ -1607,7 +1607,7 @@ getNextOfKinPhoneNumber uid =
     \begin{code}
 getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
 getNextOfKinPhoneNumber uid = do
-  user <- getUser
+  user <- getUser uid
   nextOfKinId <- getNextOfKin user
   nextOfKinUser <- getUser nextOfKinId
   getPhoneNumber nextOfKinUser
@@ -1620,7 +1620,7 @@ getNextOfKinPhoneNumber uid = do
   \begin{code}
 getNextOfKinPhoneNumber :: (*\type{Id}*) -> (*\type{Maybe}*) (*\type{PhoneNumber}*)
 getNextOfKinPhoneNumber uid = do
-  user <- getUser
+  user <- getUser uid
   nextOfKinId <- getNextOfKin user
   nextOfKinUser <- getUser nextOfKinId
   getPhoneNumber nextOfKinUser
@@ -1650,6 +1650,83 @@ main = do
         \item async/await           (using \ic{>>=}/monads)
       \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Bonus: the power of monads}
+  \begin{onlyenv}<1-9>
+    \begin{center}
+      \pc{mapM :: \icwtv{(Monad m) => (a -> m b) -> [a] -> m [b]}\\}
+    \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<2-3>
+    \begin{code}
+div2 :: Int -> Maybe Int
+div2 x
+  | even x    = Just (x `div` 2)
+  | otherwise = Nothing
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \begin{code}[eval]
+Prelude> mapM div2 [2,4,6,8]
+Just [1,2,3,4]
+Prelude> mapM div2 [2,3,4,5]
+Nothing
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<4-5>
+    \begin{code}
+div2 :: Int -> Either String Int
+div2 x
+  | even x    = Right (x `div` 2)
+  | otherwise = Left ("Odd: " ++ show x)
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<5>
+    \begin{code}[eval]
+Prelude> mapM div2 [2,4,6,8]
+Right [1,2,3,4]
+Prelude> mapM div2 [2,3,4,5]
+Left "Odd: 3"
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<6-7>
+    \begin{code}
+div2 :: Int -> IO Int
+div2 x
+  | even x    = return (x `div` 2)
+  | otherwise = putStrLn ("Odd: " ++ show x) >>
+                return 0
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<7>
+    \begin{code}[eval]
+Prelude> mapM div2 [2,4,6,8]
+[1,2,3,4]
+Prelude> mapM div2 [2,3,4,5]
+Odd: 3
+Odd: 5
+[1,0,2,0]
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<8-9>
+    \begin{code}
+div2 :: Int -> Writer [String] Int
+div2 x
+  | even x    = return (x `div` 2)
+  | otherwise = tell ["Odd: " ++ show x] >>
+                return 0
+    \end{code}
+  \end{onlyenv}
+  \begin{onlyenv}<9>
+    \begin{code}[eval]
+Prelude> mapM div2 [2,4,6,8]
+WriterT (Identity ([1,2,3,4],[]))
+Prelude> mapM div2 [2,3,4,5]
+WriterT (Identity ([1,0,2,0],["Odd: 3","Odd: 5"]))
+    \end{code}
+  \end{onlyenv}
 \end{frame}
 
 \begin{frame}
